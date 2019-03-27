@@ -1,0 +1,3 @@
+include LICENCE.txt
+include doc/README.txt
+include etc/99-gpio.rules
