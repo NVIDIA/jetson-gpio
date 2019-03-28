@@ -40,7 +40,16 @@ following:
               Configuring the system and running sample scripts
 --------------------------------------------------------------------------------
 
-To add Jetson.GPIO to your PYTHONPATH, install using the setup.py file
+Please download this repo and unzip it into /opt/nvidia if it does not exist
+already.
+        sudo unzip <path_to_zip_file> -d /opt/nvidia/
+
+The name of the zip is likely incorrect if downloaded from github. It should be
+named 'jetson-gpio'.
+        mv /opt/nvidia/jetson-gpio-master /opt/nvidia/jetson-gpio
+
+Optionally, to add Jetson.GPIO to your PYTHONPATH, install using the setup.py 
+file
         sudo python3 setup.py install
 or pip3
         sudo pip3 install Jetson.GPIO
@@ -55,10 +64,6 @@ Create a new gpio user group. Then add your user to the newly created group.
 Install custom udev rules by copying the 99-gpio.rules file into the rules.d
 directory:
         sudo cp /opt/nvidia/jetson-gpio/etc/99-gpio.rules /etc/udev/rules.d/
-
-If you do not have the 99-gpio.rules file (from using pip3 install), you can
-download it here:
-        https://github.com/NVIDIA/jetson-gpio
 
 Please note that for the new rule to take place, you may either need to reboot
 or reload the udev rules by issuing this command:
@@ -96,8 +101,17 @@ application:
    application slowly blinks the first LED continuously and rapidly blinks the
    second LED five times only when the button is pressed.
 
-To run these sample applications:
+To run these sample applications if Jetson.GPIO is added to the PYTHONPATH:
         python3 <name_of_application_to_run>
+
+Alternatively, if Jetson.GPIO is not added to the PYTHONPATH, the run_sample.sh
+script can be used to run these sample applications. This can be done with the
+following command when in the samples/ directory:
+        ./run_sample.sh <name_of_application_to_run>
+
+The usage of the script can also be viewed by using:
+        ./run_sample.sh -h
+        ./run_sample.sh --help
 
 --------------------------------------------------------------------------------
                            Complete library API
