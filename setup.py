@@ -29,8 +29,8 @@ classifiers = ['Operating System :: POSIX :: Linux',
                'Topic :: System :: Hardware']
 
 setup(name                          = 'Jetson.GPIO',
-      version                       = '0.1.2',
-      author                        = 'Andy Tan',
+      version                       = '0.1.3',
+      author                        = 'NVIDIA',
       author_email                  = 'linux-tegra-bugs@nvidia.com',
       description                   = 'A module to control Jetson GPIO channels',
       long_description              = open('README.md').read(),
@@ -41,5 +41,4 @@ setup(name                          = 'Jetson.GPIO',
       classifiers                   = classifiers,
       package_dir                   = {'': 'lib/python/'},
       packages                      = ['Jetson', 'Jetson.GPIO', 'RPi', 'RPi.GPIO'],
-      )
-
+)
