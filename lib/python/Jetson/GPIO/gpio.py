@@ -41,8 +41,9 @@ TEGRA_SOC = 'TEGRA_SOC'
 CVM = 'CVM'
 _MODE_UNKNOWN = None
 
-# The constants and their offsets are implemented to prevent HIGH from being used
-# in place of other variables (ie. HIGH and RISING should not be interchangeable)
+# The constants and their offsets are implemented to prevent HIGH from being
+# used in place of other variables (ie. HIGH and RISING should not be
+# interchangeable)
 
 # Pull up/down options
 PUD_OFF = 20
@@ -65,6 +66,7 @@ _EDGE_OFFSET = -10
 _UNEXPORTED = ''
 OUT = 'out'
 IN = 'in'
+
 
 # check jetson model and prepare lookup table accordingly
 def get_model(model_path='/proc/device-tree/model'):
@@ -105,11 +107,13 @@ _gpio_warnings = True
 _gpio_mode = _MODE_UNKNOWN
 _gpio_direction = {}
 
+
 # Function used to enable/disable warnings during setup and cleanup.
 # Param -> state is a bool
 def setwarnings(state):
     global _gpio_warnings
     _gpio_warnings = bool(state)
+
 
 # Function used to set the pin mumbering mode. Possible mode values are BOARD,
 # BCM, TEGRA_SOC and CVM
@@ -127,9 +131,11 @@ def setmode(mode):
     _pin_to_gpio = _pin_mapping[mode]
     _gpio_mode = mode
 
+
 # Function used to get the currently set pin numbering mode
 def getmode():
     return _gpio_mode
+
 
 # Function used to setup individual pins or lists/tuples of pins as
 # Input or Output. Param channels must an integer or list/tuple of integers,
@@ -144,7 +150,7 @@ def setup(channels, direction, pull_up_down=PUD_OFF, initial=None):
         # check if all values in the iterable is an int
         if not all(isinstance(x, int) for x in channels):
             raise ValueError("Channel must be an integer or list/tuple of"
-                              "integers")
+                             "integers")
     elif _gpio_mode == TEGRA_SOC or _gpio_mode == CVM:
         # check if all values in the iterable is a string
         if not all(isinstance(x, str) for x in channels):
@@ -215,6 +221,7 @@ def _setup_single_out(channel, initial=None):
 
     _gpio_direction[gpio] = OUT
 
+
 def _setup_single_in(channel, pull_up_down=PUD_OFF):
     gpio = _get_gpio_number(channel)
     func = gpio_function(channel)
@@ -235,9 +242,11 @@ def _setup_single_in(channel, pull_up_down=PUD_OFF):
 
     _gpio_direction[gpio] = IN
 
+
 # Function used to cleanup channels at the end of the program.
 # The param channel can be an integer or list/tuple of integers specifying the
-# channels to be cleaned up. If no channel is provided, all channels are cleaned
+# channels to be cleaned up. If no channel is provided, all channels are
+# cleaned
 def cleanup(channel=None):
     # warn if no channel is setup
     if _gpio_mode == _MODE_UNKNOWN:
@@ -263,6 +272,7 @@ def cleanup(channel=None):
         raise ValueError("Channel must be an integer/string or list/tuple of "
                          "integers/strings")
 
+
 def _cleanup_one(channel):
     gpio = _get_gpio_number(channel)
     if gpio is not None or _check_pin_setup(gpio) is not None:
@@ -270,6 +280,7 @@ def _cleanup_one(channel):
         del _gpio_direction[gpio]
         event.event_cleanup(gpio)
         _unexport_gpio(gpio)
+
 
 def _cleanup_all():
     global _gpio_mode
@@ -279,6 +290,7 @@ def _cleanup_all():
             _cleanup_one(channel)
 
     _gpio_mode = _MODE_UNKNOWN
+
 
 # Function used to return the current value of the specified channel.
 # Function returns either HIGH or LOW
@@ -291,6 +303,7 @@ def input(channel):
     with open(_SYSFS_ROOT + "/gpio%i" % gpio + "/value") as value:
         value_read = int(value.read())
         return value_read
+
 
 # Function used to set a value to a channel or list/tuple of channels.
 # Parameter channels must be an integer or list/tuple of integers.
@@ -337,8 +350,10 @@ def output(channels, values):
     else:
         raise ValueError("Value must not be empty")
 
+
 def _check_pin_setup(gpio):
     return _gpio_direction.get(gpio, None)
+
 
 def _make_iterable(iterable):
     try:
@@ -352,6 +367,7 @@ def _make_iterable(iterable):
 
     return iterable
 
+
 def _output_one(channel, value):
     gpio = _get_gpio_number(channel)
     value = int(value)
@@ -362,12 +378,14 @@ def _output_one(channel, value):
         value = str(value)
         value_file.write(value)
 
+
 # Function used to check if an event occurred on the specified channel.
 # Param channel must be an integer.
 # This function return True or False
 def event_detected(channel):
     gpio = _get_gpio_number(channel)
     return event.edge_event_detected(gpio)
+
 
 # Function used to add a callback function to channel, after it has been
 # registered for events using add_event_detect()
@@ -385,6 +403,7 @@ def add_event_callback(channel, callback):
                            "before adding a callback")
 
     event.add_edge_callback(gpio, lambda: callback(channel))
+
 
 # Function used to add threaded event detection for a specified gpio channel.
 # Param gpio must be an integer specifying the channel, edge must be RISING,
@@ -422,7 +441,8 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
     if result:
         error_str = None
         if result == 1:
-            error_str = "Conflicting edge already enabled for this GPIO channel"
+            error_str = "Conflicting edge already enabled for this GPIO " + \
+                        "channel"
         else:
             error_str = "Failed to add edge detection"
 
@@ -431,10 +451,12 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
     if callback is not None:
         event.add_edge_callback(gpio, lambda: callback(channel))
 
+
 # Function used to remove event detection for channel
 def remove_event_detect(channel):
     gpio = _get_gpio_number(channel)
     event.remove_edge_detect(gpio)
+
 
 # Function used to perform a blocking wait until the specified edge
 # is detected for the param channel. Channel must be an integer and edge must
@@ -489,6 +511,7 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
     else:
         return channel
 
+
 def _get_gpio_number(channel):
     if (_gpio_mode != BOARD and _gpio_mode != BCM and
             _gpio_mode != TEGRA_SOC and _gpio_mode != CVM):
@@ -502,6 +525,7 @@ def _get_gpio_number(channel):
             get_model()))
 
     return _pin_to_gpio[channel][0] + _gpio_chip_base[_pin_to_gpio[channel][1]]
+
 
 # Function used to check the currently set function of the channel specified.
 # Param channel must be an integers. The function returns either IN, OUT,
@@ -518,6 +542,7 @@ def gpio_function(channel):
 
     return function_.rstrip()
 
+
 def _export_gpio(gpio):
     if os.path.exists(_SYSFS_ROOT + "/gpio%i" % gpio):
         return
@@ -525,9 +550,10 @@ def _export_gpio(gpio):
     with open(_SYSFS_ROOT + "/export", "w") as f_export:
         f_export.write(str(gpio))
 
-    while not os.access(_SYSFS_ROOT + "/gpio%i" %gpio + "/direction",
+    while not os.access(_SYSFS_ROOT + "/gpio%i" % gpio + "/direction",
                         os.R_OK | os.W_OK):
         time.sleep(0.01)
+
 
 def _unexport_gpio(gpio):
     if not os.path.exists(_SYSFS_ROOT + "/gpio%i" % gpio):

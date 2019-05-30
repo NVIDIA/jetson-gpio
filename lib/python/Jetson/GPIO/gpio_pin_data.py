@@ -18,7 +18,6 @@
 # DEALINGS IN THE SOFTWARE.
 
 import os
-import sys
 
 JETSON_XAVIER = 'JETSON_XAVIER'
 JETSON_TX2 = 'JETSON_TX2'
@@ -198,19 +197,21 @@ jetson_gpio_data = {
     }
 }
 
+
 def get_gpio_data(model):
     gpio_chip_base = {}
     jetson_model_pin_def = model+"_PIN_DEFS"
     if model not in jetson_gpio_data or model not in jetson_model_pin_def:
         raise Exception("Unknown hardware model " + model)
     gpio_pin_data = jetson_gpio_data[model]
-    gpio_chip_dirs = set(filter(None, [x[1] for x in eval(jetson_model_pin_def)]))
+    gpio_chip_dirs = set(filter(None,
+                         [x[1] for x in eval(jetson_model_pin_def)]))
     # Get the gpiochip offsets
     for chip in gpio_chip_dirs:
         for filename in os.listdir(chip + '/gpio'):
             if 'gpiochip' in filename:
-                with open(chip + '/gpio/' + filename
-                          + '/base', 'r') as f:
+                with open(chip + '/gpio/' + filename +
+                          '/base', 'r') as f:
                     gpio_chip_base[chip] = int(f.read().strip())
                     break
     return gpio_pin_data, gpio_chip_base

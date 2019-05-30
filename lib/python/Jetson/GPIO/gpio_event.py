@@ -61,8 +61,8 @@ _edge_str = ["none", "rising", "falling", "both"]
 # lock object for thread
 _mutex = thread.allocate_lock()
 
-class _Gpios:
 
+class _Gpios:
     def __init__(self, gpio, edge=None, bouncetime=None):
         self.edge = edge
         self.value_fd = open(ROOT + "/gpio%i" % gpio + "/value", 'r')
@@ -78,6 +78,7 @@ class _Gpios:
     def __del__(self):
         self.value_fd.close()
         del self.callbacks
+
 
 def add_edge_detect(gpio, edge, bouncetime):
     global _epoll_fd_thread
@@ -122,6 +123,7 @@ def add_edge_detect(gpio, edge, bouncetime):
             return 2
     return 0
 
+
 def remove_edge_detect(gpio):
     if gpio not in _gpio_event_list:
         return
@@ -135,11 +137,13 @@ def remove_edge_detect(gpio):
     del _gpio_event_list[gpio]
     _mutex.release()
 
+
 def add_edge_callback(gpio, callback):
     if gpio not in _gpio_event_list or not _gpio_event_list[gpio].thread_added:
         return
 
     _gpio_event_list[gpio].callbacks.append(callback)
+
 
 def edge_event_detected(gpio):
     retval = False
@@ -147,9 +151,10 @@ def edge_event_detected(gpio):
         _mutex.acquire()
         if _gpio_event_list[gpio].event_occurred:
             _gpio_event_list[gpio].event_occurred = False
-            retval =  True
+            retval = True
         _mutex.release()
         return retval
+
 
 def gpio_event_added(gpio):
     if gpio not in _gpio_event_list:
@@ -157,10 +162,12 @@ def gpio_event_added(gpio):
 
     return _gpio_event_list[gpio].edge
 
+
 def _get_gpio_object(gpio):
     if gpio not in _gpio_event_list:
         return None
     return _gpio_event_list[gpio]
+
 
 def _set_edge(gpio, edge):
     edge_path = ROOT + "/gpio%i" % gpio + "/edge"
@@ -168,17 +175,20 @@ def _set_edge(gpio, edge):
     with open(edge_path, 'w') as edge_file:
         edge_file.write(_edge_str[edge])
 
+
 def _get_gpio_obj_key(fd):
     for key in _gpio_event_list:
         if _gpio_event_list[key].value_fd == fd:
             return key
     return None
 
+
 def _get_gpio_file_object(fileno):
     for key in _gpio_event_list:
         if _gpio_event_list[key].value_fd.fileno() == fileno:
             return _gpio_event_list[key].value_fd
     return None
+
 
 def _poll_thread():
     global _thread_running
@@ -223,7 +233,8 @@ def _poll_thread():
                 time = datetime.now()
                 time = time.second * 1E6 + time.microsecond
                 if (gpio_obj.bouncetime is None or
-                        (time - gpio_obj.lastcall > gpio_obj.bouncetime * 1000) or
+                        (time - gpio_obj.lastcall >
+                         gpio_obj.bouncetime * 1000) or
                         (gpio_obj.lastcall == 0) or gpio_obj.lastcall > time):
                     gpio_obj.lastcall = time
                     gpio_obj.event_occurred = True
@@ -240,6 +251,7 @@ def _poll_thread():
         except AttributeError:
             break
     thread.exit()
+
 
 def blocking_wait_for_edge(gpio, edge, bouncetime, timeout):
     global _epoll_fd_blocking
@@ -347,6 +359,7 @@ def blocking_wait_for_edge(gpio, edge, bouncetime, timeout):
     # 0 if timeout occured - res == []
     # 1 if event was valid
     return int(res != [])
+
 
 def event_cleanup(gpio=None):
     global _epoll_fd_thread, _epoll_fd_blocking, _thread_running
