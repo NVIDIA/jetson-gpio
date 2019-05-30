@@ -199,19 +199,22 @@ jetson_gpio_data = {
 
 
 def get_gpio_data(model):
-    gpio_chip_base = {}
-    jetson_model_pin_def = model+"_PIN_DEFS"
-    if model not in jetson_gpio_data or model not in jetson_model_pin_def:
+    if model not in jetson_gpio_data:
         raise Exception("Unknown hardware model " + model)
+
     gpio_pin_data = jetson_gpio_data[model]
-    gpio_chip_dirs = set(filter(None,
-                         [x[1] for x in eval(jetson_model_pin_def)]))
+    gpio_chip_base = {}
+
     # Get the gpiochip offsets
-    for chip in gpio_chip_dirs:
-        for filename in os.listdir(chip + '/gpio'):
-            if 'gpiochip' in filename:
-                with open(chip + '/gpio/' + filename +
-                          '/base', 'r') as f:
-                    gpio_chip_base[chip] = int(f.read().strip())
-                    break
+    gpios = gpio_pin_data['gpio_numbers'['BOARD']]
+    gpio_chip_dirs = set([x[1] for x in gpios if x[1] is not None])
+    for gpio_chip_dir in gpio_chip_dirs:
+        gpio_chip_gpio_dir = gpio_chip_dir + '/gpio'
+        for fn in os.listdir(gpio_chip_gpio_dir):
+            if not fn.startswith('gpiochip'):
+                continue
+            gpiochip_fn = gpio_chip_gpio_dir + '/' + fn + '/base'
+            with open(gpiochip_fn, 'r') as f:
+                gpio_chip_base[gpio_chip_dir] = int(f.read().strip())
+                break
     return gpio_pin_data, gpio_chip_base
