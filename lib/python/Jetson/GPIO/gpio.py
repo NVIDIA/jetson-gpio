@@ -39,7 +39,6 @@ BOARD = 10
 BCM = 11
 TEGRA_SOC = 1000
 CVM = 1001
-_MODE_UNKNOWN = None
 
 # The constants and their offsets are implemented to prevent HIGH from being
 # used in place of other variables (ie. HIGH and RISING should not be
@@ -103,7 +102,7 @@ RPI_INFO = JETSON_INFO
 _pin_to_gpio = {}
 
 _gpio_warnings = True
-_gpio_mode = _MODE_UNKNOWN
+_gpio_mode = None
 _gpio_direction = {}
 
 
@@ -120,7 +119,7 @@ def setmode(mode):
     global _gpio_mode, _pin_to_gpio
 
     # check if a different mode has been set
-    if _gpio_mode != _MODE_UNKNOWN and mode != _gpio_mode:
+    if _gpio_mode and mode != _gpio_mode:
         raise ValueError("A different mode has already been set!")
 
     mode_map = {
@@ -255,7 +254,7 @@ def _setup_single_in(channel, pull_up_down=PUD_OFF):
 # cleaned
 def cleanup(channel=None):
     # warn if no channel is setup
-    if _gpio_mode == _MODE_UNKNOWN:
+    if _gpio_mode is None:
         if _gpio_warnings:
             warnings.warn("No channels have been set up yet - nothing to "
                           "clean up! Try cleaning up at the end of your "
@@ -295,7 +294,7 @@ def _cleanup_all():
         if _pin_to_gpio[channel][0] is not None:
             _cleanup_one(channel)
 
-    _gpio_mode = _MODE_UNKNOWN
+    _gpio_mode = None
 
 
 # Function used to return the current value of the specified channel.
