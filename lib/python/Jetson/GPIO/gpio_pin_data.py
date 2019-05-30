@@ -131,7 +131,7 @@ JETSON_NANO_PIN_DEFS = [
 ]
 
 jetson_gpio_data = {
-    'JETSON_XAVIER': {
+    JETSON_XAVIER: {
         'gpio_numbers': {
             'BOARD': {x[2]: (x[0], x[1]) for x in JETSON_XAVIER_PIN_DEFS},
             'BCM': {x[3]: (x[0], x[1]) for x in JETSON_XAVIER_PIN_DEFS},
@@ -147,7 +147,7 @@ jetson_gpio_data = {
             'PROCESSOR': 'ARM Carmel'
         }
     },
-    'JETSON_TX2': {
+    JETSON_TX2: {
         'gpio_numbers': {
             'BOARD': {x[2]: (x[0], x[1]) for x in JETSON_TX2_PIN_DEFS},
             'BCM': {x[3]: (x[0], x[1]) for x in JETSON_TX2_PIN_DEFS},
@@ -163,7 +163,7 @@ jetson_gpio_data = {
             'PROCESSOR': 'ARM A57 + Denver'
         }
     },
-    'JETSON_TX1': {
+    JETSON_TX1: {
         'gpio_numbers': {
             'BOARD': {x[2]: (x[0], x[1]) for x in JETSON_TX1_PIN_DEFS},
             'BCM': {x[3]: (x[0], x[1]) for x in JETSON_TX1_PIN_DEFS},
@@ -179,7 +179,7 @@ jetson_gpio_data = {
             'PROCESSOR': 'ARM A57'
         }
     },
-    'JETSON_NANO': {
+    JETSON_NANO: {
         'gpio_numbers': {
             'BOARD': {x[2]: (x[0], x[1]) for x in JETSON_NANO_PIN_DEFS},
             'BCM': {x[3]: (x[0], x[1]) for x in JETSON_NANO_PIN_DEFS},
