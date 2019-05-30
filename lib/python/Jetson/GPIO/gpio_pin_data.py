@@ -198,9 +198,32 @@ jetson_gpio_data = {
 }
 
 
-def get_gpio_data(model):
-    if model not in jetson_gpio_data:
-        raise Exception("Unknown hardware model " + model)
+def get_gpio_data():
+    model_path = '/proc/device-tree/model'
+    version_path = '/proc/device-tree/chosen/plugin-manager/ids'
+
+    try:
+        with open(model_path, 'r') as f:
+            model_str = f.read().rstrip('\x00').lower()
+    except:
+        raise Exception('Could not determine Jetson model because model file'
+                        '(%s) was not found.' % model_path)
+
+    if 'tx1' in model_str:
+        model = JETSON_TX1
+    elif 'tx2' in model_str or 'quill' in model_str:
+        model = JETSON_TX2
+    elif 'xavier' in model_str:
+        model = JETSON_XAVIER
+    elif 'nano' in model_str:
+        if int(os.listdir(version_path)[0][-3:]) >= 200:
+            model = JETSON_NANO
+        else:
+            raise Exception('Jetson Nano revision must be newer than A02')
+    else:
+        raise Exception(
+            'Could not guess Jetson model from the model string (%s).' %
+            model_str)
 
     gpio_pin_data = jetson_gpio_data[model]
     gpio_chip_base = {}

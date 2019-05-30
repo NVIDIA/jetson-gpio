@@ -66,34 +66,7 @@ OUT = 0
 IN = 1
 
 
-# check jetson model and prepare lookup table accordingly
-def get_model(model_path='/proc/device-tree/model'):
-    version_path = '/proc/device-tree/chosen/plugin-manager/ids'
-    model_str = None
-
-    try:
-        with open(model_path, 'r') as f:
-            model_str = f.read().rstrip('\x00')
-    except:
-        raise Exception('Could not determine Jetson model because model file'
-                        '(%s) was not found.' % model_path)
-
-    if 'tx1' in model_str:
-        return gpio_pin_data.JETSON_TX1
-    elif 'tx2' in model_str or 'quill' in model_str:
-        return gpio_pin_data.JETSON_TX2
-    elif 'xavier' in model_str:
-        return gpio_pin_data.JETSON_XAVIER
-    elif 'nano' in model_str:
-        if int(os.listdir(version_path)[0][-3:]) >= 200:
-            return gpio_pin_data.JETSON_NANO
-        else:
-            raise Exception('Jetson Nano revision must be newer than A02')
-
-    raise Exception('Could not guess Jetson model from the model string (%s).'
-                    % model_str)
-
-_board_info, _gpio_chip_base = gpio_pin_data.get_gpio_data(get_model())
+_board_info, _gpio_chip_base = gpio_pin_data.get_gpio_data()
 _pin_mapping = _board_info['gpio_numbers']
 JETSON_INFO = _board_info['JETSON_INFO']
 RPI_INFO = JETSON_INFO
@@ -526,8 +499,7 @@ def _get_gpio_number(channel):
                            "GPIO.setmode(GPIO.CVM)")
 
     if channel not in _pin_to_gpio or _pin_to_gpio[channel][0] is None:
-        raise ValueError("The channel sent is invalid on a {} Board".format(
-            get_model()))
+        raise ValueError("Channel %s is invalid" % str(channel))
 
     return _pin_to_gpio[channel][0] + _gpio_chip_base[_pin_to_gpio[channel][1]]
 
