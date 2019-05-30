@@ -77,6 +77,151 @@ _gpio_mode = None
 _gpio_direction = {}
 
 
+def _make_iterable(iterable):
+    try:
+        for x in iterable:
+            break
+    except:
+        iterable = [iterable]
+
+    if isinstance(iterable, str):
+        iterable = [iterable]
+
+    return iterable
+
+
+def _check_pin_setup(gpio):
+    return _gpio_direction.get(gpio, None)
+
+
+def _get_gpio_number(channel):
+    if (_gpio_mode != BOARD and _gpio_mode != BCM and
+            _gpio_mode != TEGRA_SOC and _gpio_mode != CVM):
+        raise RuntimeError("Please set pin numbering mode using "
+                           "GPIO.setmode(GPIO.BOARD), GPIO.setmode(GPIO.BCM), "
+                           "GPIO.setmode(GPIO.TEGRA_SOC) or "
+                           "GPIO.setmode(GPIO.CVM)")
+
+    if channel not in _pin_to_gpio or _pin_to_gpio[channel][0] is None:
+        raise ValueError("Channel %s is invalid" % str(channel))
+
+    return _pin_to_gpio[channel][2]
+
+
+def _export_gpio(gpio):
+    if os.path.exists(_SYSFS_ROOT + "/gpio%i" % gpio):
+        return
+
+    with open(_SYSFS_ROOT + "/export", "w") as f_export:
+        f_export.write(str(gpio))
+
+    while not os.access(_SYSFS_ROOT + "/gpio%i" % gpio + "/direction",
+                        os.R_OK | os.W_OK):
+        time.sleep(0.01)
+
+
+def _unexport_gpio(gpio):
+    if not os.path.exists(_SYSFS_ROOT + "/gpio%i" % gpio):
+        return
+
+    with open(_SYSFS_ROOT + "/unexport", "w") as f_unexport:
+        f_unexport.write(str(gpio))
+
+
+def _output_one(channel, value):
+    gpio = _get_gpio_number(channel)
+    value = int(value)
+    if value != HIGH and value != LOW:
+        raise ValueError("Invalid output value")
+
+    with open(_SYSFS_ROOT + "/gpio%s" % gpio + "/value", 'w') as value_file:
+        value = str(value)
+        value_file.write(value)
+
+
+# Function used to check the currently set function of the channel specified.
+# Param channel must be an integers. The function returns either IN, OUT,
+# or UNKNOWN
+def _gpio_function(channel):
+    gpio = _get_gpio_number(channel)
+    gpio_dir = _SYSFS_ROOT + "/gpio%i" % gpio
+
+    if not os.path.exists(gpio_dir):
+        return UNKNOWN
+
+    with open(gpio_dir + "/direction", 'r') as f_direction:
+        function_ = f_direction.read()
+
+    return function_.rstrip()
+
+
+def _setup_single_out(channel, initial=None):
+    gpio = _get_gpio_number(channel)
+    func = _gpio_function(channel)
+    direction = _check_pin_setup(gpio)
+
+    # warn if channel has been setup external to currently running program
+    if _gpio_warnings and direction is None:
+        if func == OUT or func == IN:
+            warnings.warn("This channel is already in use, continuing anyway. "
+                          "Use GPIO.setwarnings(False) to disable warnings",
+                          RuntimeWarning)
+
+    _export_gpio(gpio)
+    gpio_dir_path = _SYSFS_ROOT + "/gpio%i" % gpio + "/direction"
+    gpio_value_path = _SYSFS_ROOT + "/gpio%i" % gpio + "/value"
+
+    with open(gpio_dir_path, 'w') as direction_file:
+        direction_file.write("out")
+
+    if initial == HIGH or initial == LOW:
+        with open(gpio_value_path, 'w') as value:
+            initial = int(initial)
+            value.write(str(initial))
+
+    _gpio_direction[gpio] = OUT
+
+
+def _setup_single_in(channel, pull_up_down=PUD_OFF):
+    gpio = _get_gpio_number(channel)
+    func = _gpio_function(channel)
+    direction = _check_pin_setup(gpio)
+
+    # warn if channel has been setup external to currently running program
+    if _gpio_warnings and direction is None:
+        if func == OUT or func == IN:
+            warnings.warn("This channel is already in use, continuing anyway. "
+                          "Use GPIO.setwarnings(False) to disable warnings",
+                          RuntimeWarning)
+
+    _export_gpio(gpio)
+    gpio_dir_path = _SYSFS_ROOT + "/gpio%i" % gpio + "/direction"
+
+    with open(gpio_dir_path, 'w') as direction:
+        direction.write("in")
+
+    _gpio_direction[gpio] = IN
+
+
+def _cleanup_one(channel):
+    gpio = _get_gpio_number(channel)
+    if gpio is not None or _check_pin_setup(gpio) is not None:
+        _setup_single_in(channel)
+        del _gpio_direction[gpio]
+        event.event_cleanup(gpio)
+        _unexport_gpio(gpio)
+
+
+def _cleanup_all():
+    global _gpio_mode
+
+    for channel in _pin_to_gpio:
+        if _pin_to_gpio[channel][0] is not None:
+            _cleanup_one(channel)
+
+    _gpio_mode = None
+
+
 # Function used to enable/disable warnings during setup and cleanup.
 # Param -> state is a bool
 def setwarnings(state):
@@ -171,54 +316,6 @@ def setup(channels, direction, pull_up_down=PUD_OFF, initial=None):
                 _setup_single_in(channels[idx], pull_up_down - _PUD_OFFSET)
 
 
-def _setup_single_out(channel, initial=None):
-    gpio = _get_gpio_number(channel)
-    func = gpio_function(channel)
-    direction = _check_pin_setup(gpio)
-
-    # warn if channel has been setup external to currently running program
-    if _gpio_warnings and direction is None:
-        if func == OUT or func == IN:
-            warnings.warn("This channel is already in use, continuing anyway. "
-                          "Use GPIO.setwarnings(False) to disable warnings",
-                          RuntimeWarning)
-
-    _export_gpio(gpio)
-    gpio_dir_path = _SYSFS_ROOT + "/gpio%i" % gpio + "/direction"
-    gpio_value_path = _SYSFS_ROOT + "/gpio%i" % gpio + "/value"
-
-    with open(gpio_dir_path, 'w') as direction_file:
-        direction_file.write("out")
-
-    if initial == HIGH or initial == LOW:
-        with open(gpio_value_path, 'w') as value:
-            initial = int(initial)
-            value.write(str(initial))
-
-    _gpio_direction[gpio] = OUT
-
-
-def _setup_single_in(channel, pull_up_down=PUD_OFF):
-    gpio = _get_gpio_number(channel)
-    func = gpio_function(channel)
-    direction = _check_pin_setup(gpio)
-
-    # warn if channel has been setup external to currently running program
-    if _gpio_warnings and direction is None:
-        if func == OUT or func == IN:
-            warnings.warn("This channel is already in use, continuing anyway. "
-                          "Use GPIO.setwarnings(False) to disable warnings",
-                          RuntimeWarning)
-
-    _export_gpio(gpio)
-    gpio_dir_path = _SYSFS_ROOT + "/gpio%i" % gpio + "/direction"
-
-    with open(gpio_dir_path, 'w') as direction:
-        direction.write("in")
-
-    _gpio_direction[gpio] = IN
-
-
 # Function used to cleanup channels at the end of the program.
 # The param channel can be an integer or list/tuple of integers specifying the
 # channels to be cleaned up. If no channel is provided, all channels are
@@ -247,25 +344,6 @@ def cleanup(channel=None):
     else:
         raise ValueError("Channel must be an integer/string or list/tuple of "
                          "integers/strings")
-
-
-def _cleanup_one(channel):
-    gpio = _get_gpio_number(channel)
-    if gpio is not None or _check_pin_setup(gpio) is not None:
-        _setup_single_in(channel)
-        del _gpio_direction[gpio]
-        event.event_cleanup(gpio)
-        _unexport_gpio(gpio)
-
-
-def _cleanup_all():
-    global _gpio_mode
-
-    for channel in _pin_to_gpio:
-        if _pin_to_gpio[channel][0] is not None:
-            _cleanup_one(channel)
-
-    _gpio_mode = None
 
 
 # Function used to return the current value of the specified channel.
@@ -325,34 +403,6 @@ def output(channels, values):
                 _output_one(channels[idx], values[0])
     else:
         raise ValueError("Value must not be empty")
-
-
-def _check_pin_setup(gpio):
-    return _gpio_direction.get(gpio, None)
-
-
-def _make_iterable(iterable):
-    try:
-        for x in iterable:
-            break
-    except:
-        iterable = [iterable]
-
-    if isinstance(iterable, str):
-        iterable = [iterable]
-
-    return iterable
-
-
-def _output_one(channel, value):
-    gpio = _get_gpio_number(channel)
-    value = int(value)
-    if value != HIGH and value != LOW:
-        raise ValueError("Invalid output value")
-
-    with open(_SYSFS_ROOT + "/gpio%s" % gpio + "/value", 'w') as value_file:
-        value = str(value)
-        value_file.write(value)
 
 
 # Function used to check if an event occurred on the specified channel.
@@ -488,51 +538,8 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
         return channel
 
 
-def _get_gpio_number(channel):
-    if (_gpio_mode != BOARD and _gpio_mode != BCM and
-            _gpio_mode != TEGRA_SOC and _gpio_mode != CVM):
-        raise RuntimeError("Please set pin numbering mode using "
-                           "GPIO.setmode(GPIO.BOARD), GPIO.setmode(GPIO.BCM), "
-                           "GPIO.setmode(GPIO.TEGRA_SOC) or "
-                           "GPIO.setmode(GPIO.CVM)")
-
-    if channel not in _pin_to_gpio or _pin_to_gpio[channel][0] is None:
-        raise ValueError("Channel %s is invalid" % str(channel))
-
-    return _pin_to_gpio[channel][2]
-
-
 # Function used to check the currently set function of the channel specified.
 # Param channel must be an integers. The function returns either IN, OUT,
 # or UNKNOWN
 def gpio_function(channel):
-    gpio = _get_gpio_number(channel)
-    gpio_dir = _SYSFS_ROOT + "/gpio%i" % gpio
-
-    if not os.path.exists(gpio_dir):
-        return UNKNOWN
-
-    with open(gpio_dir + "/direction", 'r') as f_direction:
-        function_ = f_direction.read()
-
-    return function_.rstrip()
-
-
-def _export_gpio(gpio):
-    if os.path.exists(_SYSFS_ROOT + "/gpio%i" % gpio):
-        return
-
-    with open(_SYSFS_ROOT + "/export", "w") as f_export:
-        f_export.write(str(gpio))
-
-    while not os.access(_SYSFS_ROOT + "/gpio%i" % gpio + "/direction",
-                        os.R_OK | os.W_OK):
-        time.sleep(0.01)
-
-
-def _unexport_gpio(gpio):
-    if not os.path.exists(_SYSFS_ROOT + "/gpio%i" % gpio):
-        return
-
-    with open(_SYSFS_ROOT + "/unexport", "w") as f_unexport:
-        f_unexport.write(str(gpio))
+    return _gpio_function(channel)
