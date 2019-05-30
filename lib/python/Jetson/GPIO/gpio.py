@@ -100,7 +100,7 @@ _pin_mapping = _board_info['gpio_numbers']
 JETSON_INFO = _board_info['JETSON_INFO']
 RPI_INFO = JETSON_INFO
 
-# Dicitionary objects used as lookup tables for pin to linux gpio mapping
+# Dictionary objects used as lookup tables for pin to linux gpio mapping
 _pin_to_gpio = {}
 
 _gpio_warnings = True
