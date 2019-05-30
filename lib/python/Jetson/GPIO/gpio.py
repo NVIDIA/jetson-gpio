@@ -35,10 +35,10 @@ if (not os.access(_SYSFS_ROOT + '/export', os.W_OK) or
                        "permissions or use the root user to run this")
 
 # Pin Numbering Modes
-BOARD = 'BOARD'
-BCM = 'BCM'
-TEGRA_SOC = 'TEGRA_SOC'
-CVM = 'CVM'
+BOARD = 10
+BCM = 11
+TEGRA_SOC = 1000
+CVM = 1001
 _MODE_UNKNOWN = None
 
 # The constants and their offsets are implemented to prevent HIGH from being
@@ -46,26 +46,25 @@ _MODE_UNKNOWN = None
 # interchangeable)
 
 # Pull up/down options
-PUD_OFF = 20
-PUD_DOWN = 21
-PUD_UP = 22
+_PUD_OFFSET = 20
+PUD_OFF = 0 + _PUD_OFFSET
+PUD_DOWN = 1 + _PUD_OFFSET
+PUD_UP = 2 + _PUD_OFFSET
 
 HIGH = 1
 LOW = 0
 
 # Edge possibilities
-RISING = 11
-FALLING = 12
-BOTH = 13
+# These values (with _EDGE_OFFSET subtracted) must match gpio_event.py:*_EDGE
+_EDGE_OFFSET = 30
+RISING = 1 + _EDGE_OFFSET
+FALLING = 2 + _EDGE_OFFSET
+BOTH = 3 + _EDGE_OFFSET
 
-# Pullup/down and Edge Offset
-_PUD_OFFSET = -20
-_EDGE_OFFSET = -10
-
-# GPIO directions. UNEXPORTED constant is for gpios that are not yet setup
-_UNEXPORTED = ''
-OUT = 'out'
-IN = 'in'
+# GPIO directions. UNKNOWN constant is for gpios that are not yet setup
+UNKNOWN = -1
+OUT = 0
+IN = 1
 
 
 # check jetson model and prepare lookup table accordingly
@@ -124,11 +123,18 @@ def setmode(mode):
     if _gpio_mode != _MODE_UNKNOWN and mode != _gpio_mode:
         raise ValueError("A different mode has already been set!")
 
+    mode_map = {
+        BOARD: 'BOARD',
+        BCM: 'BCM',
+        CVM: 'CVM',
+        TEGRA_SOC: 'TEGRA_SOC',
+    }
+
     # check if mode parameter is valid
-    if mode != BOARD and mode != BCM and mode != TEGRA_SOC and mode != CVM:
+    if mode not in mode_map:
         raise ValueError("An invalid mode was passed to setmode()!")
 
-    _pin_to_gpio = _pin_mapping[mode]
+    _pin_to_gpio = _pin_mapping[mode_map[mode]]
     _gpio_mode = mode
 
 
@@ -190,9 +196,9 @@ def setup(channels, direction, pull_up_down=PUD_OFF, initial=None):
                 if len(channels) != len(initial):
                     raise RuntimeError("Number of channels != number of "
                                        "initial values")
-                _setup_single_in(channels[idx], pull_up_down + _PUD_OFFSET)
+                _setup_single_in(channels[idx], pull_up_down - _PUD_OFFSET)
             else:
-                _setup_single_in(channels[idx], pull_up_down + _PUD_OFFSET)
+                _setup_single_in(channels[idx], pull_up_down - _PUD_OFFSET)
 
 
 def _setup_single_out(channel, initial=None):
@@ -212,7 +218,7 @@ def _setup_single_out(channel, initial=None):
     gpio_value_path = _SYSFS_ROOT + "/gpio%i" % gpio + "/value"
 
     with open(gpio_dir_path, 'w') as direction_file:
-        direction_file.write(OUT)
+        direction_file.write("out")
 
     if initial == HIGH or initial == LOW:
         with open(gpio_value_path, 'w') as value:
@@ -238,7 +244,7 @@ def _setup_single_in(channel, pull_up_down=PUD_OFF):
     gpio_dir_path = _SYSFS_ROOT + "/gpio%i" % gpio + "/direction"
 
     with open(gpio_dir_path, 'w') as direction:
-        direction.write(IN)
+        direction.write("in")
 
     _gpio_direction[gpio] = IN
 
@@ -434,7 +440,7 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
         elif bouncetime < 0:
             raise ValueError("bouncetime must be an integer greater than 0")
 
-    result = event.add_edge_detect(gpio, edge + _EDGE_OFFSET, bouncetime)
+    result = event.add_edge_detect(gpio, edge - _EDGE_OFFSET, bouncetime)
 
     # result == 1 means a different edge was already added for the channel.
     # result == 2 means error occurred while adding edge (thread or event poll)
@@ -492,7 +498,7 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
         elif timeout < 0:
             raise ValueError("Timeout must greater than 0")
 
-    result = event.blocking_wait_for_edge(gpio, edge + _EDGE_OFFSET,
+    result = event.blocking_wait_for_edge(gpio, edge - _EDGE_OFFSET,
                                           bouncetime, timeout)
 
     # If not error, result == channel. If timeout occurs while waiting,
@@ -529,13 +535,13 @@ def _get_gpio_number(channel):
 
 # Function used to check the currently set function of the channel specified.
 # Param channel must be an integers. The function returns either IN, OUT,
-# or UNEXPORTED
+# or UNKNOWN
 def gpio_function(channel):
     gpio = _get_gpio_number(channel)
     gpio_dir = _SYSFS_ROOT + "/gpio%i" % gpio
 
     if not os.path.exists(gpio_dir):
-        return _UNEXPORTED
+        return UNKNOWN
 
     with open(gpio_dir + "/direction", 'r') as f_direction:
         function_ = f_direction.read()
