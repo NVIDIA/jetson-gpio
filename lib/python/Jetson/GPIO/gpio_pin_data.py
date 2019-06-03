@@ -132,12 +132,7 @@ JETSON_NANO_PIN_DEFS = [
 
 jetson_gpio_data = {
     JETSON_XAVIER: (
-        {
-            'BOARD': {x[2]: (x[0], x[1]) for x in JETSON_XAVIER_PIN_DEFS},
-            'BCM': {x[3]: (x[0], x[1]) for x in JETSON_XAVIER_PIN_DEFS},
-            'CVM': {x[4]: (x[0], x[1]) for x in JETSON_XAVIER_PIN_DEFS},
-            'TEGRA_SOC': {x[5]: (x[0], x[1]) for x in JETSON_XAVIER_PIN_DEFS},
-        },
+        JETSON_XAVIER_PIN_DEFS,
         {
             'P1_REVISION': 1,
             'RAM': '16384M',
@@ -148,12 +143,7 @@ jetson_gpio_data = {
         }
     ),
     JETSON_TX2: (
-        {
-            'BOARD': {x[2]: (x[0], x[1]) for x in JETSON_TX2_PIN_DEFS},
-            'BCM': {x[3]: (x[0], x[1]) for x in JETSON_TX2_PIN_DEFS},
-            'CVM': {x[4]: (x[0], x[1]) for x in JETSON_TX2_PIN_DEFS},
-            'TEGRA_SOC': {x[5]: (x[0], x[1]) for x in JETSON_TX2_PIN_DEFS},
-        },
+        JETSON_TX2_PIN_DEFS,
         {
             'P1_REVISION': 1,
             'RAM': '8192M',
@@ -164,12 +154,7 @@ jetson_gpio_data = {
         }
     ),
     JETSON_TX1: (
-        {
-            'BOARD': {x[2]: (x[0], x[1]) for x in JETSON_TX1_PIN_DEFS},
-            'BCM': {x[3]: (x[0], x[1]) for x in JETSON_TX1_PIN_DEFS},
-            'CVM': {x[4]: (x[0], x[1]) for x in JETSON_TX1_PIN_DEFS},
-            'TEGRA_SOC': {x[5]: (x[0], x[1]) for x in JETSON_TX1_PIN_DEFS},
-        },
+        JETSON_TX1_PIN_DEFS,
         {
             'P1_REVISION': 1,
             'RAM': '4096M',
@@ -180,12 +165,7 @@ jetson_gpio_data = {
         }
     ),
     JETSON_NANO: (
-        {
-            'BOARD': {x[2]: (x[0], x[1]) for x in JETSON_NANO_PIN_DEFS},
-            'BCM': {x[3]: (x[0], x[1]) for x in JETSON_NANO_PIN_DEFS},
-            'CVM': {x[4]: (x[0], x[1]) for x in JETSON_NANO_PIN_DEFS},
-            'TEGRA_SOC': {x[5]: (x[0], x[1]) for x in JETSON_NANO_PIN_DEFS},
-        },
+        JETSON_NANO_PIN_DEFS,
         {
             'P1_REVISION': 1,
             'RAM': '4096M',
@@ -225,12 +205,11 @@ def get_data():
             'Could not guess Jetson model from the model string (%s).' %
             model_str)
 
-    gpio_pin_data, jetson_info = jetson_gpio_data[model]
+    pin_defs, jetson_info = jetson_gpio_data[model]
     gpio_chip_base = {}
 
     # Get the gpiochip offsets
-    gpios = gpio_pin_data['BOARD']
-    gpio_chip_dirs = set([x[1] for x in gpios if x[1] is not None])
+    gpio_chip_dirs = set([x[1] for x in pin_defs if x[1] is not None])
     for gpio_chip_dir in gpio_chip_dirs:
         gpio_chip_gpio_dir = gpio_chip_dir + '/gpio'
         for fn in os.listdir(gpio_chip_gpio_dir):
@@ -241,4 +220,11 @@ def get_data():
                 gpio_chip_base[gpio_chip_dir] = int(f.read().strip())
                 break
 
-    return jetson_info, gpio_pin_data, gpio_chip_base
+    channel_data = {
+        'BOARD': {x[2]: (x[0], x[1]) for x in pin_defs},
+        'BCM': {x[3]: (x[0], x[1]) for x in pin_defs},
+        'CVM': {x[4]: (x[0], x[1]) for x in pin_defs},
+        'TEGRA_SOC': {x[5]: (x[0], x[1]) for x in pin_defs},
+    }
+
+    return jetson_info, channel_data, gpio_chip_base
