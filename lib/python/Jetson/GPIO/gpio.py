@@ -130,13 +130,9 @@ def _unexport_gpio(gpio):
 
 def _output_one(channel, value):
     gpio = _get_gpio_number(channel)
-    value = int(value)
-    if value != HIGH and value != LOW:
-        raise ValueError("Invalid output value")
 
     with open(_SYSFS_ROOT + "/gpio%s" % gpio + "/value", 'w') as value_file:
-        value = str(value)
-        value_file.write(value)
+        value_file.write(str(int(bool(value))))
 
 
 # Function used to check the currently set function of the channel specified.
@@ -174,10 +170,9 @@ def _setup_single_out(channel, initial=None):
     with open(gpio_dir_path, 'w') as direction_file:
         direction_file.write("out")
 
-    if initial == HIGH or initial == LOW:
+    if initial is not None:
         with open(gpio_value_path, 'w') as value:
-            initial = int(initial)
-            value.write(str(initial))
+            value.write(str(int(bool(initial))))
 
     _gpio_direction[gpio] = OUT
 
@@ -378,10 +373,6 @@ def output(channels, values):
         if not all(isinstance(x, str) for x in channels):
             raise ValueError("Channel must be a string or "
                              "list/tuple of string")
-
-    # check if all elements in the values iterable are integers/booleans
-    if not all(isinstance(x, (int, bool)) for x in values):
-        raise RuntimeError("Value list must consist of integers/booleans")
 
     # check that channels have been set as output
     if any((_check_pin_setup(_get_gpio_number(x)) != OUT)
