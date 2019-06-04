@@ -159,16 +159,6 @@ def _gpio_function(channel, gpio):
 
 
 def _setup_single_out(channel, gpio, initial=None):
-    func = _gpio_function(channel, gpio)
-    direction = _check_pin_setup(channel)
-
-    # warn if channel has been setup external to currently running program
-    if _gpio_warnings and direction is None:
-        if func == OUT or func == IN:
-            warnings.warn("This channel is already in use, continuing anyway. "
-                          "Use GPIO.setwarnings(False) to disable warnings",
-                          RuntimeWarning)
-
     _export_gpio(gpio)
 
     gpio_dir_path = _SYSFS_ROOT + "/gpio%i" % gpio + "/direction"
@@ -182,16 +172,6 @@ def _setup_single_out(channel, gpio, initial=None):
 
 
 def _setup_single_in(channel, gpio):
-    func = _gpio_function(channel, gpio)
-    direction = _check_pin_setup(channel)
-
-    # warn if channel has been setup external to currently running program
-    if _gpio_warnings and direction is None:
-        if func == OUT or func == IN:
-            warnings.warn("This channel is already in use, continuing anyway. "
-                          "Use GPIO.setwarnings(False) to disable warnings",
-                          RuntimeWarning)
-
     _export_gpio(gpio)
 
     gpio_dir_path = _SYSFS_ROOT + "/gpio%i" % gpio + "/direction"
@@ -275,6 +255,18 @@ def setup(channels, direction, pull_up_down=PUD_OFF, initial=None):
             pull_up_down != PUD_DOWN):
         raise ValueError("Invalid value for pull_up_down - should be either"
                          "PUD_OFF, PUD_UP or PUD_DOWN")
+
+    if _gpio_warnings:
+        for channel, gpio in zip(channels, gpios):
+            func = _gpio_function(channel, gpio)
+            direction = _check_pin_setup(channel)
+
+            # warn if channel has been setup external to current program
+            if direction is None and func is not None:
+                warnings.warn(
+                    "This channel is already in use, continuing anyway. "
+                    "Use GPIO.setwarnings(False) to disable warnings",
+                    RuntimeWarning)
 
     if direction == OUT:
         initial = _make_iterable(initial, len(channels))
