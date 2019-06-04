@@ -499,7 +499,7 @@ def _get_gpio_number(channel):
     if channel not in _pin_to_gpio or _pin_to_gpio[channel][0] is None:
         raise ValueError("Channel %s is invalid" % str(channel))
 
-    return _pin_to_gpio[channel][0] + _gpio_chip_base[_pin_to_gpio[channel][1]]
+    return _pin_to_gpio[channel][1] + _gpio_chip_base[_pin_to_gpio[channel][0]]
 
 
 # Function used to check the currently set function of the channel specified.

@@ -221,10 +221,10 @@ def get_data():
                 break
 
     channel_data = {
-        'BOARD': {x[2]: (x[0], x[1]) for x in pin_defs},
-        'BCM': {x[3]: (x[0], x[1]) for x in pin_defs},
-        'CVM': {x[4]: (x[0], x[1]) for x in pin_defs},
-        'TEGRA_SOC': {x[5]: (x[0], x[1]) for x in pin_defs},
+        'BOARD': {x[2]: (x[1], x[0]) for x in pin_defs},
+        'BCM': {x[3]: (x[1], x[0]) for x in pin_defs},
+        'CVM': {x[4]: (x[1], x[0]) for x in pin_defs},
+        'TEGRA_SOC': {x[5]: (x[1], x[0]) for x in pin_defs},
     }
 
     return jetson_info, channel_data, gpio_chip_base
