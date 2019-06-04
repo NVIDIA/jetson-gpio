@@ -64,6 +64,7 @@ BOTH = 3 + _EDGE_OFFSET
 UNKNOWN = -1
 OUT = 0
 IN = 1
+HARD_PWM = 43
 
 
 model, JETSON_INFO, _channel_data_by_mode = gpio_pin_data.get_data()
@@ -122,7 +123,12 @@ def _channels_to_infos(channels, need_gpio=False, need_pwm=False):
 
 def _sysfs_channel_configuration(ch_info):
     """Return the current configuration of a channel as reported by sysfs. Any
-    of IN, OUT, or None may be returned."""
+    of IN, OUT, PWM, or None may be returned."""
+
+    if ch_info.pwm_chip_dir is not None:
+        pwm_dir = "%s/pwm%i" % (ch_info.pwm_chip_dir, ch_info.pwm_id)
+        if os.path.exists(pwm_dir):
+            return HARD_PWM
 
     gpio_dir = _SYSFS_ROOT + "/gpio%i" % ch_info.gpio
     if not os.path.exists(gpio_dir):
@@ -193,10 +199,76 @@ def _setup_single_in(ch_info):
     _channel_configuration[ch_info.channel] = IN
 
 
+def _pwm_path(ch_info):
+    return ch_info.pwm_chip_dir + '/pwm' + str(ch_info.pwm_id)
+
+
+def _pwm_export_path(ch_info):
+    return ch_info.pwm_chip_dir + '/export'
+
+
+def _pwm_unexport_path(ch_info):
+    return ch_info.pwm_chip_dir + '/unexport'
+
+
+def _pwm_period_path(ch_info):
+    return _pwm_path(ch_info) + "/period"
+
+
+def _pwm_duty_cycle_path(ch_info):
+    return _pwm_path(ch_info) + "/duty_cycle"
+
+
+def _pwm_enable_path(ch_info):
+    return _pwm_path(ch_info) + "/enable"
+
+
+def _export_pwm(ch_info):
+    if os.path.exists(_pwm_path(ch_info)):
+        return
+
+    with open(_pwm_export_path(ch_info), 'w') as f:
+        f.write(str(ch_info.pwm_id))
+
+    enable_path = _pwm_enable_path(ch_info)
+    while not os.access(enable_path, os.R_OK | os.W_OK):
+        time.sleep(0.01)
+
+
+def _unexport_pwm(ch_info):
+    with open(_pwm_unexport_path(ch_info), 'w') as f:
+        f.write(str(ch_info.pwm_id))
+
+
+def _set_pwm_period(ch_info, period_ns):
+    with open(_pwm_period_path(ch_info), 'w') as f:
+        f.write(str(period_ns))
+
+
+def _set_pwm_duty_cycle(ch_info, duty_cycle_ns):
+    with open(_pwm_duty_cycle_path(ch_info), 'w') as f:
+        f.write(str(duty_cycle_ns))
+
+
+def _enable_pwm(ch_info):
+    with open(_pwm_enable_path(ch_info), 'w') as f:
+        f.write("1")
+
+
+def _disable_pwm(ch_info):
+    with open(_pwm_enable_path(ch_info), 'w') as f:
+        f.write("0")
+
+
 def _cleanup_one(ch_info):
+    app_cfg = _channel_configuration[ch_info.channel]
+    if app_cfg == HARD_PWM:
+        _disable_pwm(ch_info)
+        _unexport_pwm(ch_info)
+    else:
+        event.event_cleanup(ch_info.gpio)
+        _unexport_gpio(ch_info.gpio)
     del _channel_configuration[ch_info.channel]
-    event.event_cleanup(ch_info.gpio)
-    _unexport_gpio(ch_info.gpio)
 
 
 def _cleanup_all():
@@ -494,3 +566,79 @@ def gpio_function(channel):
     if func is None:
         func = UNKNOWN
     return func
+
+
+class PWM(object):
+    def __init__(self, channel, frequency_hz):
+        self._ch_info = _channel_to_info(channel, need_pwm=True)
+
+        app_cfg = _app_channel_configuration(self._ch_info)
+        if app_cfg == HARD_PWM:
+            raise ValueError("Can't create duplicate PWM objects")
+        # Apps typically set up channels as GPIO before making them be PWM,
+        # because RPi.GPIO does soft-PWM. We must undo the GPIO export to
+        # allow HW PWM to run on the pin.
+        if app_cfg in [IN, OUT]:
+            cleanup(channel)
+
+        if _gpio_warnings:
+            sysfs_cfg = _sysfs_channel_configuration(self._ch_info)
+            app_cfg = _app_channel_configuration(self._ch_info)
+
+            # warn if channel has been setup external to current program
+            if app_cfg is None and sysfs_cfg is not None:
+                warnings.warn(
+                    "This channel is already in use, continuing anyway. "
+                    "Use GPIO.setwarnings(False) to disable warnings",
+                    RuntimeWarning)
+
+        _export_pwm(self._ch_info)
+        self._started = False
+        self._reconfigure(frequency_hz, 50.0)
+
+        _channel_configuration[channel] = HARD_PWM
+
+    def __del__(self):
+        if _channel_configuration.get(self._ch_info.channel, None) != HARD_PWM:
+            # The user probably ran cleanup() on the channel already, so avoid
+            # attempts to repeat the cleanup operations.
+            return
+        self.stop()
+        _unexport_pwm(self._ch_info)
+        del _channel_configuration[self._ch_info.channel]
+
+    def start(self, duty_cycle_percent):
+        self._reconfigure(self._frequency_hz, duty_cycle_percent, start=True)
+
+    def ChangeFrequency(self, frequency_hz):
+        self._reconfigure(frequency_hz, self._duty_cycle_percent)
+
+    def ChangeDutyCycle(self, duty_cycle_percent):
+        self._reconfigure(self._frequency_hz, duty_cycle_percent)
+
+    def stop(self):
+        if not self._started:
+            return
+        _disable_pwm(self._ch_info)
+
+    def _reconfigure(self, frequency_hz, duty_cycle_percent, start=False):
+        if duty_cycle_percent < 0.0 or duty_cycle_percent > 100.0:
+            raise ValueError("")
+
+        restart = start or self._started
+        if self._started:
+            self._started = False
+            _disable_pwm(self._ch_info)
+
+        self._frequency_hz = frequency_hz
+        self._period_ns = int(1000000000.0 / frequency_hz)
+        _set_pwm_period(self._ch_info, self._period_ns)
+
+        self._duty_cycle_percent = duty_cycle_percent
+        self._duty_cycle_ns = int(self._period_ns *
+                                  (duty_cycle_percent / 100.0))
+        _set_pwm_duty_cycle(self._ch_info, self._duty_cycle_ns)
+
+        if restart:
+            _enable_pwm(self._ch_info)
+            self._started = True

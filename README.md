@@ -133,8 +133,7 @@ The usage of the script can also be viewed by using:
 # Complete library API 
 
 The Jetson GPIO library provides all public APIs provided by the RPi.GPIO
-library with the exception of the Software PWM APIs. The following discusses the
-use of each API:
+library. The following discusses the use of each API:
 
 #### 1. Importing the libary
 
@@ -378,3 +377,19 @@ GPIO.gpio_function(channel)
 ```
 
 The function returns either GPIO.IN or GPIO.OUT.
+
+#### 11. PWM
+
+See `samples/simple_pwm.py` for details on how to use PWM channels.
+
+The Jetson.GPIO library supports PWM only on pins with attached hardware PWM
+controllers. Unlike the RPi.GPIO library, the Jetson.GPIO library does not
+implement Software emulated PWM. Jetson Nano supports 2 PWM channels, and
+Jetson AGX Xavier supports 3 PWM channels. Jetson TX1 and TX2 do not support
+any PWM channels.
+
+The system pinmux must be configured to connect the hardware PWM controlller(s)
+to the relevant pins. If the pinmux is not configured, PWM signals will not
+reach the pins! The Jetson.GPIO library does not dynamically modify the pinmux
+configuration to achieve this. Read the L4T documentation for details on how to
+configure the pinmux. 
