@@ -200,19 +200,16 @@ def _setup_single_in(channel, pull_up_down=PUD_OFF):
 
 def _cleanup_one(channel):
     gpio = _get_gpio_number(channel)
-    if gpio is not None or _check_pin_setup(channel) is not None:
-        _setup_single_in(channel)
-        del _channel_configuration[channel]
-        event.event_cleanup(gpio)
-        _unexport_gpio(gpio)
+    del _channel_configuration[channel]
+    event.event_cleanup(gpio)
+    _unexport_gpio(gpio)
 
 
 def _cleanup_all():
     global _gpio_mode
 
-    for channel in _pin_to_gpio:
-        if _pin_to_gpio[channel][0] is not None:
-            _cleanup_one(channel)
+    for channel in list(_channel_configuration.keys()):
+        _cleanup_one(channel)
 
     _gpio_mode = None
 
@@ -334,7 +331,8 @@ def cleanup(channel=None):
 
     if all(isinstance(x, (str, int)) for x in channel):
         for idx in channel:
-            _cleanup_one(idx)
+            if idx in _channel_configuration:
+                _cleanup_one(idx)
 
     else:
         raise ValueError("Channel must be an integer/string or list/tuple of "
