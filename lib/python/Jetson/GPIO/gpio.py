@@ -74,7 +74,7 @@ _pin_to_gpio = {}
 
 _gpio_warnings = True
 _gpio_mode = None
-_gpio_direction = {}
+_channel_configuration = {}
 
 
 def _make_iterable(iterable):
@@ -90,8 +90,8 @@ def _make_iterable(iterable):
     return iterable
 
 
-def _check_pin_setup(gpio):
-    return _gpio_direction.get(gpio, None)
+def _check_pin_setup(channel):
+    return _channel_configuration.get(channel, None)
 
 
 def _get_gpio_number(channel):
@@ -154,7 +154,7 @@ def _gpio_function(channel):
 def _setup_single_out(channel, initial=None):
     gpio = _get_gpio_number(channel)
     func = _gpio_function(channel)
-    direction = _check_pin_setup(gpio)
+    direction = _check_pin_setup(channel)
 
     # warn if channel has been setup external to currently running program
     if _gpio_warnings and direction is None:
@@ -174,13 +174,13 @@ def _setup_single_out(channel, initial=None):
         with open(gpio_value_path, 'w') as value:
             value.write(str(int(bool(initial))))
 
-    _gpio_direction[gpio] = OUT
+    _channel_configuration[channel] = OUT
 
 
 def _setup_single_in(channel, pull_up_down=PUD_OFF):
     gpio = _get_gpio_number(channel)
     func = _gpio_function(channel)
-    direction = _check_pin_setup(gpio)
+    direction = _check_pin_setup(channel)
 
     # warn if channel has been setup external to currently running program
     if _gpio_warnings and direction is None:
@@ -195,14 +195,14 @@ def _setup_single_in(channel, pull_up_down=PUD_OFF):
     with open(gpio_dir_path, 'w') as direction:
         direction.write("in")
 
-    _gpio_direction[gpio] = IN
+    _channel_configuration[channel] = IN
 
 
 def _cleanup_one(channel):
     gpio = _get_gpio_number(channel)
-    if gpio is not None or _check_pin_setup(gpio) is not None:
+    if gpio is not None or _check_pin_setup(channel) is not None:
         _setup_single_in(channel)
-        del _gpio_direction[gpio]
+        del _channel_configuration[channel]
         event.event_cleanup(gpio)
         _unexport_gpio(gpio)
 
