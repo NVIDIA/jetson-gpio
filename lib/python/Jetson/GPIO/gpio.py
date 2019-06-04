@@ -66,7 +66,7 @@ OUT = 0
 IN = 1
 
 
-JETSON_INFO, _pin_mapping, _gpio_chip_base = gpio_pin_data.get_data()
+JETSON_INFO, _pin_mapping = gpio_pin_data.get_data()
 RPI_INFO = JETSON_INFO
 
 # Dictionary objects used as lookup tables for pin to linux gpio mapping
@@ -499,7 +499,7 @@ def _get_gpio_number(channel):
     if channel not in _pin_to_gpio or _pin_to_gpio[channel][0] is None:
         raise ValueError("Channel %s is invalid" % str(channel))
 
-    return _pin_to_gpio[channel][1] + _gpio_chip_base[_pin_to_gpio[channel][0]]
+    return _pin_to_gpio[channel][2]
 
 
 # Function used to check the currently set function of the channel specified.

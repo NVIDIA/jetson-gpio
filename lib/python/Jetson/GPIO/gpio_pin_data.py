@@ -220,11 +220,22 @@ def get_data():
                 gpio_chip_base[gpio_chip_dir] = int(f.read().strip())
                 break
 
+    def global_gpio_id(gpio_chip_dir, chip_relative_id):
+        if gpio_chip_dir is None or chip_relative_id is None:
+            return None
+        return gpio_chip_base[gpio_chip_dir] + chip_relative_id
+
+    def model_data(key_col, pin_defs):
+        return {x[key_col]: (
+            x[1],
+            x[0],
+            global_gpio_id(x[1], x[0])) for x in pin_defs}
+
     channel_data = {
-        'BOARD': {x[2]: (x[1], x[0]) for x in pin_defs},
-        'BCM': {x[3]: (x[1], x[0]) for x in pin_defs},
-        'CVM': {x[4]: (x[1], x[0]) for x in pin_defs},
-        'TEGRA_SOC': {x[5]: (x[1], x[0]) for x in pin_defs},
+        'BOARD': model_data(2, pin_defs),
+        'BCM': model_data(3, pin_defs),
+        'CVM': model_data(4, pin_defs),
+        'TEGRA_SOC': model_data(5, pin_defs),
     }
 
-    return jetson_info, channel_data, gpio_chip_base
+    return jetson_info, channel_data
