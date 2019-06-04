@@ -131,14 +131,14 @@ JETSON_NANO_PIN_DEFS = [
 ]
 
 jetson_gpio_data = {
-    JETSON_XAVIER: {
-        'gpio_numbers': {
+    JETSON_XAVIER: (
+        {
             'BOARD': {x[2]: (x[0], x[1]) for x in JETSON_XAVIER_PIN_DEFS},
             'BCM': {x[3]: (x[0], x[1]) for x in JETSON_XAVIER_PIN_DEFS},
             'CVM': {x[4]: (x[0], x[1]) for x in JETSON_XAVIER_PIN_DEFS},
             'TEGRA_SOC': {x[5]: (x[0], x[1]) for x in JETSON_XAVIER_PIN_DEFS},
         },
-        'JETSON_INFO': {
+        {
             'P1_REVISION': 1,
             'RAM': '16384M',
             'REVISION': 'Unknown',
@@ -146,15 +146,15 @@ jetson_gpio_data = {
             'MANUFACTURER': 'NVIDIA',
             'PROCESSOR': 'ARM Carmel'
         }
-    },
-    JETSON_TX2: {
-        'gpio_numbers': {
+    ),
+    JETSON_TX2: (
+        {
             'BOARD': {x[2]: (x[0], x[1]) for x in JETSON_TX2_PIN_DEFS},
             'BCM': {x[3]: (x[0], x[1]) for x in JETSON_TX2_PIN_DEFS},
             'CVM': {x[4]: (x[0], x[1]) for x in JETSON_TX2_PIN_DEFS},
             'TEGRA_SOC': {x[5]: (x[0], x[1]) for x in JETSON_TX2_PIN_DEFS},
         },
-        'JETSON_INFO': {
+        {
             'P1_REVISION': 1,
             'RAM': '8192M',
             'REVISION': 'Unknown',
@@ -162,15 +162,15 @@ jetson_gpio_data = {
             'MANUFACTURER': 'NVIDIA',
             'PROCESSOR': 'ARM A57 + Denver'
         }
-    },
-    JETSON_TX1: {
-        'gpio_numbers': {
+    ),
+    JETSON_TX1: (
+        {
             'BOARD': {x[2]: (x[0], x[1]) for x in JETSON_TX1_PIN_DEFS},
             'BCM': {x[3]: (x[0], x[1]) for x in JETSON_TX1_PIN_DEFS},
             'CVM': {x[4]: (x[0], x[1]) for x in JETSON_TX1_PIN_DEFS},
             'TEGRA_SOC': {x[5]: (x[0], x[1]) for x in JETSON_TX1_PIN_DEFS},
         },
-        'JETSON_INFO': {
+        {
             'P1_REVISION': 1,
             'RAM': '4096M',
             'REVISION': 'Unknown',
@@ -178,15 +178,15 @@ jetson_gpio_data = {
             'MANUFACTURER': 'NVIDIA',
             'PROCESSOR': 'ARM A57'
         }
-    },
-    JETSON_NANO: {
-        'gpio_numbers': {
+    ),
+    JETSON_NANO: (
+        {
             'BOARD': {x[2]: (x[0], x[1]) for x in JETSON_NANO_PIN_DEFS},
             'BCM': {x[3]: (x[0], x[1]) for x in JETSON_NANO_PIN_DEFS},
             'CVM': {x[4]: (x[0], x[1]) for x in JETSON_NANO_PIN_DEFS},
             'TEGRA_SOC': {x[5]: (x[0], x[1]) for x in JETSON_NANO_PIN_DEFS},
         },
-        'JETSON_INFO': {
+        {
             'P1_REVISION': 1,
             'RAM': '4096M',
             'REVISION': 'Unknown',
@@ -194,11 +194,11 @@ jetson_gpio_data = {
             'MANUFACTURER': 'NVIDIA',
             'PROCESSOR': 'ARM A57'
         }
-    }
+    ),
 }
 
 
-def get_gpio_data():
+def get_data():
     model_path = '/proc/device-tree/model'
     version_path = '/proc/device-tree/chosen/plugin-manager/ids'
 
@@ -225,11 +225,11 @@ def get_gpio_data():
             'Could not guess Jetson model from the model string (%s).' %
             model_str)
 
-    gpio_pin_data = jetson_gpio_data[model]
+    gpio_pin_data, jetson_info = jetson_gpio_data[model]
     gpio_chip_base = {}
 
     # Get the gpiochip offsets
-    gpios = gpio_pin_data['gpio_numbers'['BOARD']]
+    gpios = gpio_pin_data['BOARD']
     gpio_chip_dirs = set([x[1] for x in gpios if x[1] is not None])
     for gpio_chip_dir in gpio_chip_dirs:
         gpio_chip_gpio_dir = gpio_chip_dir + '/gpio'
@@ -240,4 +240,5 @@ def get_gpio_data():
             with open(gpiochip_fn, 'r') as f:
                 gpio_chip_base[gpio_chip_dir] = int(f.read().strip())
                 break
-    return gpio_pin_data, gpio_chip_base
+
+    return jetson_info, gpio_pin_data, gpio_chip_base

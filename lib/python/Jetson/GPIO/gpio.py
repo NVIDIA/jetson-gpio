@@ -66,9 +66,7 @@ OUT = 0
 IN = 1
 
 
-_board_info, _gpio_chip_base = gpio_pin_data.get_gpio_data()
-_pin_mapping = _board_info['gpio_numbers']
-JETSON_INFO = _board_info['JETSON_INFO']
+JETSON_INFO, _pin_mapping, _gpio_chip_base = gpio_pin_data.get_data()
 RPI_INFO = JETSON_INFO
 
 # Dictionary objects used as lookup tables for pin to linux gpio mapping
