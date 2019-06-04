@@ -66,11 +66,11 @@ OUT = 0
 IN = 1
 
 
-JETSON_INFO, _pin_mapping = gpio_pin_data.get_data()
+JETSON_INFO, _channel_data_by_mode = gpio_pin_data.get_data()
 RPI_INFO = JETSON_INFO
 
 # Dictionary objects used as lookup tables for pin to linux gpio mapping
-_pin_to_gpio = {}
+_channel_data = {}
 
 _gpio_warnings = True
 _gpio_mode = None
@@ -99,9 +99,9 @@ def _make_iterable(iterable, single_length=None):
 
 
 def _channel_to_gpio(channel):
-    if channel not in _pin_to_gpio or _pin_to_gpio[channel][0] is None:
+    if channel not in _channel_data or _channel_data[channel][0] is None:
         raise ValueError("Channel %s is invalid" % str(channel))
-    return _pin_to_gpio[channel][2]
+    return _channel_data[channel][2]
 
 
 def _channel_to_gpio_single(channel):
@@ -114,7 +114,28 @@ def _channels_to_gpio_list(channels):
     return [_channel_to_gpio(c) for c in channels]
 
 
-def _check_pin_setup(channel):
+def _sysfs_channel_configuration(channel, gpio):
+    """Return the current configuration of a channel as reported by sysfs. Any
+    of IN, OUT, or None may be returned."""
+
+    gpio_dir = _SYSFS_ROOT + "/gpio%i" % gpio
+    if not os.path.exists(gpio_dir):
+        return None
+
+    with open(gpio_dir + "/direction", 'r') as f_direction:
+        gpio_direction = f_direction.read()
+
+    lookup = {
+        'in': IN,
+        'out': OUT,
+    }
+    return lookup.get(gpio_direction.strip().lower(), None)
+
+
+def _app_channel_configuration(channel):
+    """Return the current configuration of a channel as requested by this
+    module in this process. Any of IN, OUT, or None may be returned."""
+
     return _channel_configuration.get(channel, None)
 
 
@@ -141,21 +162,6 @@ def _unexport_gpio(gpio):
 def _output_one(gpio, value):
     with open(_SYSFS_ROOT + "/gpio%s" % gpio + "/value", 'w') as value_file:
         value_file.write(str(int(bool(value))))
-
-
-# Function used to check the currently set function of the channel specified.
-# Param channel must be an integers. The function returns either IN, OUT,
-# or UNKNOWN
-def _gpio_function(channel, gpio):
-    gpio_dir = _SYSFS_ROOT + "/gpio%i" % gpio
-
-    if not os.path.exists(gpio_dir):
-        return UNKNOWN
-
-    with open(gpio_dir + "/direction", 'r') as f_direction:
-        function_ = f_direction.read()
-
-    return function_.rstrip()
 
 
 def _setup_single_out(channel, gpio, initial=None):
@@ -207,7 +213,7 @@ def setwarnings(state):
 # Function used to set the pin mumbering mode. Possible mode values are BOARD,
 # BCM, TEGRA_SOC and CVM
 def setmode(mode):
-    global _gpio_mode, _pin_to_gpio
+    global _gpio_mode, _channel_data
 
     # check if a different mode has been set
     if _gpio_mode and mode != _gpio_mode:
@@ -224,7 +230,7 @@ def setmode(mode):
     if mode not in mode_map:
         raise ValueError("An invalid mode was passed to setmode()!")
 
-    _pin_to_gpio = _pin_mapping[mode_map[mode]]
+    _channel_data = _channel_data_by_mode[mode_map[mode]]
     _gpio_mode = mode
 
 
@@ -258,11 +264,11 @@ def setup(channels, direction, pull_up_down=PUD_OFF, initial=None):
 
     if _gpio_warnings:
         for channel, gpio in zip(channels, gpios):
-            func = _gpio_function(channel, gpio)
-            direction = _check_pin_setup(channel)
+            sysfs_cfg = _sysfs_channel_configuration(channel, gpio)
+            app_cfg = _app_channel_configuration(channel)
 
             # warn if channel has been setup external to current program
-            if direction is None and func is not None:
+            if app_cfg is None and sysfs_cfg is not None:
                 warnings.warn(
                     "This channel is already in use, continuing anyway. "
                     "Use GPIO.setwarnings(False) to disable warnings",
@@ -312,8 +318,8 @@ def cleanup(channel=None):
 def input(channel):
     gpio = _channel_to_gpio_single(channel)
 
-    direction = _check_pin_setup(channel)
-    if direction != IN and direction != OUT:
+    app_cfg = _app_channel_configuration(channel)
+    if app_cfg not in [IN, OUT]:
         raise RuntimeError("You must setup() the GPIO channel first")
 
     with open(_SYSFS_ROOT + "/gpio%i" % gpio + "/value") as value:
@@ -333,7 +339,8 @@ def output(channels, values):
         raise RuntimeError("Number of values != number of channels")
 
     # check that channels have been set as output
-    if any((_check_pin_setup(channel) != OUT) for channel in channels):
+    if any(_app_channel_configuration(channel) != OUT
+           for channel in channels):
         raise RuntimeError("The GPIO channel has not been set up as an "
                            "OUTPUT")
 
@@ -346,6 +353,11 @@ def output(channels, values):
 # This function return True or False
 def event_detected(channel):
     gpio = _channel_to_gpio_single(channel)
+
+    if _app_channel_configuration(channel) != IN:
+        raise RuntimeError("You must setup() the GPIO channel as an "
+                           "input first")
+
     return event.edge_event_detected(gpio)
 
 
@@ -356,7 +368,7 @@ def add_event_callback(channel, callback):
     if not callable(callback):
         raise TypeError("Parameter must be callable")
 
-    if _check_pin_setup(channel) != IN:
+    if _app_channel_configuration(channel) != IN:
         raise RuntimeError("You must setup() the GPIO channel as an "
                            "input first")
 
@@ -377,7 +389,7 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
         raise TypeError("Callback Parameter must be callable")
 
     # channel must be setup as input
-    if _check_pin_setup(channel) != IN:
+    if _app_channel_configuration(channel) != IN:
         raise RuntimeError("You must setup() the GPIO channel as an input "
                            "first")
 
@@ -426,7 +438,7 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
     gpio = _channel_to_gpio_single(channel)
 
     # channel must be setup as input
-    if _check_pin_setup(channel) != IN:
+    if _app_channel_configuration(channel) != IN:
         raise RuntimeError("You must setup() the GPIO channel as an input "
                            "first")
 
@@ -476,4 +488,7 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
 # or UNKNOWN
 def gpio_function(channel):
     gpio = _channel_to_gpio_single(channel)
-    return _gpio_function(channel, gpio)
+    func = _sysfs_channel_configuration(channel, gpio)
+    if func is None:
+        func = UNKNOWN
+    return func
