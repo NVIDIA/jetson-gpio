@@ -98,27 +98,33 @@ def _make_iterable(iterable, single_length=None):
     return iterable
 
 
-def _channel_to_gpio(channel):
-    if channel not in _channel_data or _channel_data[channel][0] is None:
+def _channel_to_info_lookup(channel, need_gpio, need_pwm):
+    if channel not in _channel_data:
         raise ValueError("Channel %s is invalid" % str(channel))
-    return _channel_data[channel][2]
+    ch_info = _channel_data[channel]
+    if need_gpio and ch_info.gpio_chip_dir is None:
+        raise ValueError("Channel %s is not a GPIO" % str(channel))
+    if need_pwm and ch_info.pwm_chip_dir is None:
+        raise ValueError("Channel %s is not a PWM" % str(channel))
+    return ch_info
 
 
-def _channel_to_gpio_single(channel):
+def _channel_to_info(channel, need_gpio=False, need_pwm=False):
     _validate_mode_set()
-    return _channel_to_gpio(channel)
+    return _channel_to_info_lookup(channel, need_gpio, need_pwm)
 
 
-def _channels_to_gpio_list(channels):
+def _channels_to_infos(channels, need_gpio=False, need_pwm=False):
     _validate_mode_set()
-    return [_channel_to_gpio(c) for c in channels]
+    return [_channel_to_info_lookup(c, need_gpio, need_pwm)
+            for c in _make_iterable(channels)]
 
 
-def _sysfs_channel_configuration(channel, gpio):
+def _sysfs_channel_configuration(ch_info):
     """Return the current configuration of a channel as reported by sysfs. Any
     of IN, OUT, or None may be returned."""
 
-    gpio_dir = _SYSFS_ROOT + "/gpio%i" % gpio
+    gpio_dir = _SYSFS_ROOT + "/gpio%i" % ch_info.gpio
     if not os.path.exists(gpio_dir):
         return None
 
@@ -132,11 +138,11 @@ def _sysfs_channel_configuration(channel, gpio):
     return lookup.get(gpio_direction.strip().lower(), None)
 
 
-def _app_channel_configuration(channel):
+def _app_channel_configuration(ch_info):
     """Return the current configuration of a channel as requested by this
     module in this process. Any of IN, OUT, or None may be returned."""
 
-    return _channel_configuration.get(channel, None)
+    return _channel_configuration.get(ch_info.channel, None)
 
 
 def _export_gpio(gpio):
@@ -164,41 +170,41 @@ def _output_one(gpio, value):
         value_file.write(str(int(bool(value))))
 
 
-def _setup_single_out(channel, gpio, initial=None):
-    _export_gpio(gpio)
+def _setup_single_out(ch_info, initial=None):
+    _export_gpio(ch_info.gpio)
 
-    gpio_dir_path = _SYSFS_ROOT + "/gpio%i" % gpio + "/direction"
+    gpio_dir_path = _SYSFS_ROOT + "/gpio%i" % ch_info.gpio + "/direction"
     with open(gpio_dir_path, 'w') as direction_file:
         direction_file.write("out")
 
     if initial is not None:
-        _output_one(gpio, initial)
+        _output_one(ch_info.gpio, initial)
 
-    _channel_configuration[channel] = OUT
+    _channel_configuration[ch_info.channel] = OUT
 
 
-def _setup_single_in(channel, gpio):
-    _export_gpio(gpio)
+def _setup_single_in(ch_info):
+    _export_gpio(ch_info.gpio)
 
-    gpio_dir_path = _SYSFS_ROOT + "/gpio%i" % gpio + "/direction"
+    gpio_dir_path = _SYSFS_ROOT + "/gpio%i" % ch_info.gpio + "/direction"
     with open(gpio_dir_path, 'w') as direction:
         direction.write("in")
 
-    _channel_configuration[channel] = IN
+    _channel_configuration[ch_info.channel] = IN
 
 
-def _cleanup_one(channel, gpio):
-    del _channel_configuration[channel]
-    event.event_cleanup(gpio)
-    _unexport_gpio(gpio)
+def _cleanup_one(ch_info):
+    del _channel_configuration[ch_info.channel]
+    event.event_cleanup(ch_info.gpio)
+    _unexport_gpio(ch_info.gpio)
 
 
 def _cleanup_all():
     global _gpio_mode
 
     for channel in list(_channel_configuration.keys()):
-        gpio = _channel_to_gpio(channel)
-        _cleanup_one(channel, gpio)
+        ch_info = _channel_to_info(channel)
+        _cleanup_one(ch_info)
 
     _gpio_mode = None
 
@@ -245,8 +251,7 @@ def getmode():
 # PUD_DOWN and is only valid when direction in IN, initial must be HIGH or LOW
 # and is only valid when direction is OUT
 def setup(channels, direction, pull_up_down=PUD_OFF, initial=None):
-    channels = _make_iterable(channels)
-    gpios = _channels_to_gpio_list(channels)
+    ch_infos = _channels_to_infos(channels, need_gpio=True)
 
     # check direction is valid
     if direction != OUT and direction != IN:
@@ -263,9 +268,9 @@ def setup(channels, direction, pull_up_down=PUD_OFF, initial=None):
                          "PUD_OFF, PUD_UP or PUD_DOWN")
 
     if _gpio_warnings:
-        for channel, gpio in zip(channels, gpios):
-            sysfs_cfg = _sysfs_channel_configuration(channel, gpio)
-            app_cfg = _app_channel_configuration(channel)
+        for ch_info in ch_infos:
+            sysfs_cfg = _sysfs_channel_configuration(ch_info)
+            app_cfg = _app_channel_configuration(ch_info)
 
             # warn if channel has been setup external to current program
             if app_cfg is None and sysfs_cfg is not None:
@@ -275,16 +280,16 @@ def setup(channels, direction, pull_up_down=PUD_OFF, initial=None):
                     RuntimeWarning)
 
     if direction == OUT:
-        initial = _make_iterable(initial, len(channels))
-        if len(initial) != len(gpios):
+        initial = _make_iterable(initial, len(ch_infos))
+        if len(initial) != len(ch_infos):
             raise RuntimeError("Number of values != number of channels")
-        for channel, gpio, init in zip(channels, gpios, initial):
-            _setup_single_out(channel, gpio, init)
+        for ch_info, init in zip(ch_infos, initial):
+            _setup_single_out(ch_info, init)
     else:
         if initial is not None:
             raise ValueError("initial parameter is not valid for inputs")
-        for channel, gpio in zip(channels, gpios):
-            _setup_single_in(channel, gpio)
+        for ch_info in ch_infos:
+            _setup_single_in(ch_info)
 
 
 # Function used to cleanup channels at the end of the program.
@@ -305,24 +310,22 @@ def cleanup(channel=None):
         _cleanup_all()
         return
 
-    channels = _make_iterable(channel)
-    gpios = _channels_to_gpio_list(channels)
-
-    for channel, gpio in zip(channels, gpios):
-        if channel in _channel_configuration:
-            _cleanup_one(channel, gpio)
+    ch_infos = _channels_to_infos(channel)
+    for ch_info in ch_infos:
+        if ch_info.channel in _channel_configuration:
+            _cleanup_one(ch_info)
 
 
 # Function used to return the current value of the specified channel.
 # Function returns either HIGH or LOW
 def input(channel):
-    gpio = _channel_to_gpio_single(channel)
+    ch_info = _channel_to_info(channel, need_gpio=True)
 
-    app_cfg = _app_channel_configuration(channel)
+    app_cfg = _app_channel_configuration(ch_info)
     if app_cfg not in [IN, OUT]:
         raise RuntimeError("You must setup() the GPIO channel first")
 
-    with open(_SYSFS_ROOT + "/gpio%i" % gpio + "/value") as value:
+    with open(_SYSFS_ROOT + "/gpio%i" % ch_info.gpio + "/value") as value:
         value_read = int(value.read())
         return value_read
 
@@ -332,51 +335,49 @@ def input(channel):
 # Values must be either HIGH or LOW or list/tuple
 # of HIGH and LOW with the same length as the channels list/tuple
 def output(channels, values):
-    channels = _make_iterable(channels)
-    gpios = _channels_to_gpio_list(channels)
-    values = _make_iterable(values, len(channels))
-    if len(values) != len(channels):
+    ch_infos = _channels_to_infos(channels, need_gpio=True)
+    values = _make_iterable(values, len(ch_infos))
+    if len(values) != len(ch_infos):
         raise RuntimeError("Number of values != number of channels")
 
     # check that channels have been set as output
-    if any(_app_channel_configuration(channel) != OUT
-           for channel in channels):
+    if any(_app_channel_configuration(ch_info) != OUT for ch_info in ch_infos):
         raise RuntimeError("The GPIO channel has not been set up as an "
                            "OUTPUT")
 
-    for gpio, value in zip(gpios, values):
-        _output_one(gpio, value)
+    for ch_info, value in zip(ch_infos, values):
+        _output_one(ch_info.gpio, value)
 
 
 # Function used to check if an event occurred on the specified channel.
 # Param channel must be an integer.
 # This function return True or False
 def event_detected(channel):
-    gpio = _channel_to_gpio_single(channel)
+    ch_info = _channel_to_info(channel, need_gpio=True)
 
-    if _app_channel_configuration(channel) != IN:
+    if _app_channel_configuration(ch_info) != IN:
         raise RuntimeError("You must setup() the GPIO channel as an "
                            "input first")
 
-    return event.edge_event_detected(gpio)
+    return event.edge_event_detected(ch_info.gpio)
 
 
 # Function used to add a callback function to channel, after it has been
 # registered for events using add_event_detect()
 def add_event_callback(channel, callback):
-    gpio = _channel_to_gpio_single(channel)
+    ch_info = _channel_to_info(channel, need_gpio=True)
     if not callable(callback):
         raise TypeError("Parameter must be callable")
 
-    if _app_channel_configuration(channel) != IN:
+    if _app_channel_configuration(ch_info) != IN:
         raise RuntimeError("You must setup() the GPIO channel as an "
                            "input first")
 
-    if not event.gpio_event_added(gpio):
+    if not event.gpio_event_added(ch_info.gpio):
         raise RuntimeError("Add event detection using add_event_detect first "
                            "before adding a callback")
 
-    event.add_edge_callback(gpio, lambda: callback(channel))
+    event.add_edge_callback(ch_info.gpio, lambda: callback(channel))
 
 
 # Function used to add threaded event detection for a specified gpio channel.
@@ -384,12 +385,12 @@ def add_event_callback(channel, callback):
 # FALLING or BOTH. A callback function to be called when the event is detected
 # and an integer bounctime in milliseconds can be optionally provided
 def add_event_detect(channel, edge, callback=None, bouncetime=None):
-    gpio = _channel_to_gpio_single(channel)
+    ch_info = _channel_to_info(channel, need_gpio=True)
     if (not callable(callback)) and callback is not None:
         raise TypeError("Callback Parameter must be callable")
 
     # channel must be setup as input
-    if _app_channel_configuration(channel) != IN:
+    if _app_channel_configuration(ch_info) != IN:
         raise RuntimeError("You must setup() the GPIO channel as an input "
                            "first")
 
@@ -405,7 +406,8 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
         elif bouncetime < 0:
             raise ValueError("bouncetime must be an integer greater than 0")
 
-    result = event.add_edge_detect(gpio, edge - _EDGE_OFFSET, bouncetime)
+    result = event.add_edge_detect(ch_info.gpio, edge - _EDGE_OFFSET,
+                                   bouncetime)
 
     # result == 1 means a different edge was already added for the channel.
     # result == 2 means error occurred while adding edge (thread or event poll)
@@ -420,13 +422,13 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
         raise RuntimeError(error_str)
 
     if callback is not None:
-        event.add_edge_callback(gpio, lambda: callback(channel))
+        event.add_edge_callback(ch_info.gpio, lambda: callback(channel))
 
 
 # Function used to remove event detection for channel
 def remove_event_detect(channel):
-    gpio = _channel_to_gpio_single(channel)
-    event.remove_edge_detect(gpio)
+    ch_info = _channel_to_info(channel, need_gpio=True)
+    event.remove_edge_detect(ch_info.gpio)
 
 
 # Function used to perform a blocking wait until the specified edge
@@ -435,10 +437,10 @@ def remove_event_detect(channel):
 # bouncetime in milliseconds and timeout in millseconds can optionally be
 # provided
 def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
-    gpio = _channel_to_gpio_single(channel)
+    ch_info = _channel_to_info(channel, need_gpio=True)
 
     # channel must be setup as input
-    if _app_channel_configuration(channel) != IN:
+    if _app_channel_configuration(ch_info) != IN:
         raise RuntimeError("You must setup() the GPIO channel as an input "
                            "first")
 
@@ -463,7 +465,7 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
         elif timeout < 0:
             raise ValueError("Timeout must greater than 0")
 
-    result = event.blocking_wait_for_edge(gpio, edge - _EDGE_OFFSET,
+    result = event.blocking_wait_for_edge(ch_info.gpio, edge - _EDGE_OFFSET,
                                           bouncetime, timeout)
 
     # If not error, result == channel. If timeout occurs while waiting,
@@ -487,8 +489,8 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
 # Param channel must be an integers. The function returns either IN, OUT,
 # or UNKNOWN
 def gpio_function(channel):
-    gpio = _channel_to_gpio_single(channel)
-    func = _sysfs_channel_configuration(channel, gpio)
+    ch_info = _channel_to_info(channel)
+    func = _sysfs_channel_configuration(ch_info)
     if func is None:
         func = UNKNOWN
     return func

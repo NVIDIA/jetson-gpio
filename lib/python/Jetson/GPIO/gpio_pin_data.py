@@ -209,6 +209,16 @@ jetson_gpio_data = {
 }
 
 
+class ChannelInfo(object):
+    def __init__(self, channel, gpio_chip_dir, chip_gpio, gpio, pwm_chip_dir, pwm_id):
+        self.channel = channel
+        self.gpio_chip_dir = gpio_chip_dir
+        self.chip_gpio = chip_gpio
+        self.gpio = gpio
+        self.pwm_chip_dir = pwm_chip_dir
+        self.pwm_id = pwm_id
+
+
 def get_data():
     compatible_path = '/proc/device-tree/compatible'
     ids_path = '/proc/device-tree/chosen/plugin-manager/ids'
@@ -281,7 +291,8 @@ def get_data():
         return None
 
     def model_data(key_col, pin_defs):
-        return {x[key_col]: (
+        return {x[key_col]: ChannelInfo(
+            x[key_col],
             x[1],
             x[0],
             global_gpio_id(x[1], x[0]),
