@@ -54,6 +54,11 @@ JETSON_XAVIER_PIN_DEFS = [
     (65, "/sys/devices/2200000.gpio", 38, 20, 'I2S2_DIN', 'DAP2_DIN'),
     (64, "/sys/devices/2200000.gpio", 40, 21, 'I2S2_DOUT', 'DAP2_DOUT')
 ]
+compats_xavier = (
+    'nvidia,p2972-0000',
+    'nvidia,p2972-0006',
+    'nvidia,jetson-xavier',
+)
 
 JETSON_TX2_PIN_DEFS = [
     (76, "/sys/devices/2200000.gpio", 7, 4, 'AUDIO_MCLK', 'AUD_MCLK'),
@@ -79,6 +84,13 @@ JETSON_TX2_PIN_DEFS = [
     (74, "/sys/devices/2200000.gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN'),
     (73, "/sys/devices/2200000.gpio", 40, 21, 'I2S0_SDOUT', 'DAP1_DOUT')
 ]
+compats_tx2 = (
+    'nvidia,p2771-0000',
+    'nvidia,p2771-0888',
+    'nvidia,p3489-0000',
+    'nvidia,quill',
+    'nvidia,storm',
+)
 
 JETSON_TX1_PIN_DEFS = [
     (216, "/sys/devices/6000d000.gpio", 7, 4, 'AUDIO_MCLK', 'AUD_MCLK'),
@@ -104,6 +116,10 @@ JETSON_TX1_PIN_DEFS = [
     (9, "/sys/devices/6000d000.gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN'),
     (10, "/sys/devices/6000d000.gpio", 40, 21, 'I2S0_SDOUT', 'DAP1_DOUT')
 ]
+compats_tx1 = (
+    'nvidia,p2371-2180',
+    'nvidia,jetson-cv',
+)
 
 JETSON_NANO_PIN_DEFS = [
     (216, "/sys/devices/6000d000.gpio", 7, 4, 'GPIO9', 'GPIO9'),
@@ -129,6 +145,11 @@ JETSON_NANO_PIN_DEFS = [
     (77, "/sys/devices/6000d000.gpio", 38, 20, 'I2S0_DIN', 'I2S0_DIN'),
     (78, "/sys/devices/6000d000.gpio", 40, 21, 'I2S0_DOUT', 'I2S0_DOUT')
 ]
+compats_nano = (
+    'nvidia,p3450-0000',
+    'nvidia,p3450-0002',
+    'nvidia,jetson-nano',
+)
 
 jetson_gpio_data = {
     JETSON_XAVIER: (
@@ -179,31 +200,35 @@ jetson_gpio_data = {
 
 
 def get_data():
-    model_path = '/proc/device-tree/model'
-    version_path = '/proc/device-tree/chosen/plugin-manager/ids'
+    compatible_path = '/proc/device-tree/compatible'
+    ids_path = '/proc/device-tree/chosen/plugin-manager/ids'
 
-    try:
-        with open(model_path, 'r') as f:
-            model_str = f.read().rstrip('\x00').lower()
-    except:
-        raise Exception('Could not determine Jetson model because model file'
-                        '(%s) was not found.' % model_path)
+    with open(compatible_path, 'r') as f:
+        compatibles = f.read().split('\x00')
 
-    if 'tx1' in model_str:
+    def matches(vals):
+        return any(v in compatibles for v in vals)
+    if matches(compats_tx1):
         model = JETSON_TX1
-    elif 'tx2' in model_str or 'quill' in model_str:
+    elif matches(compats_tx2):
         model = JETSON_TX2
-    elif 'xavier' in model_str:
+    elif matches(compats_xavier):
         model = JETSON_XAVIER
-    elif 'nano' in model_str:
-        if int(os.listdir(version_path)[0][-3:]) >= 200:
-            model = JETSON_NANO
-        else:
-            raise Exception('Jetson Nano revision must be newer than A02')
+    elif matches(compats_nano):
+        model = JETSON_NANO
+        module_id = None
+        for f in os.listdir(ids_path):
+            if f.startswith('3448-'):
+                module_id = f
+                break
+        if not module_id:
+            raise Exception('Could not determine Jetson Nano revision')
+        revision = f.split('-')[-1]
+        # Revision is an ordered string, not a decimal integer
+        if revision < "200":
+            raise Exception('Jetson Nano revision must be A02 or later')
     else:
-        raise Exception(
-            'Could not guess Jetson model from the model string (%s).' %
-            model_str)
+        raise Exception('Could not determine Jetson model')
 
     pin_defs, jetson_info = jetson_gpio_data[model]
     gpio_chip_base = {}
