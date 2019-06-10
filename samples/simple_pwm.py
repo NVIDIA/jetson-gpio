@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python
 
 # Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
 # Permission is hereby granted, free of charge, to any person obtaining a
@@ -19,38 +19,34 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-script_dir="$(dirname "$0")"
-script_dir="$(cd "${script_dir}" && pwd)"
-top_dir="$(dirname "${script_dir}")"
-py_lib_dir="$(cd "${top_dir}/lib/python" && pwd)"
+import RPi.GPIO as GPIO
+import time
 
-# prints usage
-print_help() {
-    cat << EOF
-Usage: run_sample.sh <sample application>
-sample_application: simple_input.py
-                    simple_output.py
-                    simple_pwm.py
-                    button_led.py
-                    button_event.py
-                    button_interrupt.py
-EOF
-    exit 1
+output_pins = {
+    'JETSON_XAVIER': 18,
+    'JETSON_NANO': 33,
 }
+output_pin = output_pins.get(GPIO.model, None)
+if output_pin is None:
+    raise Exception('PWM not supported on this board')
 
-# Check if the necessary argument is provided
-if [ "$#" -lt "1" ]; then
-    print_help
-fi
 
-# Check if --help or -h switch is the argument
-arg="$1"
-if [ "${arg}" = "--help" ] || [ "${arg}" = "-h" ]; then
-    print_help
-fi
+def main():
+    # Pin Setup:
+    # Board pin-numbering scheme
+    GPIO.setmode(GPIO.BOARD)
+    # set pin as an output pin with optional initial state of HIGH
+    GPIO.setup(output_pin, GPIO.OUT, initial=GPIO.HIGH)
+    p = GPIO.PWM(output_pin, 50)
+    p.start(25)
 
-# Set PYTHONPATH to locate the required python modules
-export PYTHONPATH="${py_lib_dir}${PYTHONPATH+:}${PYTHONPATH}"
+    print("PWM running. Press CTRL+C to exit.")
+    try:
+        while True:
+            time.sleep(1)
+    finally:
+        p.stop()
+        GPIO.cleanup()
 
-# Run the requested sample application
-exec "${script_dir}/${arg}" "${@:2}"
+if __name__ == '__main__':
+    main()
