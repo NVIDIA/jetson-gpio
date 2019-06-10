@@ -34,6 +34,7 @@ sample_application: simple_input.py
                     button_led.py
                     button_event.py
                     button_interrupt.py
+                    test_all_apis.py
 EOF
     exit 1
 }
