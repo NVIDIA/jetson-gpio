@@ -66,7 +66,7 @@ OUT = 0
 IN = 1
 
 
-JETSON_INFO, _channel_data_by_mode = gpio_pin_data.get_data()
+model, JETSON_INFO, _channel_data_by_mode = gpio_pin_data.get_data()
 RPI_INFO = JETSON_INFO
 
 # Dictionary objects used as lookup tables for pin to linux gpio mapping

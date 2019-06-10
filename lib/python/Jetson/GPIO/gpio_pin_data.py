@@ -263,4 +263,4 @@ def get_data():
         'TEGRA_SOC': model_data(5, pin_defs),
     }
 
-    return jetson_info, channel_data
+    return model, jetson_info, channel_data
