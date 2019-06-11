@@ -146,7 +146,7 @@ def _export_gpio(gpio):
     with open(_SYSFS_ROOT + "/export", "w") as f_export:
         f_export.write(str(gpio))
 
-    while not os.access(_SYSFS_ROOT + "/gpio%i" % gpio + "/direction",
+    while not os.access(_SYSFS_ROOT + "/gpio%i" % gpio + "/value",
                         os.R_OK | os.W_OK):
         time.sleep(0.01)
 
