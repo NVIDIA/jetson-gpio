@@ -49,7 +49,7 @@ JETSON_XAVIER_PIN_DEFS = [
     (205, "/sys/devices/2200000.gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
     (204, "/sys/devices/2200000.gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None),
     (129, "/sys/devices/2200000.gpio", 22, 25, 'GPIO17', 'SOC_GPIO21', None, None),
-    (22, "/sys/devices/2200000.gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
+    (203, "/sys/devices/2200000.gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
     (206, "/sys/devices/2200000.gpio", 24, 8, 'SPI1_CS0_N', 'SPI1_CS0_N', None, None),
     (207, "/sys/devices/2200000.gpio", 26, 7, 'SPI1_CS1_N', 'SPI1_CS1_N', None, None),
     (3, "/sys/devices/c2f0000.gpio", 29, 5, 'CAN0_DIN', 'CAN0_DIN', None, None),
@@ -57,6 +57,7 @@ JETSON_XAVIER_PIN_DEFS = [
     (9, "/sys/devices/c2f0000.gpio", 32, 12, 'GPIO9', 'CAN1_EN', None, None),
     (0, "/sys/devices/c2f0000.gpio", 33, 13, 'CAN1_DOUT', 'CAN1_DOUT', None, None),
     (66, "/sys/devices/2200000.gpio", 35, 19, 'I2S2_FS', 'DAP2_FS', None, None),
+    # Input-only (due to base board)
     (141, "/sys/devices/2200000.gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None),
     (1, "/sys/devices/c2f0000.gpio", 37, 26, 'CAN1_DIN', 'CAN1_DIN', None, None),
     (65, "/sys/devices/2200000.gpio", 38, 20, 'I2S2_DIN', 'DAP2_DIN', None, None),
@@ -70,11 +71,13 @@ compats_xavier = (
 
 JETSON_TX2_PIN_DEFS = [
     (76, "/sys/devices/2200000.gpio", 7, 4, 'AUDIO_MCLK', 'AUD_MCLK', None, None),
+    # Output-only (due to base board)
     (146, "/sys/devices/2200000.gpio", 11, 17, 'UART0_RTS', 'UART1_RTS', None, None),
     (72, "/sys/devices/2200000.gpio", 12, 18, 'I2S0_CLK', 'DAP1_SCLK', None, None),
     (77, "/sys/devices/2200000.gpio", 13, 27, 'GPIO20_AUD_INT', 'GPIO_AUD0', None, None),
     (15, "/sys/devices/3160000.i2c/i2c-0/0-0074", 15, 22, 'GPIO_EXP_P17', 'GPIO_EXP_P17', None, None),
-    (40, "/sys/devices/c2f0000.gpio", 16, 23, 'AO_DMIC_IN_DAT', 'CAN0_GPIO0', None, None),
+    # Input-only (due to module):
+    (40, "/sys/devices/c2f0000.gpio", 16, 23, 'AO_DMIC_IN_DAT', 'CAN_GPIO0', None, None),
     (161, "/sys/devices/2200000.gpio", 18, 24, 'GPIO16_MDM_WAKE_AP', 'GPIO_MDM2', None, None),
     (109, "/sys/devices/2200000.gpio", 19, 10, 'SPI1_MOSI', 'GPIO_CAM6', None, None),
     (108, "/sys/devices/2200000.gpio", 21, 9, 'SPI1_MISO', 'GPIO_CAM5', None, None),
@@ -84,9 +87,12 @@ JETSON_TX2_PIN_DEFS = [
     (None, None, 26, 7, 'SPI1_CS1', None, None, None),
     (78, "/sys/devices/2200000.gpio", 29, 5, 'GPIO19_AUD_RST', 'GPIO_AUD1', None, None),
     (42, "/sys/devices/c2f0000.gpio", 31, 6, 'GPIO9_MOTION_INT', 'CAN_GPIO2', None, None),
-    (41, "/sys/devices/2200000.gpio", 32, 12, 'AO_DMIC_IN_CLK', 'CAN_GPIO1', None, None),
+    # Output-only (due to module):
+    (41, "/sys/devices/c2f0000.gpio", 32, 12, 'AO_DMIC_IN_CLK', 'CAN_GPIO1', None, None),
     (69, "/sys/devices/2200000.gpio", 33, 13, 'GPIO11_AP_WAKE_BT', 'GPIO_PQ5', None, None),
     (75, "/sys/devices/2200000.gpio", 35, 19, 'I2S0_LRCLK', 'DAP1_FS', None, None),
+    # Input-only (due to base board) IF NVIDIA debug card NOT plugged in
+    # Output-only (due to base board) IF NVIDIA debug card plugged in
     (147, "/sys/devices/2200000.gpio", 36, 16, 'UART0_CTS', 'UART1_CTS', None, None),
     (68, "/sys/devices/2200000.gpio", 37, 26, 'GPIO8_ALS_PROX_INT', 'GPIO_PQ4', None, None),
     (74, "/sys/devices/2200000.gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN', None, None),
@@ -102,6 +108,7 @@ compats_tx2 = (
 
 JETSON_TX1_PIN_DEFS = [
     (216, "/sys/devices/6000d000.gpio", 7, 4, 'AUDIO_MCLK', 'AUD_MCLK', None, None),
+    # Output-only (due to base board)
     (162, "/sys/devices/6000d000.gpio", 11, 17, 'UART0_RTS', 'UART1_RTS', None, None),
     (11, "/sys/devices/6000d000.gpio", 12, 18, 'I2S0_CLK', 'DAP1_SCLK', None, None),
     (38, "/sys/devices/6000d000.gpio", 13, 27, 'GPIO20_AUD_INT', 'GPIO_PE6', None, None),
@@ -119,6 +126,8 @@ JETSON_TX1_PIN_DEFS = [
     (36, "/sys/devices/6000d000.gpio", 32, 12, 'AO_DMIC_IN_CLK', 'DMIC3_CLK', None, None),
     (63, "/sys/devices/6000d000.gpio", 33, 13, 'GPIO11_AP_WAKE_BT', 'AP_WAKE_NFC', None, None),
     (8, "/sys/devices/6000d000.gpio", 35, 19, 'I2S0_LRCLK', 'DAP1_FS', None, None),
+    # Input-only (due to base board) IF NVIDIA debug card NOT plugged in
+    # Input-only (due to base board) (always reads fixed value) IF NVIDIA debug card plugged in
     (163, "/sys/devices/6000d000.gpio", 36, 16, 'UART0_CTS', 'UART1_CTS', None, None),
     (187, "/sys/devices/6000d000.gpio", 37, 26, 'GPIO8_ALS_PROX_INT', 'ALS_PROX_INT', None, None),
     (9, "/sys/devices/6000d000.gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN', None, None),
