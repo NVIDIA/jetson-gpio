@@ -19,10 +19,15 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
+script_dir="$(dirname "$0")"
+script_dir="$(cd "${script_dir}" && pwd)"
+top_dir="$(dirname "${script_dir}")"
+py_lib_dir="$(cd "${top_dir}/lib/python" && pwd)"
+
 # prints usage
 print_help() {
     cat << EOF
-Usage: ./run_sample.sh <sample application>
+Usage: run_sample.sh <sample application>
 sample_application: simple_input.py
                     simple_output.py
                     button_led.py
@@ -32,19 +37,19 @@ EOF
     exit 1
 }
 
-# Set PYTHONPATH to locate the required python modules
-export PYTHONPATH="/opt/nvidia/jetson-gpio/lib/python/:${PYTHONPATH}"
-
-# check if the necessary argument is provided
-if [ "$#" != "1" ]; then
+# Check if the necessary argument is provided
+if [ "$#" -lt "1" ]; then
     print_help
 fi
 
+# Check if --help or -h switch is the argument
 arg="$1"
-# check if --help or -h switch is the argument
 if [ "${arg}" = "--help" ] || [ "${arg}" = "-h" ]; then
     print_help
 fi
 
-# run the requested sample application
-./"${arg}"
+# Set PYTHONPATH to locate the required python modules
+export PYTHONPATH="${py_lib_dir}${PYTHONPATH+:}${PYTHONPATH}"
+
+# Run the requested sample application
+exec "${script_dir}/${arg}" "${@:2}"
