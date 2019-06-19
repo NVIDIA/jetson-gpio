@@ -1,4 +1,4 @@
-# Jetson.GPIO - Linux for Tegra 
+# Jetson.GPIO - Linux for Tegra
 
 Jetson TX1, TX2, AGX Xavier, and Nano development boards contain a 40 pin GPIO
 header, similar to the 40 pin header in the Raspberry Pi. These GPIOs can be
@@ -30,23 +30,23 @@ and write to a GPIO pin respectively, while the `button_led.py`,
 to blink an LED using busy-waiting, blocking wait and interrupt callbacks
 respectively.
 
-# Configuring the system 
+# Configuring the system
 
 ### Downloading the Library
 Please download this repo and unzip it into `/opt/nvidia` if it does not exist
-already.  
+already.
 ```
-sudo unzip <path_to_zip_file> -d /opt/nvidia/ 
+sudo unzip <path_to_zip_file> -d /opt/nvidia/
 ```
 
 The name of the zip is likely incorrect if downloaded from github. It should be
-named 'jetson-gpio'.  
+named 'jetson-gpio'.
 ```
 mv /opt/nvidia/jetson-gpio-master /opt/nvidia/jetson-gpio
 ```
 
 ### Installation (Optional)
-To add Jetson.GPIO to your PYTHONPATH, install using the `setup.py` 
+To add Jetson.GPIO to your PYTHONPATH, install using the `setup.py`
 file
 ```
 sudo python3 setup.py install
@@ -129,8 +129,8 @@ The usage of the script can also be viewed by using:
 ./run_sample.sh -h
 ./run_sample.sh --help
 ```
-      
-# Complete library API 
+
+# Complete library API
 
 The Jetson GPIO library provides all public APIs provided by the RPi.GPIO
 library. The following discusses the use of each API:
@@ -392,4 +392,4 @@ The system pinmux must be configured to connect the hardware PWM controlller(s)
 to the relevant pins. If the pinmux is not configured, PWM signals will not
 reach the pins! The Jetson.GPIO library does not dynamically modify the pinmux
 configuration to achieve this. Read the L4T documentation for details on how to
-configure the pinmux. 
+configure the pinmux.
