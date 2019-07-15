@@ -34,6 +34,7 @@ def blink(channel):
         GPIO.output(led_pin_2, GPIO.HIGH)
         time.sleep(0.5)
         GPIO.output(led_pin_2, GPIO.LOW)
+        time.sleep(0.5)
 
 def main():
     # Pin Setup:
@@ -53,6 +54,7 @@ def main():
             GPIO.output(led_pin_1, GPIO.HIGH)
             time.sleep(2)
             GPIO.output(led_pin_1, GPIO.LOW)
+            time.sleep(2)
     finally:
         GPIO.cleanup()  # cleanup all GPIOs
 
