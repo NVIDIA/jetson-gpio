@@ -28,3 +28,6 @@ SUBSYSTEM=="pwm", KERNEL=="pwmchip*", ACTION=="add", \
     PROGRAM="/bin/bash -c 'chown root:gpio /sys%p/{,un}export; chmod 220 /sys%p/{,un}export"
 SUBSYSTEM=="pwm", KERNEL=="pwmchip*", ACTION=="change", \
     PROGRAM="/bin/bash -c 'chown root:gpio /sys%p/%E{EXPORT}/{period,duty_cycle,enable}; chmod 660 /sys%p/%E{EXPORT}/{period,duty_cycle,enable}'"
+
+SUBSYSTEM=="spidev", KERNEL=="spidev*", ACTION=="add", \
+    GROUP="gpio", MODE="0660"
