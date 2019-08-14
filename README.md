@@ -30,33 +30,27 @@ and write to a GPIO pin respectively, while the `button_led.py`,
 to blink an LED using busy-waiting, blocking wait and interrupt callbacks
 respectively.
 
-# Configuring the system
+# Installation
 
-### Downloading the Library
-Please download this repo and unzip it into `/opt/nvidia` if it does not exist
-already.
-```
-sudo unzip <path_to_zip_file> -d /opt/nvidia/
-```
+## Using pip
 
-The name of the zip is likely incorrect if downloaded from github. It should be
-named 'jetson-gpio'.
+The easiest way to install this library is using `pip`:
 ```
-mv /opt/nvidia/jetson-gpio-master /opt/nvidia/jetson-gpio
+sudo pip install Jetson.GPIO
 ```
 
-### Installation (Optional)
-To add Jetson.GPIO to your PYTHONPATH, install using the `setup.py`
-file
+## Manual download 
+
+You may clone this git repository, or download a copy of it as an archive file
+and decompress it. You may place the library files anywhere you like on your
+system. You may use the library directly from this directory by manually
+setting `PYTHONPATH`, or install it using `setup.py`:
 ```
 sudo python3 setup.py install
 ```
-or pip3
-```
-sudo pip3 install Jetson.GPIO
-```
 
-### Setting User Permissions
+# Setting User Permissions
+
 In order to use the Jetson GPIO Library, the correct user permissions/groups must
 be set first.
 
@@ -69,11 +63,11 @@ sudo usermod -a -G gpio your_user_name
 Install custom udev rules by copying the 99-gpio.rules file into the rules.d
 directory:
 ```
-sudo cp /opt/nvidia/jetson-gpio/etc/99-gpio.rules /etc/udev/rules.d/
+sudo cp etc/99-gpio.rules /etc/udev/rules.d/
 ```
 
-Please note that for the new rule to take place, you may either need to reboot
-or reload the udev rules by issuing this command:
+For the new rule to take place, you either need to reboot or reload the udev
+rules by running:
 ```
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
