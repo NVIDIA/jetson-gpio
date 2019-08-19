@@ -78,7 +78,7 @@ pin_datas = {
         'unimplemented_pins': (),
         # Other pin modes:
         'cvm_pin': 'GPIO9',
-        'tegra_soc_pin': 'GPIO9',
+        'tegra_soc_pin': 'AUD_MCLK',
         'all_pwms': (32, 33),
     },
 }

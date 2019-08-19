@@ -139,30 +139,30 @@ compats_tx1 = (
 )
 
 JETSON_NANO_PIN_DEFS = [
-    (216, "/sys/devices/6000d000.gpio", 7, 4, 'GPIO9', 'GPIO9', None, None),
-    (50, "/sys/devices/6000d000.gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
-    (79, "/sys/devices/6000d000.gpio", 12, 18, 'I2S0_SCLK', 'I2S0_SCLK', None, None),
-    (14, "/sys/devices/6000d000.gpio", 13, 27, 'SPI1_SCK', 'SPI1_SCK', None, None),
-    (194, "/sys/devices/6000d000.gpio", 15, 22, 'GPIO12', 'GPIO12', None, None),
-    (232, "/sys/devices/6000d000.gpio", 16, 23, 'SPI1_CS1', 'SPI1_CS1', None, None),
-    (15, "/sys/devices/6000d000.gpio", 18, 24, 'SPI1_CS0', 'SPI1_CS0', None, None),
-    (16, "/sys/devices/6000d000.gpio", 19, 10, 'SPI0_MOSI', 'SPI0_MOSI', None, None),
-    (17, "/sys/devices/6000d000.gpio", 21, 9, 'SPI0_MISO', 'SPI0_MISO', None, None),
-    (13, "/sys/devices/6000d000.gpio", 22, 25, 'SPI1_MISO', 'SPI1_MISO', None, None),
-    (18, "/sys/devices/6000d000.gpio", 23, 11, 'SPI0_SCK', 'SPI0_SCK', None, None),
-    (19, "/sys/devices/6000d000.gpio", 24, 8, 'SPI0_CS0', 'SPI0_CS0', None, None),
-    (20, "/sys/devices/6000d000.gpio", 26, 7, 'SPI0_CS1', 'SPI0_CS1', None, None),
-    (149, "/sys/devices/6000d000.gpio", 29, 5, 'GPIO01', 'GPIO01', None, None),
-    (200, "/sys/devices/6000d000.gpio", 31, 6, 'GPIO11', 'GPIO11', None, None),
+    (216, "/sys/devices/6000d000.gpio", 7, 4, 'GPIO9', 'AUD_MCLK', None, None),
+    (50, "/sys/devices/6000d000.gpio", 11, 17, 'UART1_RTS', 'UART2_RTS', None, None),
+    (79, "/sys/devices/6000d000.gpio", 12, 18, 'I2S0_SCLK', 'DAP4_SCLK', None, None),
+    (14, "/sys/devices/6000d000.gpio", 13, 27, 'SPI1_SCK', 'SPI2_SCK', None, None),
+    (194, "/sys/devices/6000d000.gpio", 15, 22, 'GPIO12', 'LCD_TE', None, None),
+    (232, "/sys/devices/6000d000.gpio", 16, 23, 'SPI1_CS1', 'SPI2_CS1', None, None),
+    (15, "/sys/devices/6000d000.gpio", 18, 24, 'SPI1_CS0', 'SPI2_CS0', None, None),
+    (16, "/sys/devices/6000d000.gpio", 19, 10, 'SPI0_MOSI', 'SPI1_MOSI', None, None),
+    (17, "/sys/devices/6000d000.gpio", 21, 9, 'SPI0_MISO', 'SPI1_MISO', None, None),
+    (13, "/sys/devices/6000d000.gpio", 22, 25, 'SPI1_MISO', 'SPI2_MISO', None, None),
+    (18, "/sys/devices/6000d000.gpio", 23, 11, 'SPI0_SCK', 'SPI1_SCK', None, None),
+    (19, "/sys/devices/6000d000.gpio", 24, 8, 'SPI0_CS0', 'SPI1_CS0', None, None),
+    (20, "/sys/devices/6000d000.gpio", 26, 7, 'SPI0_CS1', 'SPI1_CS1', None, None),
+    (149, "/sys/devices/6000d000.gpio", 29, 5, 'GPIO01', 'CAM_AF_EN', None, None),
+    (200, "/sys/devices/6000d000.gpio", 31, 6, 'GPIO11', 'GPIO_PZ0', None, None),
     # Older versions of L4T have a DT bug which instantiates a bogus device
     # which prevents this library from using this PWM channel.
-    (168, "/sys/devices/6000d000.gpio", 32, 12, 'GPIO07', 'GPIO07', '/sys/devices/7000a000.pwm', 0),
-    (38, "/sys/devices/6000d000.gpio", 33, 13, 'GPIO13', 'GPIO13', '/sys/devices/7000a000.pwm', 2),
-    (76, "/sys/devices/6000d000.gpio", 35, 19, 'I2S0_FS', 'I2S0_FS', None, None),
-    (51, "/sys/devices/6000d000.gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None),
-    (12, "/sys/devices/6000d000.gpio", 37, 26, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
-    (77, "/sys/devices/6000d000.gpio", 38, 20, 'I2S0_DIN', 'I2S0_DIN', None, None),
-    (78, "/sys/devices/6000d000.gpio", 40, 21, 'I2S0_DOUT', 'I2S0_DOUT', None, None)
+    (168, "/sys/devices/6000d000.gpio", 32, 12, 'GPIO07', 'LCD_BL_PW', '/sys/devices/7000a000.pwm', 0),
+    (38, "/sys/devices/6000d000.gpio", 33, 13, 'GPIO13', 'GPIO_PE6', '/sys/devices/7000a000.pwm', 2),
+    (76, "/sys/devices/6000d000.gpio", 35, 19, 'I2S0_FS', 'DAP4_FS', None, None),
+    (51, "/sys/devices/6000d000.gpio", 36, 16, 'UART1_CTS', 'UART2_CTS', None, None),
+    (12, "/sys/devices/6000d000.gpio", 37, 26, 'SPI1_MOSI', 'SPI2_MOSI', None, None),
+    (77, "/sys/devices/6000d000.gpio", 38, 20, 'I2S0_DIN', 'DAP4_DIN', None, None),
+    (78, "/sys/devices/6000d000.gpio", 40, 21, 'I2S0_DOUT', 'DAP4_DOUT', None, None)
 ]
 compats_nano = (
     'nvidia,p3450-0000',
