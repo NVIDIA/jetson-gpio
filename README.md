@@ -61,9 +61,17 @@ sudo usermod -a -G gpio your_user_name
 ```
 
 Install custom udev rules by copying the 99-gpio.rules file into the rules.d
-directory:
+directory.
+
+If you have downloaded the source to Jetson.GPIO:
 ```
-sudo cp etc/99-gpio.rules /etc/udev/rules.d/
+sudo cp lib/python/Jetson/GPIO/99-gpio.rules /etc/udev/rules.d/
+```
+
+If you installed Jetson.GPIO from a package, e.g. using pip into a virtual
+environment:
+```
+sudo cp venv/lib/pythonNN/site-packages/Jetson/GPIO/99-gpio.rules /etc/udev/rules.d/
 ```
 
 For the new rule to take place, you either need to reboot or reload the udev

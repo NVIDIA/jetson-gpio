@@ -41,4 +41,6 @@ setup(name                          = 'Jetson.GPIO',
       classifiers                   = classifiers,
       package_dir                   = {'': 'lib/python/'},
       packages                      = ['Jetson', 'Jetson.GPIO', 'RPi', 'RPi.GPIO'],
+      package_data                  = {'Jetson.GPIO': ['99-gpio.rules',]},
+      include_package_data          = True,
 )
