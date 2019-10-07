@@ -283,7 +283,7 @@ WARNING: and in fact is unlikely to work correctly.
         module_id = find_pmgr_board('3448')
         if not module_id:
             raise Exception('Could not determine Jetson Nano module revision')
-        revision = f.split('-')[-1]
+        revision = module_id.split('-')[-1]
         # Revision is an ordered string, not a decimal integer
         if revision < "200":
             raise Exception('Jetson Nano module revision must be A02 or later')
