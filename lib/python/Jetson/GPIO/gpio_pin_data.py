@@ -104,6 +104,7 @@ compats_tx2 = (
     'nvidia,p2771-0000',
     'nvidia,p2771-0888',
     'nvidia,p3489-0000',
+    'nvidia,lightning',
     'nvidia,quill',
     'nvidia,storm',
 )
