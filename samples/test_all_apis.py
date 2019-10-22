@@ -139,7 +139,7 @@ def test_setup_one_tegra_soc():
 @test
 def test_setup_one_out_no_init():
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.IN)
+    GPIO.setup(pin_data['out_a'], GPIO.OUT)
     GPIO.cleanup()
 
 
