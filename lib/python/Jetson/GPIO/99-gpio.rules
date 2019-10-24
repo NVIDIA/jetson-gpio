@@ -25,7 +25,7 @@ SUBSYSTEM=="gpio", KERNEL=="gpio*", ACTION=="add", \
     PROGRAM="/bin/sh -c 'chown root:gpio /sys%p/active_low /sys%p/direction /sys%p/edge /sys%p/value; chmod 660 /sys%p/active_low /sys%p/direction /sys%p/edge /sys%p/value'"
 
 SUBSYSTEM=="pwm", KERNEL=="pwmchip*", ACTION=="add", \
-    PROGRAM="/bin/bash -c 'chown root:gpio /sys%p/{,un}export; chmod 220 /sys%p/{,un}export"
+    PROGRAM="/bin/bash -c 'chown root:gpio /sys%p/{,un}export; chmod 220 /sys%p/{,un}export'"
 SUBSYSTEM=="pwm", KERNEL=="pwmchip*", ACTION=="change", \
     PROGRAM="/bin/bash -c 'chown root:gpio /sys%p/%E{EXPORT}/{period,duty_cycle,enable}; chmod 660 /sys%p/%E{EXPORT}/{period,duty_cycle,enable}'"
 
