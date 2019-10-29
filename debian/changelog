@@ -1,0 +1,5 @@
+jetson-gpio (2.0.4-1) unstable; urgency=medium
+
+  * Initial release
+
+ -- Andrew Chen <andrewc@nvidia.com>  Tue, 15 Oct 2019 14:18:38 +0800

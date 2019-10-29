@@ -1,0 +1,37 @@
+Source: jetson-gpio
+Section: python
+Priority: optional
+Maintainer: NVIDIA Corporation
+Build-Depends:
+ debhelper (>=9),
+ dh-python,
+ python-all (>= 2.6.6-3~),
+ python-all-dev,
+ python-setuptools,
+ python3-all,
+ python3-all-dev,
+ python3-setuptools
+Standards-Version: 3.9.6
+Homepage: https://github.com/NVIDIA/jetson-gpio
+X-Python-Version: >= 2.6
+X-Python3-Version: >= 3.2
+
+Package: jetson-gpio-common
+Architecture: arm64
+Depends:
+ ${misc:Depends},
+Description: Jetson GPIO library package (common files)
+
+Package: python-jetson-gpio
+Architecture: arm64
+Depends:
+ ${python:Depends},
+ ${misc:Depends},
+Description: Jetson GPIO library package (Python 2)
+
+Package: python3-jetson-gpio
+Architecture: arm64
+Depends:
+ ${python3:Depends},
+ ${misc:Depends},
+Description: Jetson GPIO library package (Python 3)
