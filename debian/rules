@@ -28,4 +28,4 @@ export PYBUILD_AFTER_INSTALL=find '{destdir}/{install_dir}/' -name 99-gpio.rules
 	dh $@  --with python2,python3 --buildsystem=pybuild
 
 override_dh_installdocs:
-	dh_installdocs README.md samples --link-doc=jetson-gpio-common
+	dh_installdocs LICENSE.txt README.md samples --link-doc=jetson-gpio-common
