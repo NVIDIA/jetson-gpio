@@ -1,7 +1,7 @@
 Source: jetson-gpio
 Section: python
 Priority: optional
-Maintainer: NVIDIA Corporation
+Maintainer: NVIDIA Corporation <linux-tegra-bugs@nvidia.com>
 Build-Depends:
  debhelper (>=9),
  dh-python,

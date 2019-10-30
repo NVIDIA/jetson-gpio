@@ -1,5 +1,5 @@
-jetson-gpio (2.0.4-1) unstable; urgency=medium
+jetson-gpio (2.0.4) bionic; urgency=medium
 
-  * Initial release
+  * Initial Debian packaging.
 
- -- Andrew Chen <andrewc@nvidia.com>  Tue, 15 Oct 2019 14:18:38 +0800
+ -- Stephen Warren <swarren@nvidia.com>  Thu, 10 Oct 2019 11:01:19 -0600

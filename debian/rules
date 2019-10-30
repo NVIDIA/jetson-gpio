@@ -22,9 +22,10 @@
 
 export PYBUILD_NAME=jetson-gpio
 export PYBUILD_DISABLE=test
+export PYBUILD_AFTER_INSTALL=find '{destdir}/{install_dir}/' -name 99-gpio.rules | xargs rm
 
 %:
 	dh $@  --with python2,python3 --buildsystem=pybuild
 
 override_dh_installdocs:
-	dh_installdocs samples --link-doc=jetson-gpio-common
+	dh_installdocs README.md samples --link-doc=jetson-gpio-common
