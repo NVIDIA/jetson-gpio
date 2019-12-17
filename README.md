@@ -35,7 +35,7 @@ respectively.
 ## Using pip
 
 The easiest way to install this library is using `pip`:
-```
+```shell
 sudo pip install Jetson.GPIO
 ```
 
@@ -45,7 +45,7 @@ You may clone this git repository, or download a copy of it as an archive file
 and decompress it. You may place the library files anywhere you like on your
 system. You may use the library directly from this directory by manually
 setting `PYTHONPATH`, or install it using `setup.py`:
-```
+```shell
 sudo python3 setup.py install
 ```
 
@@ -55,7 +55,7 @@ In order to use the Jetson GPIO Library, the correct user permissions/groups mus
 be set first.
 
 Create a new gpio user group. Then add your user to the newly created group.
-```
+```shell
 sudo groupadd -f -r gpio
 sudo usermod -a -G gpio your_user_name
 ```
@@ -64,19 +64,19 @@ Install custom udev rules by copying the 99-gpio.rules file into the rules.d
 directory.
 
 If you have downloaded the source to Jetson.GPIO:
-```
+```shell
 sudo cp lib/python/Jetson/GPIO/99-gpio.rules /etc/udev/rules.d/
 ```
 
 If you installed Jetson.GPIO from a package, e.g. using pip into a virtual
 environment:
-```
+```shell
 sudo cp venv/lib/pythonNN/site-packages/Jetson/GPIO/99-gpio.rules /etc/udev/rules.d/
 ```
 
 For the new rule to take place, you either need to reboot or reload the udev
 rules by running:
-```
+```shell
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 
@@ -115,19 +115,19 @@ application slowly blinks the first LED continuously and rapidly blinks the
 second LED five times only when the button is pressed.
 
 To run these sample applications if Jetson.GPIO is added to the PYTHONPATH:
-```
+```shell
 python3 <name_of_application_to_run>
 ```
 
 Alternatively, if Jetson.GPIO is not added to the PYTHONPATH, the `run_sample.sh`
 script can be used to run these sample applications. This can be done with the
 following command when in the samples/ directory:
-```
+```shell
 ./run_sample.sh <name_of_application_to_run>
 ```
 
 The usage of the script can also be viewed by using:
-```
+```shell
 ./run_sample.sh -h
 ./run_sample.sh --help
 ```
@@ -140,7 +140,7 @@ library. The following discusses the use of each API:
 #### 1. Importing the libary
 
 To import the Jetson.GPIO module use:
-```
+```python
 import Jetson.GPIO as GPIO
 ```
 
@@ -159,7 +159,7 @@ connector and the Tegra SoC respectively.
 
 To specify which mode you are using (mandatory), use the following function
 call:
-```
+```python
 GPIO.setmode(GPIO.BOARD)
 # or
 GPIO.setmode(GPIO.BCM)
@@ -170,7 +170,7 @@ GPIO.setmode(GPIO.TEGRA_SOC)
 ```
 
 To check which mode has be set, you can call:
-```
+```python
 mode = GPIO.getmode()
 ```
 
@@ -184,7 +184,7 @@ external to the current application. In such a condition, the Jetson GPIO
 library will warn you if the GPIO being used is configured to anything but the
 default direction (input). It will also warn you if you try cleaning up before
 setting up the mode and channels. To disable warnings, call:
-```
+```python
 GPIO.setwarnings(False)
 ```
 
@@ -192,24 +192,24 @@ GPIO.setwarnings(False)
 
 The GPIO channel must be set up before use as input or output. To configure
 the channel as input, call:
-```
+```python
 # (where channel is based on the pin numbering mode discussed above)
 GPIO.setup(channel, GPIO.IN)
 ```
 
 To set up a channel as output, call:
-```
+```python
 GPIO.setup(channel, GPIO.OUT)
 ```
 
 It is also possible to specify an initial value for the output channel:
-```
+```python
 GPIO.setup(channel, GPIO.OUT, initial=GPIO.HIGH)
 ```
 
 When setting up a channel as output, it is also possible to set up more than one
 channel at once:
-```
+```python
 # add as many as channels as needed. You can also use tuples: (18,12,13)
 channels = [18, 12, 13]
 GPIO.setup(channels, GPIO.OUT)
@@ -219,7 +219,7 @@ GPIO.setup(channels, GPIO.OUT)
 
 To read the value of a channel, use:
 
-```
+```python
 GPIO.input(channel)
 ```
 
@@ -229,7 +229,7 @@ This will return either GPIO.LOW or GPIO.HIGH.
 
 To set the value of a pin configured as output, use:
 
-```
+```python
 GPIO.output(channel, state)
 ```
 
@@ -237,7 +237,7 @@ where state can be GPIO.LOW or GPIO.HIGH.
 
 You can also output to a list or tuple of channels:
 
-```
+```python
 channels = [18, 12, 13] # or use tuples
 GPIO.output(channels, GPIO.HIGH) # or GPIO.LOW
 # set first channel to HIGH and rest to LOW
@@ -249,14 +249,14 @@ GPIO.output(channel, (GPIO.LOW, GPIO.HIGH, GPIO.HIGH))
 At the end of the program, it is good to clean up the channels so that all pins
 are set in their default state. To clean up all channels used, call:
 
-```
+```python
 GPIO.cleanup()
 ```
 
 If you don't want to clean all channels, it is also possible to clean up
 individual channels or a list or tuple of channels:
 
-```
+```python
 GPIO.cleanup(chan1) # cleanup only chan1
 GPIO.cleanup([chan1, chan2]) # cleanup only chan1 and chan2
 GPIO.cleanup((chan1, chan2)  # does the same operation as previous statement
@@ -266,7 +266,7 @@ GPIO.cleanup((chan1, chan2)  # does the same operation as previous statement
 
 To get information about the Jetson module, use/read:
 
-```
+```python
 GPIO.JETSON_INFO
 ```
 
@@ -276,7 +276,7 @@ strings with the exception of P1_REVISION which is an integer.
 
 To get information about the library version, use/read:
 
-```
+```python
 GPIO.VERSION
 ```
 
@@ -292,7 +292,7 @@ monitoring an input event:
 This function blocks the calling thread until the provided edge(s) is
 detected. The function can be called as follows:
 
-```
+```python
 GPIO.wait_for_edge(channel, GPIO.RISING)
 ```
 
@@ -300,7 +300,7 @@ The second parameter specifies the edge to be detected and can be
 GPIO.RISING, GPIO.FALLING or GPIO.BOTH. If you only want to limit the wait
 to a specified amount of time, a timeout can be optionally set:
 
-```
+```python
 # timeout is in milliseconds
 GPIO.wait_for_edge(channel, GPIO.RISING, timeout=500)
 ```
@@ -313,12 +313,12 @@ timeout occurred.
 This function can be used to periodically check if an event occurred since the
 last call. The function can be set up and called as follows:
 
-```
+```python
 # set rising edge detection on the channel
 GPIO.add_event_detect(channel, GPIO.RISING)
 run_other_code()
 if GPIO.event_detected(channel):
-do_something()
+    do_something()
 ```
 
 As before, you can detect events for GPIO.RISING, GPIO.FALLING or GPIO.BOTH.
@@ -329,10 +329,10 @@ This feature can be used to run a second thread for callback functions. Hence,
 the callback function can be run concurrent to your main program in response
 to an edge. This feature can be used as follows:
 
-```
+```python
 # define callback function
 def callback_fn(channel):
-print("Callback called from channel %s" % channel)
+    print("Callback called from channel %s" % channel)
 
 # add rising edge detection
 GPIO.add_event_detect(channel, GPIO.RISING, callback=callback_fn)
@@ -340,12 +340,12 @@ GPIO.add_event_detect(channel, GPIO.RISING, callback=callback_fn)
 
 More than one callback can also be added if required as follows:
 
-```
+```python
 def callback_one(channel):
-print("First Callback")
+    print("First Callback")
 
 def callback_two(channel):
-print("Second Callback")
+    print("Second Callback")
 
 GPIO.add_event_detect(channel, GPIO.RISING)
 GPIO.add_event_callback(channel, callback_one)
@@ -358,7 +358,7 @@ there is only thread running all callback functions.
 In order to prevent multiple calls to the callback functions by collapsing
 multiple events in to a single one, a debounce time can be optionally set:
 
-```
+```python
 # bouncetime set in milliseconds
 GPIO.add_event_detect(channel, GPIO.RISING, callback=callback_fn,
 bouncetime=200)
@@ -366,7 +366,7 @@ bouncetime=200)
 
 If the edge detection is not longer required it can be removed as follows:
 
-```
+```python
 GPIO.remove_event_detect(channel)
 ```
 
@@ -374,7 +374,7 @@ GPIO.remove_event_detect(channel)
 
 This feature allows you to check the function of the provided GPIO channel:
 
-```
+```python
 GPIO.gpio_function(channel)
 ```
 
