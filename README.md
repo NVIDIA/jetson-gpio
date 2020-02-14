@@ -259,7 +259,7 @@ individual channels or a list or tuple of channels:
 ```python
 GPIO.cleanup(chan1) # cleanup only chan1
 GPIO.cleanup([chan1, chan2]) # cleanup only chan1 and chan2
-GPIO.cleanup((chan1, chan2)  # does the same operation as previous statement
+GPIO.cleanup((chan1, chan2))  # does the same operation as previous statement
 ```
 
 #### 8. Jetson Board Information and library version
