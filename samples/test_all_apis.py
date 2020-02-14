@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
 # to deal in the Software without restriction, including without limitation
@@ -78,6 +78,23 @@ pin_datas = {
         'unimplemented_pins': (),
         # Other pin modes:
         'cvm_pin': 'GPIO9',
+        'tegra_soc_pin': 'AUD_MCLK',
+        'all_pwms': (32, 33),
+    },
+    'JETSON_NX': {
+        # Pre-test configuration, if boot-time pinmux doesn't set up PWM pins:
+        # Set BOARD pin 32 as mux function PWM (func 1):
+        # busybox devmem 0x2430040 32 0x401
+        # Set BOARD pin 33 as mux function PWM (func 2):
+        # busybox devmem 0x2440020 32 0x402
+        # Board mode pins
+        'out_a': 32,
+        'in_a': 31,
+        'out_b': 29,
+        'in_b': 26,
+        'unimplemented_pins': (),
+        # Other pin modes:
+        'cvm_pin': 'GPIO09',
         'tegra_soc_pin': 'AUD_MCLK',
         'all_pwms': (32, 33),
     },

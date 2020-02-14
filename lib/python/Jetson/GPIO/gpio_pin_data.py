@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2018-2020, NVIDIA CORPORATION. All rights reserved.
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
 # to deal in the Software without restriction, including without limitation
@@ -21,6 +21,7 @@ import os
 import os.path
 import sys
 
+JETSON_NX = 'JETSON_NX'
 JETSON_XAVIER = 'JETSON_XAVIER'
 JETSON_TX2 = 'JETSON_TX2'
 JETSON_TX1 = 'JETSON_TX1'
@@ -38,6 +39,37 @@ JETSON_NANO = 'JETSON_NANO'
 # - PWM ID within PWM chip
 # The values are use to generate dictionaries that map the corresponding pin
 # mode numbers to the Linux GPIO pin number and GPIO chip directory
+JETSON_NX_PIN_DEFS = [
+    (148, "/sys/devices/2200000.gpio", 7, 4, 'GPIO09', 'AUD_MCLK', None, None),
+    (140, "/sys/devices/2200000.gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
+    (157, "/sys/devices/2200000.gpio", 12, 18, 'I2S0_SCLK', 'DAP5_SCLK', None, None),
+    (192, "/sys/devices/2200000.gpio", 13, 27, 'SPI1_SCK', 'SPI3_SCK', None, None),
+    (20, "/sys/devices/c2f0000.gpio", 15, 22, 'GPIO12', 'TOUCH_CLK', None, None),
+    (196, "/sys/devices/2200000.gpio", 16, 23, 'SPI1_CS1', 'SPI3_CS1_N', None, None),
+    (195, "/sys/devices/2200000.gpio", 18, 24, 'SPI1_CS0', 'SPI3_CS0_N', None, None),
+    (205, "/sys/devices/2200000.gpio", 19, 10, 'SPI0_MOSI', 'SPI1_MOSI', None, None),
+    (204, "/sys/devices/2200000.gpio", 21, 9, 'SPI0_MISO', 'SPI1_MISO', None, None),
+    (193, "/sys/devices/2200000.gpio", 22, 25, 'SPI1_MISO', 'SPI3_MISO', None, None),
+    (203, "/sys/devices/2200000.gpio", 23, 11, 'SPI0_SCK', 'SPI1_SCK', None, None),
+    (206, "/sys/devices/2200000.gpio", 24, 8, 'SPI0_CS0', 'SPI1_CS0_N', None, None),
+    (207, "/sys/devices/2200000.gpio", 26, 7, 'SPI0_CS1', 'SPI1_CS1_N', None, None),
+    (133, "/sys/devices/2200000.gpio", 29, 5, 'GPIO01', 'SOC_GPIO41', None, None),
+    (134, "/sys/devices/2200000.gpio", 31, 6, 'GPIO11', 'SOC_GPIO42', None, None),
+    (136, "/sys/devices/2200000.gpio", 32, 12, 'GPIO07', 'SOC_GPIO44', '/sys/devices/32f0000.pwm', 0),
+    (105, "/sys/devices/2200000.gpio", 33, 13, 'GPIO13', 'SOC_GPIO54', '/sys/devices/3280000.pwm', 0),
+    (160, "/sys/devices/2200000.gpio", 35, 19, 'I2S0_FS', 'DAP5_FS', None, None),
+    (141, "/sys/devices/2200000.gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None),
+    (194, "/sys/devices/2200000.gpio", 37, 26, 'SPI1_MOSI', 'SPI3_MOSI', None, None),
+    (159, "/sys/devices/2200000.gpio", 38, 20, 'I2S0_DIN', 'DAP5_DIN', None, None),
+    (158, "/sys/devices/2200000.gpio", 40, 21, 'I2S0_DOUT', 'DAP5_DOUT', None, None)
+]
+compats_nx = (
+    'nvidia,p3509-0000+p3668-0000',
+    'nvidia,p3509-0000+p3668-0001',
+    'nvidia,p3449-0000+p3668-0000',
+    'nvidia,p3449-0000+p3668-0001',
+)
+
 JETSON_XAVIER_PIN_DEFS = [
     (134, "/sys/devices/2200000.gpio", 7, 4, 'MCLK05', 'SOC_GPIO42', None, None),
     (140, "/sys/devices/2200000.gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
@@ -174,6 +206,17 @@ compats_nano = (
 )
 
 jetson_gpio_data = {
+    JETSON_NX: (
+        JETSON_NX_PIN_DEFS,
+        {
+            'P1_REVISION': 1,
+            'RAM': '16384M',
+            'REVISION': 'Unknown',
+            'TYPE': 'Jetson NX',
+            'MANUFACTURER': 'NVIDIA',
+            'PROCESSOR': 'ARM Carmel'
+        }
+    ),
     JETSON_XAVIER: (
         JETSON_XAVIER_PIN_DEFS,
         {
@@ -260,8 +303,12 @@ WARNING: Cannot determine whether the expected Jetson board is present.
                 return f
         return None
 
-    def warn_if_not_carrier_board(carrier_board):
-        found = find_pmgr_board(carrier_board + '-')
+    def warn_if_not_carrier_board(*carrier_boards):
+        found = False
+        for b in carrier_boards:
+            found = find_pmgr_board(b + '-')
+            if found:
+                break
         if not found:
             msg = """\
 WARNING: Carrier board is not from a Jetson Developer Kit.
@@ -289,6 +336,9 @@ WARNING: and in fact is unlikely to work correctly.
         if revision < "200":
             raise Exception('Jetson Nano module revision must be A02 or later')
         warn_if_not_carrier_board('3449')
+    elif matches(compats_nx):
+        model = JETSON_NX
+        warn_if_not_carrier_board('3509', '3449')
     else:
         raise Exception('Could not determine Jetson model')
 
