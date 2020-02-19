@@ -1,9 +1,15 @@
+jetson-gpio (2.0.6) bionic; urgency=medium
+
+  * Rebuild to clean up source package.
+
+ -- Stephen Warren <swarren@nvidia.com>  Wed, 19 Feb 2020 15:40:48 -0600
+
 jetson-gpio (2.0.5) bionic; urgency=medium
 
   * Enhance PWM sample to vary duty cycle.
   * Add support for Jetson NX.
 
- -- Stephen Warren <swarren@nvidia.com>  Thu, 10 Oct 2019 11:01:19 -0600
+ -- Stephen Warren <swarren@nvidia.com>  Wed, 19 Feb 2020 15:30:48 -0600
 
 jetson-gpio (2.0.4) bionic; urgency=medium
 
