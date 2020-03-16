@@ -246,6 +246,20 @@ def _set_pwm_period(ch_info, period_ns):
 
 
 def _set_pwm_duty_cycle(ch_info, duty_cycle_ns):
+    # On boot, both period and duty cycle are both 0. In this state, the period
+    # must be set first; any configuration change made while period==0 is
+    # rejected. This is fine if we actually want a duty cycle of 0. Later, once
+    # any period has been set, we will always be able to set a duty cycle of 0.
+    # The code could be written to always read the current value, and only
+    # write the value if the desired value is different. However, we enable
+    # this check only for the 0 duty cycle case, to avoid having to read the
+    # current value every time the duty cycle is set.
+    if not duty_cycle_ns:
+        with open(_pwm_duty_cycle_path(ch_info), 'r') as f:
+            cur = f.read().strip()
+        if cur == '0':
+            return
+
     with open(_pwm_duty_cycle_path(ch_info), 'w') as f:
         f.write(str(duty_cycle_ns))
 
@@ -594,7 +608,8 @@ class PWM(object):
 
         _export_pwm(self._ch_info)
         self._started = False
-        self._reconfigure(frequency_hz, 50.0)
+        _set_pwm_duty_cycle(self._ch_info, 0)
+        self._reconfigure(frequency_hz, 0.0)
 
         _channel_configuration[channel] = HARD_PWM
 
