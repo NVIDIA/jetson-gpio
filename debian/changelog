@@ -1,3 +1,9 @@
+jetson-gpio (2.0.7) bionic; urgency=medium
+
+  * Fix PWM initial duty cycle issues.
+
+ -- Stephen Warren <swarren@nvidia.com>  Mon, 16 Mar 2020 17:25:00 -0600
+
 jetson-gpio (2.0.6) bionic; urgency=medium
 
   * Rebuild to clean up source package.
