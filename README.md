@@ -382,8 +382,6 @@ The function returns either GPIO.IN or GPIO.OUT.
 
 #### 11. PWM
 
-See `samples/simple_pwm.py` for details on how to use PWM channels.
-
 The Jetson.GPIO library supports PWM only on pins with attached hardware PWM
 controllers. Unlike the RPi.GPIO library, the Jetson.GPIO library does not
 implement Software emulated PWM. Jetson Nano supports 2 PWM channels, and
@@ -392,6 +390,18 @@ any PWM channels.
 
 The system pinmux must be configured to connect the hardware PWM controlller(s)
 to the relevant pins. If the pinmux is not configured, PWM signals will not
-reach the pins! The Jetson.GPIO library does not dynamically modify the pinmux
-configuration to achieve this. Read the L4T documentation for details on how to
-configure the pinmux.
+reach the pins! 
+
+You can configure the pinmux using the jetson-io tool.  To do this,
+
+1. Launch the jetson-io tool
+    ```bash
+    sudo /opt/nvidia/jetson-io/jetson-io.py
+    ```
+    
+2. Select ``Configure 40-pin expansion header``
+3. Check the pins you want to configure to PWM.  For the [``samples/simple_pwm.py``](samples/simple_pwm.py) script we'll use pin ``33``, so we check ``pwm1``, which will map pin ``33`` to ``pwm1``.
+4. Select ``back``
+5. Select ``Save and reboot to configure pins``, or the option you prefer.  Updates will be applied after the device reboots.
+
+Pin ``33`` is now routed to PWM.  Try the [``samples/simple_pwm.py``](samples/simple_pwm.py) script to control the PWM using Jetson.GPIO.
