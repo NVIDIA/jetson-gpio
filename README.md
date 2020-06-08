@@ -395,3 +395,18 @@ to the relevant pins. If the pinmux is not configured, PWM signals will not
 reach the pins! The Jetson.GPIO library does not dynamically modify the pinmux
 configuration to achieve this. Read the L4T documentation for details on how to
 configure the pinmux.
+
+# Obtaining L4T Documentation
+
+The L4T documentation may be available in the following locations:
+
+* [Jetson Download Center](https://developer.nvidia.com/embedded/downloads);
+search for the "L4T Documentation" package.
+* [docs.nvidia.com](https://docs.nvidia.com/jetson/l4t/).
+
+Within the documentation, relevant topics may be found by searching for e.g.:
+* Hardware Setup.
+* Configuring the 40-Pin Expansion Header.
+* Jetson-IO.
+* Platform Adaptation and Bring-Up.
+* Pinmux Changes.
