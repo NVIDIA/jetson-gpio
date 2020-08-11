@@ -203,21 +203,18 @@ def _poll_thread():
             # check if file object has been deleted or closed from main thread
             fd = _get_gpio_file_object(fd)
             if fd is None or fd.closed:
-                _mutex.release()
                 continue
 
             # read file to make sure event is valid
             fd.seek(0)
             if len(fd.read().rstrip()) != 1:
                 _thread_running = False
-                _mutex.release()
                 thread.exit()
 
             # check key to make sure gpio object has not been deleted
             # from main thread
             key = _get_gpio_obj_key(fd)
             if key is None:
-                _mutex.release()
                 continue
 
             gpio_obj = _gpio_event_list[key]
@@ -226,8 +223,6 @@ def _poll_thread():
             if gpio_obj.initial_thread:
                 gpio_obj.initial_thread = False
                 _gpio_event_list[key] = gpio_obj
-                _mutex.release()
-
             else:
                 # debounce the input event for the specified bouncetime
                 time = datetime.now()
@@ -245,11 +240,12 @@ def _poll_thread():
 
         # if interrupted by a signal, continue to start of the loop
         except InterruptedError:
-            if _mutex.locked():
-                _mutex.release()
             continue
         except AttributeError:
             break
+        finally:
+            if _mutex.locked():
+                _mutex.release()
     thread.exit()
 
 
