@@ -1,3 +1,11 @@
+jetson-gpio (2.0.9) bionic; urgency=medium
+
+  * Don't install run_sample.sh.
+  * Provide links to L4T documentation.
+  * Fix locking following skipped event callback.
+
+ -- Stephen Warren <swarren@nvidia.com>  Tue, 11 Aug 2020 11:06:38 -0600
+
 jetson-gpio (2.0.8) bionic; urgency=medium
 
   * Fix Bad PyPi upload.
