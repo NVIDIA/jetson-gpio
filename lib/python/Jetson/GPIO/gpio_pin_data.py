@@ -21,6 +21,7 @@ import os
 import os.path
 import sys
 
+CLARA_AGX_XAVIER = 'CLARA_AGX_XAVIER'
 JETSON_NX = 'JETSON_NX'
 JETSON_XAVIER = 'JETSON_XAVIER'
 JETSON_TX2 = 'JETSON_TX2'
@@ -37,8 +38,40 @@ JETSON_NANO = 'JETSON_NANO'
 # - Pin name (TEGRA_SOC mode)
 # - PWM chip sysfs directory
 # - PWM ID within PWM chip
-# The values are use to generate dictionaries that map the corresponding pin
+# The values are used to generate dictionaries that map the corresponding pin
 # mode numbers to the Linux GPIO pin number and GPIO chip directory
+
+CLARA_AGX_XAVIER_PIN_DEFS = [
+    (134, "/sys/devices/2200000.gpio", 7, 4, 'MCLK05', 'SOC_GPIO42', None, None),
+    (140, "/sys/devices/2200000.gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
+    (63, "/sys/devices/2200000.gpio", 12, 18, 'I2S2_CLK', 'DAP2_SCLK', None, None),
+    (124, "/sys/devices/2200000.gpio", 13, 27, 'GPIO32', 'SOC_GPIO04', None, None),
+    # Older versions of L4T don't enable this PWM controller in DT, so this PWM
+    # channel may not be available.
+    (105, "/sys/devices/2200000.gpio", 15, 22, 'GPIO27', 'SOC_GPIO54', '/sys/devices/3280000.pwm', 0),
+    (8, "/sys/devices/c2f0000.gpio", 16, 23, 'GPIO8', 'CAN1_STB', None, None),
+    (56, "/sys/devices/2200000.gpio", 18, 24, 'GPIO35', 'SOC_GPIO12', '/sys/devices/32c0000.pwm', 0),
+    (205, "/sys/devices/2200000.gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
+    (204, "/sys/devices/2200000.gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None),
+    (129, "/sys/devices/2200000.gpio", 22, 25, 'GPIO17', 'SOC_GPIO21', None, None),
+    (203, "/sys/devices/2200000.gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
+    (206, "/sys/devices/2200000.gpio", 24, 8, 'SPI1_CS0_N', 'SPI1_CS0_N', None, None),
+    (207, "/sys/devices/2200000.gpio", 26, 7, 'SPI1_CS1_N', 'SPI1_CS1_N', None, None),
+    (3, "/sys/devices/c2f0000.gpio", 29, 5, 'CAN0_DIN', 'CAN0_DIN', None, None),
+    (2, "/sys/devices/c2f0000.gpio", 31, 6, 'CAN0_DOUT', 'CAN0_DOUT', None, None),
+    (9, "/sys/devices/c2f0000.gpio", 32, 12, 'GPIO9', 'CAN1_EN', None, None),
+    (0, "/sys/devices/c2f0000.gpio", 33, 13, 'CAN1_DOUT', 'CAN1_DOUT', None, None),
+    (66, "/sys/devices/2200000.gpio", 35, 19, 'I2S2_FS', 'DAP2_FS', None, None),
+    # Input-only (due to base board)
+    (141, "/sys/devices/2200000.gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None),
+    (1, "/sys/devices/c2f0000.gpio", 37, 26, 'CAN1_DIN', 'CAN1_DIN', None, None),
+    (65, "/sys/devices/2200000.gpio", 38, 20, 'I2S2_DIN', 'DAP2_DIN', None, None),
+    (64, "/sys/devices/2200000.gpio", 40, 21, 'I2S2_DOUT', 'DAP2_DOUT', None, None)
+]
+compats_clara_agx_xavier = (
+    'nvidia,e3900-0000+p2888-0004',
+)
+
 JETSON_NX_PIN_DEFS = [
     (148, "/sys/devices/2200000.gpio", 7, 4, 'GPIO09', 'AUD_MCLK', None, None),
     (140, "/sys/devices/2200000.gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
@@ -206,6 +239,17 @@ compats_nano = (
 )
 
 jetson_gpio_data = {
+    CLARA_AGX_XAVIER: (
+        CLARA_AGX_XAVIER_PIN_DEFS,
+        {
+            'P1_REVISION': 1,
+            'RAM': '16384M',
+            'REVISION': 'Unknown',
+            'TYPE': 'CLARA_AGX_XAVIER',
+            'MANUFACTURER': 'NVIDIA',
+            'PROCESSOR': 'ARM Carmel'
+        }
+    ),
     JETSON_NX: (
         JETSON_NX_PIN_DEFS,
         {
@@ -323,6 +367,9 @@ WARNING: and in fact is unlikely to work correctly.
     elif matches(compats_tx2):
         model = JETSON_TX2
         warn_if_not_carrier_board('2597')
+    elif matches(compats_clara_agx_xavier):
+        model = CLARA_AGX_XAVIER
+        warn_if_not_carrier_board('3900')
     elif matches(compats_xavier):
         model = JETSON_XAVIER
         warn_if_not_carrier_board('2822')

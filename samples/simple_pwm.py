@@ -26,6 +26,7 @@ output_pins = {
     'JETSON_XAVIER': 18,
     'JETSON_NANO': 33,
     'JETSON_NX': 33,
+    'CLARA_AGX_XAVIER': 18,
 }
 output_pin = output_pins.get(GPIO.model, None)
 if output_pin is None:
