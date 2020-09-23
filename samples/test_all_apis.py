@@ -22,6 +22,7 @@
 from __future__ import print_function
 import threading
 import time
+import warnings
 
 import RPi.GPIO as GPIO
 
@@ -136,36 +137,68 @@ def pwmtest(f):
 
 
 # Tests of:
+# def setwarnings(state):
+
+@test
+def test_warnings_off():
+    GPIO.setwarnings(False)
+    with warnings.catch_warnings(record=True) as w:
+        # cleanup() warns if no GPIOs were set up
+        GPIO.cleanup()
+    if len(w):
+        raise Exception("Unexpected warning occured")
+
+
+@test
+def test_warnings_on():
+    GPIO.setwarnings(True)
+    with warnings.catch_warnings(record=True) as w:
+        # cleanup() warns if no GPIOs were set up
+        GPIO.cleanup()
+    if not len(w):
+        raise Exception("Expected warning did not occur")
+
+
+# Tests of:
 # def setmode(mode):
+# def getmode():
 # def setup(channels, direction, pull_up_down=PUD_OFF, initial=None):
 
 
 @test
 def test_setup_one_board():
     GPIO.setmode(GPIO.BOARD)
+    assert GPIO.getmode() == GPIO.BOARD
     GPIO.setup(pin_data['in_a'], GPIO.IN)
     GPIO.cleanup()
+    assert GPIO.getmode() is None
 
 
 @test
 def test_setup_one_bcm():
     GPIO.setmode(GPIO.BCM)
+    assert GPIO.getmode() == GPIO.BCM
     GPIO.setup(bcm_pin, GPIO.IN)
     GPIO.cleanup()
+    assert GPIO.getmode() is None
 
 
 @test
 def test_setup_one_cvm():
     GPIO.setmode(GPIO.CVM)
+    assert GPIO.getmode() == GPIO.CVM
     GPIO.setup(pin_data['cvm_pin'], GPIO.IN)
     GPIO.cleanup()
+    assert GPIO.getmode() is None
 
 
 @test
 def test_setup_one_tegra_soc():
     GPIO.setmode(GPIO.TEGRA_SOC)
+    assert GPIO.getmode() == GPIO.TEGRA_SOC
     GPIO.setup(pin_data['tegra_soc_pin'], GPIO.IN)
     GPIO.cleanup()
+    assert GPIO.getmode() is None
 
 
 @test
@@ -238,6 +271,7 @@ def test_setup_all():
 
 # Tests of:
 # def cleanup(channel=None):
+# def getmode():
 
 
 @test
@@ -245,7 +279,9 @@ def test_cleanup_one():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(pin_data['in_a'], GPIO.IN)
     GPIO.cleanup(pin_data['in_a'])
+    assert GPIO.getmode() == GPIO.BOARD
     GPIO.cleanup()
+    assert GPIO.getmode() is None
 
 
 @test
@@ -253,7 +289,9 @@ def test_cleanup_many():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup((pin_data['in_a'], pin_data['in_b']), GPIO.IN)
     GPIO.cleanup((pin_data['in_a'], pin_data['in_b']))
+    assert GPIO.getmode() == GPIO.BOARD
     GPIO.cleanup()
+    assert GPIO.getmode() is None
 
 
 @test
@@ -261,6 +299,7 @@ def test_cleanup_all():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup((pin_data['in_a'], pin_data['in_b']), GPIO.IN)
     GPIO.cleanup()
+    assert GPIO.getmode() is None
 
 
 # Tests of:
