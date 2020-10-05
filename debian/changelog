@@ -1,3 +1,10 @@
+jetson-gpio (2.0.11) bionic; urgency=medium
+
+  * Support Jetson Nano 2GB board.
+  * Enhance API coverage in test_all_apis.py
+
+ -- Stephen Warren <swarren@nvidia.com>  Thu, 8 Oct 2020 14:15:59 -0600
+
 jetson-gpio (2.0.10) bionic; urgency=medium
 
   * Support Clara AGX Xavier board.
