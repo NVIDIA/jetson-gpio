@@ -130,7 +130,7 @@ def _sysfs_channel_configuration(ch_info):
         if os.path.exists(pwm_dir):
             return HARD_PWM
 
-    gpio_dir = _SYSFS_ROOT + "/gpio%i" % ch_info.gpio
+    gpio_dir = _SYSFS_ROOT + "/" + ch_info.gpio_name
     if not os.path.exists(gpio_dir):
         return None
 
@@ -151,48 +151,48 @@ def _app_channel_configuration(ch_info):
     return _channel_configuration.get(ch_info.channel, None)
 
 
-def _export_gpio(gpio):
-    if os.path.exists(_SYSFS_ROOT + "/gpio%i" % gpio):
+def _export_gpio(ch_info):
+    if os.path.exists(_SYSFS_ROOT + "/" + ch_info.gpio_name):
         return
 
     with open(_SYSFS_ROOT + "/export", "w") as f_export:
-        f_export.write(str(gpio))
+        f_export.write(str(ch_info.gpio))
 
-    while not os.access(_SYSFS_ROOT + "/gpio%i" % gpio + "/value",
+    while not os.access(_SYSFS_ROOT + "/" + ch_info.gpio_name + "/value",
                         os.R_OK | os.W_OK):
         time.sleep(0.01)
 
 
-def _unexport_gpio(gpio):
-    if not os.path.exists(_SYSFS_ROOT + "/gpio%i" % gpio):
+def _unexport_gpio(ch_info):
+    if not os.path.exists(_SYSFS_ROOT + "/" + ch_info.gpio_name):
         return
 
     with open(_SYSFS_ROOT + "/unexport", "w") as f_unexport:
-        f_unexport.write(str(gpio))
+        f_unexport.write(str(ch_info.gpio))
 
 
-def _output_one(gpio, value):
-    with open(_SYSFS_ROOT + "/gpio%s" % gpio + "/value", 'w') as value_file:
+def _output_one(ch_info, value):
+    with open(_SYSFS_ROOT + "/" + ch_info.gpio_name + "/value", 'w') as value_file:
         value_file.write(str(int(bool(value))))
 
 
 def _setup_single_out(ch_info, initial=None):
-    _export_gpio(ch_info.gpio)
+    _export_gpio(ch_info)
 
-    gpio_dir_path = _SYSFS_ROOT + "/gpio%i" % ch_info.gpio + "/direction"
+    gpio_dir_path = _SYSFS_ROOT + "/" + ch_info.gpio_name + "/direction"
     with open(gpio_dir_path, 'w') as direction_file:
         direction_file.write("out")
 
     if initial is not None:
-        _output_one(ch_info.gpio, initial)
+        _output_one(ch_info, initial)
 
     _channel_configuration[ch_info.channel] = OUT
 
 
 def _setup_single_in(ch_info):
-    _export_gpio(ch_info.gpio)
+    _export_gpio(ch_info)
 
-    gpio_dir_path = _SYSFS_ROOT + "/gpio%i" % ch_info.gpio + "/direction"
+    gpio_dir_path = _SYSFS_ROOT + "/" + ch_info.gpio_name + "/direction"
     with open(gpio_dir_path, 'w') as direction:
         direction.write("in")
 
@@ -280,8 +280,8 @@ def _cleanup_one(ch_info):
         _disable_pwm(ch_info)
         _unexport_pwm(ch_info)
     else:
-        event.event_cleanup(ch_info.gpio)
-        _unexport_gpio(ch_info.gpio)
+        event.event_cleanup(ch_info.gpio, ch_info.gpio_name)
+        _unexport_gpio(ch_info)
     del _channel_configuration[ch_info.channel]
 
 
@@ -411,7 +411,7 @@ def input(channel):
     if app_cfg not in [IN, OUT]:
         raise RuntimeError("You must setup() the GPIO channel first")
 
-    with open(_SYSFS_ROOT + "/gpio%i" % ch_info.gpio + "/value") as value:
+    with open(_SYSFS_ROOT + "/" + ch_info.gpio_name + "/value") as value:
         value_read = int(value.read())
         return value_read
 
@@ -432,7 +432,7 @@ def output(channels, values):
                            "OUTPUT")
 
     for ch_info, value in zip(ch_infos, values):
-        _output_one(ch_info.gpio, value)
+        _output_one(ch_info, value)
 
 
 # Function used to check if an event occurred on the specified channel.
@@ -492,8 +492,8 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
         elif bouncetime < 0:
             raise ValueError("bouncetime must be an integer greater than 0")
 
-    result = event.add_edge_detect(ch_info.gpio, edge - _EDGE_OFFSET,
-                                   bouncetime)
+    result = event.add_edge_detect(ch_info.gpio, ch_info.gpio_name,
+                                   edge - _EDGE_OFFSET, bouncetime)
 
     # result == 1 means a different edge was already added for the channel.
     # result == 2 means error occurred while adding edge (thread or event poll)
@@ -514,7 +514,7 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
 # Function used to remove event detection for channel
 def remove_event_detect(channel):
     ch_info = _channel_to_info(channel, need_gpio=True)
-    event.remove_edge_detect(ch_info.gpio)
+    event.remove_edge_detect(ch_info.gpio, ch_info.gpio_name)
 
 
 # Function used to perform a blocking wait until the specified edge
@@ -551,8 +551,9 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
         elif timeout < 0:
             raise ValueError("Timeout must greater than 0")
 
-    result = event.blocking_wait_for_edge(ch_info.gpio, edge - _EDGE_OFFSET,
-                                          bouncetime, timeout)
+    result = event.blocking_wait_for_edge(ch_info.gpio, ch_info.gpio_name,
+                                          edge - _EDGE_OFFSET, bouncetime,
+                                          timeout)
 
     # If not error, result == channel. If timeout occurs while waiting,
     # result == None. If error occurs, result == -1 means channel is

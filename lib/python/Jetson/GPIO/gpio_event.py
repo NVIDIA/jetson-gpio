@@ -63,14 +63,13 @@ _mutex = thread.allocate_lock()
 
 
 class _Gpios:
-    def __init__(self, gpio, edge=None, bouncetime=None):
+    def __init__(self, gpio_name, edge=None, bouncetime=None):
         self.edge = edge
-        self.value_fd = open(ROOT + "/gpio%i" % gpio + "/value", 'r')
+        self.value_fd = open(ROOT + "/" + gpio_name + "/value", 'r')
         self.initial_thread = True
         self.initial_wait = True
         self.thread_added = False
         self.bouncetime = bouncetime
-        self.gpio = gpio
         self.callbacks = []
         self.lastcall = 0
         self.event_occurred = False
@@ -80,15 +79,15 @@ class _Gpios:
         del self.callbacks
 
 
-def add_edge_detect(gpio, edge, bouncetime):
+def add_edge_detect(gpio, gpio_name, edge, bouncetime):
     global _epoll_fd_thread
     gpios = None
     res = gpio_event_added(gpio)
 
     # event not added
     if not res:
-        gpios = _Gpios(gpio, edge, bouncetime)
-        _set_edge(gpio, edge)
+        gpios = _Gpios(gpio_name, edge, bouncetime)
+        _set_edge(gpio_name, edge)
 
     # event already added
     elif res == edge:
@@ -108,7 +107,7 @@ def add_edge_detect(gpio, edge, bouncetime):
     try:
         _epoll_fd_thread.register(gpios.value_fd, EPOLLIN | EPOLLET | EPOLLPRI)
     except IOError:
-        remove_edge_detect(gpio)
+        remove_edge_detect(gpio, gpio_name)
         return 2
 
     gpios.thread_added = 1
@@ -119,19 +118,19 @@ def add_edge_detect(gpio, edge, bouncetime):
         try:
             thread.start_new_thread(_poll_thread, ())
         except RuntimeError:
-            remove_edge_detect(gpio)
+            remove_edge_detect(gpio, gpio_name)
             return 2
     return 0
 
 
-def remove_edge_detect(gpio):
+def remove_edge_detect(gpio, gpio_name):
     if gpio not in _gpio_event_list:
         return
 
     if _epoll_fd_thread is not None:
         _epoll_fd_thread.unregister(_gpio_event_list[gpio].value_fd)
 
-    _set_edge(gpio, NO_EDGE)
+    _set_edge(gpio_name, NO_EDGE)
 
     _mutex.acquire()
     del _gpio_event_list[gpio]
@@ -169,8 +168,8 @@ def _get_gpio_object(gpio):
     return _gpio_event_list[gpio]
 
 
-def _set_edge(gpio, edge):
-    edge_path = ROOT + "/gpio%i" % gpio + "/edge"
+def _set_edge(gpio_name, edge):
+    edge_path = ROOT + "/" + gpio_name + "/edge"
 
     with open(edge_path, 'w') as edge_file:
         edge_file.write(_edge_str[edge])
@@ -249,7 +248,7 @@ def _poll_thread():
     thread.exit()
 
 
-def blocking_wait_for_edge(gpio, edge, bouncetime, timeout):
+def blocking_wait_for_edge(gpio, gpio_name, edge, bouncetime, timeout):
     global _epoll_fd_blocking
     gpio_obj = None
     finished = False
@@ -277,15 +276,15 @@ def blocking_wait_for_edge(gpio, edge, bouncetime, timeout):
 
     # not added. create new record
     elif added_edge == NO_EDGE:
-        gpio_obj = _Gpios(gpio, edge, bouncetime)
-        _set_edge(gpio, edge)
+        gpio_obj = _Gpios(gpio_name, edge, bouncetime)
+        _set_edge(gpio_name, edge)
         _gpio_event_list[gpio] = gpio_obj
 
     # added_edge != edge. Event is for different edge
     else:
         _mutex.acquire()
         gpio_obj = _get_gpio_object(gpio)
-        _set_edge(gpio, edge)
+        _set_edge(gpio_name, edge)
         gpio_obj.edge = edge
         gpio_obj.bouncetime = bouncetime
         gpio_obj.initial_wait = True
@@ -357,12 +356,12 @@ def blocking_wait_for_edge(gpio, edge, bouncetime, timeout):
     return int(res != [])
 
 
-def event_cleanup(gpio=None):
+def event_cleanup(gpio, gpio_name):
     global _epoll_fd_thread, _epoll_fd_blocking, _thread_running
 
     _thread_running = False
     if gpio in _gpio_event_list:
-        remove_edge_detect(gpio)
+        remove_edge_detect(gpio, gpio_name)
 
     if _gpio_event_list == {}:
         if _epoll_fd_blocking is not None:

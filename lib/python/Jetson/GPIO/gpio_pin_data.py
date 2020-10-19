@@ -30,7 +30,11 @@ JETSON_NANO = 'JETSON_NANO'
 
 # These arrays contain tuples of all the relevant GPIO data for each Jetson
 # Platform. The fields are:
-# - Linux GPIO pin number,
+# - Linux GPIO pin number (within chip, not global),
+#   (map from chip GPIO count to value, to cater for different numbering schemes)
+# - Linux exported GPIO name,
+#   (map from chip GPIO count to value, to cater for different naming schemes)
+#   (entries omitted if exported filename is gpio%i)
 # - GPIO chip sysfs directory
 # - Pin number (BOARD mode)
 # - Pin number (BCM mode)
@@ -42,59 +46,59 @@ JETSON_NANO = 'JETSON_NANO'
 # mode numbers to the Linux GPIO pin number and GPIO chip directory
 
 CLARA_AGX_XAVIER_PIN_DEFS = [
-    (134, "2200000.gpio", 7, 4, 'MCLK05', 'SOC_GPIO42', None, None),
-    (140, "2200000.gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
-    (63, "2200000.gpio", 12, 18, 'I2S2_CLK', 'DAP2_SCLK', None, None),
-    (124, "2200000.gpio", 13, 27, 'GPIO32', 'SOC_GPIO04', None, None),
+    ({224: 134, 169: 106}, {169:  'PQ.06'}, "2200000.gpio", 7, 4, 'MCLK05', 'SOC_GPIO42', None, None),
+    ({224: 140, 169: 112}, {169:  'PR.04'}, "2200000.gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
+    ({224:  63, 169:  51}, {169:  'PH.07'}, "2200000.gpio", 12, 18, 'I2S2_CLK', 'DAP2_SCLK', None, None),
+    ({224: 124, 169:  96}, {169:  'PP.00'}, "2200000.gpio", 13, 27, 'GPIO32', 'SOC_GPIO04', None, None),
     # Older versions of L4T don't enable this PWM controller in DT, so this PWM
     # channel may not be available.
-    (105, "2200000.gpio", 15, 22, 'GPIO27', 'SOC_GPIO54', '3280000.pwm', 0),
-    (8, "c2f0000.gpio", 16, 23, 'GPIO8', 'CAN1_STB', None, None),
-    (56, "2200000.gpio", 18, 24, 'GPIO35', 'SOC_GPIO12', '32c0000.pwm', 0),
-    (205, "2200000.gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
-    (204, "2200000.gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None),
-    (129, "2200000.gpio", 22, 25, 'GPIO17', 'SOC_GPIO21', None, None),
-    (203, "2200000.gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
-    (206, "2200000.gpio", 24, 8, 'SPI1_CS0_N', 'SPI1_CS0_N', None, None),
-    (207, "2200000.gpio", 26, 7, 'SPI1_CS1_N', 'SPI1_CS1_N', None, None),
-    (3, "c2f0000.gpio", 29, 5, 'CAN0_DIN', 'CAN0_DIN', None, None),
-    (2, "c2f0000.gpio", 31, 6, 'CAN0_DOUT', 'CAN0_DOUT', None, None),
-    (9, "c2f0000.gpio", 32, 12, 'GPIO9', 'CAN1_EN', None, None),
-    (0, "c2f0000.gpio", 33, 13, 'CAN1_DOUT', 'CAN1_DOUT', None, None),
-    (66, "2200000.gpio", 35, 19, 'I2S2_FS', 'DAP2_FS', None, None),
+    ({224: 105, 169:  84}, {169:  'PN.01'}, "2200000.gpio", 15, 22, 'GPIO27', 'SOC_GPIO54', '3280000.pwm', 0),
+    ({ 40:   8,  30:   8}, { 30: 'PBB.00'}, "c2f0000.gpio", 16, 23, 'GPIO8', 'CAN1_STB', None, None),
+    ({224:  56, 169:  44}, {169:  'PH.00'}, "2200000.gpio", 18, 24, 'GPIO35', 'SOC_GPIO12', '32c0000.pwm', 0),
+    ({224: 205, 169: 162}, {169:  'PZ.05'}, "2200000.gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
+    ({224: 204, 169: 161}, {169:  'PZ.04'}, "2200000.gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None),
+    ({224: 129, 169: 101}, {169:  'PQ.01'}, "2200000.gpio", 22, 25, 'GPIO17', 'SOC_GPIO21', None, None),
+    ({224: 203, 169: 160}, {169:  'PZ.03'}, "2200000.gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
+    ({224: 206, 169: 163}, {169:  'PZ.06'}, "2200000.gpio", 24, 8, 'SPI1_CS0_N', 'SPI1_CS0_N', None, None),
+    ({224: 207, 169: 164}, {169:  'PZ.07'}, "2200000.gpio", 26, 7, 'SPI1_CS1_N', 'SPI1_CS1_N', None, None),
+    ({ 40:   3,  30:   3}, { 30: 'PAA.03'}, "c2f0000.gpio", 29, 5, 'CAN0_DIN', 'CAN0_DIN', None, None),
+    ({ 40:   2,  30:   2}, { 30: 'PAA.02'}, "c2f0000.gpio", 31, 6, 'CAN0_DOUT', 'CAN0_DOUT', None, None),
+    ({ 40:   9,  30:   9}, { 30: 'PBB.01'}, "c2f0000.gpio", 32, 12, 'GPIO9', 'CAN1_EN', None, None),
+    ({ 40:   0,  30:   0}, { 30: 'PAA.00'}, "c2f0000.gpio", 33, 13, 'CAN1_DOUT', 'CAN1_DOUT', None, None),
+    ({224:  66, 169:  54}, {169:  'PI.02'}, "2200000.gpio", 35, 19, 'I2S2_FS', 'DAP2_FS', None, None),
     # Input-only (due to base board)
-    (141, "2200000.gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None),
-    (1, "c2f0000.gpio", 37, 26, 'CAN1_DIN', 'CAN1_DIN', None, None),
-    (65, "2200000.gpio", 38, 20, 'I2S2_DIN', 'DAP2_DIN', None, None),
-    (64, "2200000.gpio", 40, 21, 'I2S2_DOUT', 'DAP2_DOUT', None, None)
+    ({224: 141, 169: 113}, {169:  'PR.05'}, "2200000.gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None),
+    ({ 40:   1,  30:   1}, { 30: 'PAA.01'}, "c2f0000.gpio", 37, 26, 'CAN1_DIN', 'CAN1_DIN', None, None),
+    ({224:  65, 169:  53}, {169:  'PI.01'}, "2200000.gpio", 38, 20, 'I2S2_DIN', 'DAP2_DIN', None, None),
+    ({224:  64, 169:  52}, {169:  'PI.00'}, "2200000.gpio", 40, 21, 'I2S2_DOUT', 'DAP2_DOUT', None, None)
 ]
 compats_clara_agx_xavier = (
     'nvidia,e3900-0000+p2888-0004',
 )
 
 JETSON_NX_PIN_DEFS = [
-    (148, "2200000.gpio", 7, 4, 'GPIO09', 'AUD_MCLK', None, None),
-    (140, "2200000.gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
-    (157, "2200000.gpio", 12, 18, 'I2S0_SCLK', 'DAP5_SCLK', None, None),
-    (192, "2200000.gpio", 13, 27, 'SPI1_SCK', 'SPI3_SCK', None, None),
-    (20, "c2f0000.gpio", 15, 22, 'GPIO12', 'TOUCH_CLK', None, None),
-    (196, "2200000.gpio", 16, 23, 'SPI1_CS1', 'SPI3_CS1_N', None, None),
-    (195, "2200000.gpio", 18, 24, 'SPI1_CS0', 'SPI3_CS0_N', None, None),
-    (205, "2200000.gpio", 19, 10, 'SPI0_MOSI', 'SPI1_MOSI', None, None),
-    (204, "2200000.gpio", 21, 9, 'SPI0_MISO', 'SPI1_MISO', None, None),
-    (193, "2200000.gpio", 22, 25, 'SPI1_MISO', 'SPI3_MISO', None, None),
-    (203, "2200000.gpio", 23, 11, 'SPI0_SCK', 'SPI1_SCK', None, None),
-    (206, "2200000.gpio", 24, 8, 'SPI0_CS0', 'SPI1_CS0_N', None, None),
-    (207, "2200000.gpio", 26, 7, 'SPI0_CS1', 'SPI1_CS1_N', None, None),
-    (133, "2200000.gpio", 29, 5, 'GPIO01', 'SOC_GPIO41', None, None),
-    (134, "2200000.gpio", 31, 6, 'GPIO11', 'SOC_GPIO42', None, None),
-    (136, "2200000.gpio", 32, 12, 'GPIO07', 'SOC_GPIO44', '32f0000.pwm', 0),
-    (105, "2200000.gpio", 33, 13, 'GPIO13', 'SOC_GPIO54', '3280000.pwm', 0),
-    (160, "2200000.gpio", 35, 19, 'I2S0_FS', 'DAP5_FS', None, None),
-    (141, "2200000.gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None),
-    (194, "2200000.gpio", 37, 26, 'SPI1_MOSI', 'SPI3_MOSI', None, None),
-    (159, "2200000.gpio", 38, 20, 'I2S0_DIN', 'DAP5_DIN', None, None),
-    (158, "2200000.gpio", 40, 21, 'I2S0_DOUT', 'DAP5_DOUT', None, None)
+    ({224: 148, 169: 118}, {169:  'PS.04'}, "2200000.gpio", 7, 4, 'GPIO09', 'AUD_MCLK', None, None),
+    ({224: 140, 169: 112}, {169:  'PR.04'}, "2200000.gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
+    ({224: 157, 169: 127}, {169:  'PT.05'}, "2200000.gpio", 12, 18, 'I2S0_SCLK', 'DAP5_SCLK', None, None),
+    ({224: 192, 169: 149}, {169:  'PY.00'}, "2200000.gpio", 13, 27, 'SPI1_SCK', 'SPI3_SCK', None, None),
+    ({ 40:  20,  30:  16}, { 30: 'PCC.04'}, "c2f0000.gpio", 15, 22, 'GPIO12', 'TOUCH_CLK', None, None),
+    ({224: 196, 169: 153}, {169:  'PY.04'}, "2200000.gpio", 16, 23, 'SPI1_CS1', 'SPI3_CS1_N', None, None),
+    ({224: 195, 169: 152}, {169:  'PY.03'}, "2200000.gpio", 18, 24, 'SPI1_CS0', 'SPI3_CS0_N', None, None),
+    ({224: 205, 169: 162}, {169:  'PZ.05'}, "2200000.gpio", 19, 10, 'SPI0_MOSI', 'SPI1_MOSI', None, None),
+    ({224: 204, 169: 161}, {169:  'PZ.04'}, "2200000.gpio", 21, 9, 'SPI0_MISO', 'SPI1_MISO', None, None),
+    ({224: 193, 169: 150}, {169:  'PY.01'}, "2200000.gpio", 22, 25, 'SPI1_MISO', 'SPI3_MISO', None, None),
+    ({224: 203, 169: 160}, {169:  'PZ.03'}, "2200000.gpio", 23, 11, 'SPI0_SCK', 'SPI1_SCK', None, None),
+    ({224: 206, 169: 163}, {169:  'PZ.06'}, "2200000.gpio", 24, 8, 'SPI0_CS0', 'SPI1_CS0_N', None, None),
+    ({224: 207, 169: 164}, {169:  'PZ.07'}, "2200000.gpio", 26, 7, 'SPI0_CS1', 'SPI1_CS1_N', None, None),
+    ({224: 133, 169: 105}, {169:  'PQ.05'}, "2200000.gpio", 29, 5, 'GPIO01', 'SOC_GPIO41', None, None),
+    ({224: 134, 169: 106}, {169:  'PQ.06'}, "2200000.gpio", 31, 6, 'GPIO11', 'SOC_GPIO42', None, None),
+    ({224: 136, 169: 108}, {169:  'PR.00'}, "2200000.gpio", 32, 12, 'GPIO07', 'SOC_GPIO44', '32f0000.pwm', 0),
+    ({224: 105, 169:  84}, {169:  'PN.01'}, "2200000.gpio", 33, 13, 'GPIO13', 'SOC_GPIO54', '3280000.pwm', 0),
+    ({224: 160, 169: 130}, {169:  'PU.00'}, "2200000.gpio", 35, 19, 'I2S0_FS', 'DAP5_FS', None, None),
+    ({224: 141, 169: 113}, {169:  'PR.05'}, "2200000.gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None),
+    ({224: 194, 169: 151}, {169:  'PY.02'}, "2200000.gpio", 37, 26, 'SPI1_MOSI', 'SPI3_MOSI', None, None),
+    ({224: 159, 169: 129}, {169:  'PT.07'}, "2200000.gpio", 38, 20, 'I2S0_DIN', 'DAP5_DIN', None, None),
+    ({224: 158, 169: 128}, {169:  'PT.06'}, "2200000.gpio", 40, 21, 'I2S0_DOUT', 'DAP5_DOUT', None, None)
 ]
 compats_nx = (
     'nvidia,p3509-0000+p3668-0000',
@@ -104,31 +108,31 @@ compats_nx = (
 )
 
 JETSON_XAVIER_PIN_DEFS = [
-    (134, "2200000.gpio", 7, 4, 'MCLK05', 'SOC_GPIO42', None, None),
-    (140, "2200000.gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
-    (63, "2200000.gpio", 12, 18, 'I2S2_CLK', 'DAP2_SCLK', None, None),
-    (136, "2200000.gpio", 13, 27, 'PWM01', 'SOC_GPIO44', '32f0000.pwm', 0),
-    # Older versions of L4T don't enable this PWM controller in DT, so this PWM
+    ({224: 134, 169: 106}, {169:  'PQ.06'}, "2200000.gpio", 7, 4, 'MCLK05', 'SOC_GPIO42', None, None),
+    ({224: 140, 169: 112}, {169:  'PR.04'}, "2200000.gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
+    ({224:  63, 169:  51}, {169:  'PH.07'}, "2200000.gpio", 12, 18, 'I2S2_CLK', 'DAP2_SCLK', None, None),
+    ({224: 136, 169: 108}, {169:  'PR.00'}, "2200000.gpio", 13, 27, 'PWM01', 'SOC_GPIO44', '32f0000.pwm', 0),
+    # Older versions of L4T don'Pt enable this PWM controller in DT, so this PWM
     # channel may not be available.
-    (105, "2200000.gpio", 15, 22, 'GPIO27', 'SOC_GPIO54', '3280000.pwm', 0),
-    (8, "c2f0000.gpio", 16, 23, 'GPIO8', 'CAN1_STB', None, None),
-    (56, "2200000.gpio", 18, 24, 'GPIO35', 'SOC_GPIO12', '32c0000.pwm', 0),
-    (205, "2200000.gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
-    (204, "2200000.gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None),
-    (129, "2200000.gpio", 22, 25, 'GPIO17', 'SOC_GPIO21', None, None),
-    (203, "2200000.gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
-    (206, "2200000.gpio", 24, 8, 'SPI1_CS0_N', 'SPI1_CS0_N', None, None),
-    (207, "2200000.gpio", 26, 7, 'SPI1_CS1_N', 'SPI1_CS1_N', None, None),
-    (3, "c2f0000.gpio", 29, 5, 'CAN0_DIN', 'CAN0_DIN', None, None),
-    (2, "c2f0000.gpio", 31, 6, 'CAN0_DOUT', 'CAN0_DOUT', None, None),
-    (9, "c2f0000.gpio", 32, 12, 'GPIO9', 'CAN1_EN', None, None),
-    (0, "c2f0000.gpio", 33, 13, 'CAN1_DOUT', 'CAN1_DOUT', None, None),
-    (66, "2200000.gpio", 35, 19, 'I2S2_FS', 'DAP2_FS', None, None),
+    ({224: 105, 169:  84}, {169:  'PN.01'}, "2200000.gpio", 15, 22, 'GPIO27', 'SOC_GPIO54', '3280000.pwm', 0),
+    ({ 40:   8,  30:   8}, { 30: 'PBB.00'}, "c2f0000.gpio", 16, 23, 'GPIO8', 'CAN1_STB', None, None),
+    ({224:  56, 169:  44}, {169:  'PH.00'}, "2200000.gpio", 18, 24, 'GPIO35', 'SOC_GPIO12', '32c0000.pwm', 0),
+    ({224: 205, 169: 162}, {169:  'PZ.05'}, "2200000.gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
+    ({224: 204, 169: 161}, {169:  'PZ.04'}, "2200000.gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None),
+    ({224: 129, 169: 101}, {169:  'PQ.01'}, "2200000.gpio", 22, 25, 'GPIO17', 'SOC_GPIO21', None, None),
+    ({224: 203, 169: 160}, {169:  'PZ.03'}, "2200000.gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
+    ({224: 206, 169: 163}, {169:  'PZ.06'}, "2200000.gpio", 24, 8, 'SPI1_CS0_N', 'SPI1_CS0_N', None, None),
+    ({224: 207, 169: 164}, {169:  'PZ.07'}, "2200000.gpio", 26, 7, 'SPI1_CS1_N', 'SPI1_CS1_N', None, None),
+    ({ 40:   3,  30:   3}, { 30: 'PAA.03'}, "c2f0000.gpio", 29, 5, 'CAN0_DIN', 'CAN0_DIN', None, None),
+    ({ 40:   2,  30:   2}, { 30: 'PAA.02'}, "c2f0000.gpio", 31, 6, 'CAN0_DOUT', 'CAN0_DOUT', None, None),
+    ({ 40:   9,  30:   9}, { 30: 'PBB.01'}, "c2f0000.gpio", 32, 12, 'GPIO9', 'CAN1_EN', None, None),
+    ({ 40:   0,  30:   0}, { 30: 'PAA.00'}, "c2f0000.gpio", 33, 13, 'CAN1_DOUT', 'CAN1_DOUT', None, None),
+    ({224:  66, 169:  54}, {169:  'PI.02'}, "2200000.gpio", 35, 19, 'I2S2_FS', 'DAP2_FS', None, None),
     # Input-only (due to base board)
-    (141, "2200000.gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None),
-    (1, "c2f0000.gpio", 37, 26, 'CAN1_DIN', 'CAN1_DIN', None, None),
-    (65, "2200000.gpio", 38, 20, 'I2S2_DIN', 'DAP2_DIN', None, None),
-    (64, "2200000.gpio", 40, 21, 'I2S2_DOUT', 'DAP2_DOUT', None, None)
+    ({224: 141, 169: 113}, {169:  'PR.05'}, "2200000.gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None),
+    ({ 40:   1,  30:   1}, { 30: 'PAA.01'}, "c2f0000.gpio", 37, 26, 'CAN1_DIN', 'CAN1_DIN', None, None),
+    ({224:  65, 169:  53}, {169:  'PI.01'}, "2200000.gpio", 38, 20, 'I2S2_DIN', 'DAP2_DIN', None, None),
+    ({224:  64, 169:  52}, {169:  'PI.00'}, "2200000.gpio", 40, 21, 'I2S2_DOUT', 'DAP2_DOUT', None, None)
 ]
 compats_xavier = (
     'nvidia,p2972-0000',
@@ -137,33 +141,33 @@ compats_xavier = (
 )
 
 JETSON_TX2_PIN_DEFS = [
-    (76, "2200000.gpio", 7, 4, 'AUDIO_MCLK', 'AUD_MCLK', None, None),
+    ({192:  76, 140:  66}, {140:  'PJ.04'}, "2200000.gpio", 7, 4, 'PAUDIO_MCLK', 'AUD_MCLK', None, None),
     # Output-only (due to base board)
-    (146, "2200000.gpio", 11, 17, 'UART0_RTS', 'UART1_RTS', None, None),
-    (72, "2200000.gpio", 12, 18, 'I2S0_CLK', 'DAP1_SCLK', None, None),
-    (77, "2200000.gpio", 13, 27, 'GPIO20_AUD_INT', 'GPIO_AUD0', None, None),
-    (15, "3160000.i2c/i2c-0/0-0074", 15, 22, 'GPIO_EXP_P17', 'GPIO_EXP_P17', None, None),
+    ({192: 146, 140: 117}, {140:  'PT.02'}, "2200000.gpio", 11, 17, 'PUART0_RTS', 'UART1_RTS', None, None),
+    ({192:  72, 140:  62}, {140:  'PJ.00'}, "2200000.gpio", 12, 18, 'PI2S0_CLK', 'DAP1_SCLK', None, None),
+    ({192:  77, 140:  67}, {140:  'PJ.05'}, "2200000.gpio", 13, 27, 'PGPIO20_AUD_INT', 'GPIO_AUD0', None, None),
+    (                  15,              {}, "3160000.i2c/i2c-0/0-0074", 15, 22, 'GPIO_EXP_P17', 'GPIO_EXP_P17', None, None),
     # Input-only (due to module):
-    (40, "c2f0000.gpio", 16, 23, 'AO_DMIC_IN_DAT', 'CAN_GPIO0', None, None),
-    (161, "2200000.gpio", 18, 24, 'GPIO16_MDM_WAKE_AP', 'GPIO_MDM2', None, None),
-    (109, "2200000.gpio", 19, 10, 'SPI1_MOSI', 'GPIO_CAM6', None, None),
-    (108, "2200000.gpio", 21, 9, 'SPI1_MISO', 'GPIO_CAM5', None, None),
-    (14, "3160000.i2c/i2c-0/0-0074", 22, 25, 'GPIO_EXP_P16', 'GPIO_EXP_P16', None, None),
-    (107, "2200000.gpio", 23, 11, 'SPI1_CLK', 'GPIO_CAM4', None, None),
-    (110, "2200000.gpio", 24, 8, 'SPI1_CS0', 'GPIO_CAM7', None, None),
-    (None, None, 26, 7, 'SPI1_CS1', None, None, None),
-    (78, "2200000.gpio", 29, 5, 'GPIO19_AUD_RST', 'GPIO_AUD1', None, None),
-    (42, "c2f0000.gpio", 31, 6, 'GPIO9_MOTION_INT', 'CAN_GPIO2', None, None),
+    ({ 64:  40,  47:  31}, { 47: 'PAA.00'}, "c2f0000.gpio", 16, 23, 'AO_DMIC_IN_DAT', 'CAN_GPIO0', None, None),
+    ({192: 161, 140: 128}, {140:  'PY.01'}, "2200000.gpio", 18, 24, 'GPIO16_MDM_WAKE_AP', 'GPIO_MDM2', None, None),
+    ({192: 109, 140:  90}, {140:  'PN.05'}, "2200000.gpio", 19, 10, 'SPI1_MOSI', 'GPIO_CAM6', None, None),
+    ({192: 108, 140:  89}, {140:  'PN.04'}, "2200000.gpio", 21, 9, 'SPI1_MISO', 'GPIO_CAM5', None, None),
+    (                  14,              {}, "3160000.i2c/i2c-0/0-0074", 22, 25, 'GPIO_EXP_P16', 'GPIO_EXP_P16', None, None),
+    ({192: 107, 140:  88}, {140:  'PN.03'}, "2200000.gpio", 23, 11, 'SPI1_CLK', 'GPIO_CAM4', None, None),
+    ({192: 110, 140:  91}, {140:  'PN.06'}, "2200000.gpio", 24, 8, 'SPI1_CS0', 'GPIO_CAM7', None, None),
+    # Board pin 26 is not available on this board
+    ({192:  78, 140:  68}, {140:  'PJ.06'}, "2200000.gpio", 29, 5, 'GPIO19_AUD_RST', 'GPIO_AUD1', None, None),
+    ({ 64:  42,  47:  33}, { 47: 'PAA.02'}, "c2f0000.gpio", 31, 6, 'GPIO9_MOTION_INT', 'CAN_GPIO2', None, None),
     # Output-only (due to module):
-    (41, "c2f0000.gpio", 32, 12, 'AO_DMIC_IN_CLK', 'CAN_GPIO1', None, None),
-    (69, "2200000.gpio", 33, 13, 'GPIO11_AP_WAKE_BT', 'GPIO_PQ5', None, None),
-    (75, "2200000.gpio", 35, 19, 'I2S0_LRCLK', 'DAP1_FS', None, None),
+    ({ 64:  41,  47:  32}, { 47: 'PAA.01'}, "c2f0000.gpio", 32, 12, 'AO_DMIC_IN_CLK', 'CAN_GPIO1', None, None),
+    ({192:  69, 140:  59}, {140:  'PI.05'}, "2200000.gpio", 33, 13, 'GPIO11_AP_WAKE_BT', 'GPIO_PQ5', None, None),
+    ({192:  75, 140:  65}, {140:  'PJ.03'}, "2200000.gpio", 35, 19, 'I2S0_LRCLK', 'DAP1_FS', None, None),
     # Input-only (due to base board) IF NVIDIA debug card NOT plugged in
     # Output-only (due to base board) IF NVIDIA debug card plugged in
-    (147, "2200000.gpio", 36, 16, 'UART0_CTS', 'UART1_CTS', None, None),
-    (68, "2200000.gpio", 37, 26, 'GPIO8_ALS_PROX_INT', 'GPIO_PQ4', None, None),
-    (74, "2200000.gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN', None, None),
-    (73, "2200000.gpio", 40, 21, 'I2S0_SDOUT', 'DAP1_DOUT', None, None)
+    ({192: 147, 140: 118}, {140:  'PT.03'}, "2200000.gpio", 36, 16, 'UART0_CTS', 'UART1_CTS', None, None),
+    ({192:  68, 140:  58}, {140:  'PI.04'}, "2200000.gpio", 37, 26, 'GPIO8_ALS_PROX_INT', 'GPIO_PQ4', None, None),
+    ({192:  74, 140:  64}, {140:  'PJ.02'}, "2200000.gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN', None, None),
+    ({192:  73, 140:  63}, {140:  'PJ.01'}, "2200000.gpio", 40, 21, 'I2S0_SDOUT', 'DAP1_DOUT', None, None)
 ]
 compats_tx2 = (
     'nvidia,p2771-0000',
@@ -175,31 +179,31 @@ compats_tx2 = (
 )
 
 JETSON_TX1_PIN_DEFS = [
-    (216, "6000d000.gpio", 7, 4, 'AUDIO_MCLK', 'AUD_MCLK', None, None),
+    (216, {}, "6000d000.gpio", 7, 4, 'AUDIO_MCLK', 'AUD_MCLK', None, None),
     # Output-only (due to base board)
-    (162, "6000d000.gpio", 11, 17, 'UART0_RTS', 'UART1_RTS', None, None),
-    (11, "6000d000.gpio", 12, 18, 'I2S0_CLK', 'DAP1_SCLK', None, None),
-    (38, "6000d000.gpio", 13, 27, 'GPIO20_AUD_INT', 'GPIO_PE6', None, None),
-    (15, "7000c400.i2c/i2c-1/1-0074", 15, 22, 'GPIO_EXP_P17', 'GPIO_EXP_P17', None, None),
-    (37, "6000d000.gpio", 16, 23, 'AO_DMIC_IN_DAT', 'DMIC3_DAT', None, None),
-    (184, "6000d000.gpio", 18, 24, 'GPIO16_MDM_WAKE_AP', 'MODEM_WAKE_AP', None, None),
-    (16, "6000d000.gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
-    (17, "6000d000.gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None),
-    (14, "7000c400.i2c/i2c-1/1-0074", 22, 25, 'GPIO_EXP_P16', 'GPIO_EXP_P16', None, None),
-    (18, "6000d000.gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
-    (19, "6000d000.gpio", 24, 8, 'SPI1_CS0', 'SPI1_CS0', None, None),
-    (20, "6000d000.gpio", 26, 7, 'SPI1_CS1', 'SPI1_CS1', None, None),
-    (219, "6000d000.gpio", 29, 5, 'GPIO19_AUD_RST', 'GPIO_X1_AUD', None, None),
-    (186, "6000d000.gpio", 31, 6, 'GPIO9_MOTION_INT', 'MOTION_INT', None, None),
-    (36, "6000d000.gpio", 32, 12, 'AO_DMIC_IN_CLK', 'DMIC3_CLK', None, None),
-    (63, "6000d000.gpio", 33, 13, 'GPIO11_AP_WAKE_BT', 'AP_WAKE_NFC', None, None),
-    (8, "6000d000.gpio", 35, 19, 'I2S0_LRCLK', 'DAP1_FS', None, None),
+    (162, {}, "6000d000.gpio", 11, 17, 'UART0_RTS', 'UART1_RTS', None, None),
+    (11, {}, "6000d000.gpio", 12, 18, 'I2S0_CLK', 'DAP1_SCLK', None, None),
+    (38, {}, "6000d000.gpio", 13, 27, 'GPIO20_AUD_INT', 'GPIO_PE6', None, None),
+    (15, {}, "7000c400.i2c/i2c-1/1-0074", 15, 22, 'GPIO_EXP_P17', 'GPIO_EXP_P17', None, None),
+    (37, {}, "6000d000.gpio", 16, 23, 'AO_DMIC_IN_DAT', 'DMIC3_DAT', None, None),
+    (184, {}, "6000d000.gpio", 18, 24, 'GPIO16_MDM_WAKE_AP', 'MODEM_WAKE_AP', None, None),
+    (16, {}, "6000d000.gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
+    (17, {}, "6000d000.gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None),
+    (14, {}, "7000c400.i2c/i2c-1/1-0074", 22, 25, 'GPIO_EXP_P16', 'GPIO_EXP_P16', None, None),
+    (18, {}, "6000d000.gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
+    (19, {}, "6000d000.gpio", 24, 8, 'SPI1_CS0', 'SPI1_CS0', None, None),
+    (20, {}, "6000d000.gpio", 26, 7, 'SPI1_CS1', 'SPI1_CS1', None, None),
+    (219, {}, "6000d000.gpio", 29, 5, 'GPIO19_AUD_RST', 'GPIO_X1_AUD', None, None),
+    (186, {}, "6000d000.gpio", 31, 6, 'GPIO9_MOTION_INT', 'MOTION_INT', None, None),
+    (36, {}, "6000d000.gpio", 32, 12, 'AO_DMIC_IN_CLK', 'DMIC3_CLK', None, None),
+    (63, {}, "6000d000.gpio", 33, 13, 'GPIO11_AP_WAKE_BT', 'AP_WAKE_NFC', None, None),
+    (8, {}, "6000d000.gpio", 35, 19, 'I2S0_LRCLK', 'DAP1_FS', None, None),
     # Input-only (due to base board) IF NVIDIA debug card NOT plugged in
     # Input-only (due to base board) (always reads fixed value) IF NVIDIA debug card plugged in
-    (163, "6000d000.gpio", 36, 16, 'UART0_CTS', 'UART1_CTS', None, None),
-    (187, "6000d000.gpio", 37, 26, 'GPIO8_ALS_PROX_INT', 'ALS_PROX_INT', None, None),
-    (9, "6000d000.gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN', None, None),
-    (10, "6000d000.gpio", 40, 21, 'I2S0_SDOUT', 'DAP1_DOUT', None, None)
+    (163, {}, "6000d000.gpio", 36, 16, 'UART0_CTS', 'UART1_CTS', None, None),
+    (187, {}, "6000d000.gpio", 37, 26, 'GPIO8_ALS_PROX_INT', 'ALS_PROX_INT', None, None),
+    (9, {}, "6000d000.gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN', None, None),
+    (10, {}, "6000d000.gpio", 40, 21, 'I2S0_SDOUT', 'DAP1_DOUT', None, None)
 ]
 compats_tx1 = (
     'nvidia,p2371-2180',
@@ -207,30 +211,30 @@ compats_tx1 = (
 )
 
 JETSON_NANO_PIN_DEFS = [
-    (216, "6000d000.gpio", 7, 4, 'GPIO9', 'AUD_MCLK', None, None),
-    (50, "6000d000.gpio", 11, 17, 'UART1_RTS', 'UART2_RTS', None, None),
-    (79, "6000d000.gpio", 12, 18, 'I2S0_SCLK', 'DAP4_SCLK', None, None),
-    (14, "6000d000.gpio", 13, 27, 'SPI1_SCK', 'SPI2_SCK', None, None),
-    (194, "6000d000.gpio", 15, 22, 'GPIO12', 'LCD_TE', None, None),
-    (232, "6000d000.gpio", 16, 23, 'SPI1_CS1', 'SPI2_CS1', None, None),
-    (15, "6000d000.gpio", 18, 24, 'SPI1_CS0', 'SPI2_CS0', None, None),
-    (16, "6000d000.gpio", 19, 10, 'SPI0_MOSI', 'SPI1_MOSI', None, None),
-    (17, "6000d000.gpio", 21, 9, 'SPI0_MISO', 'SPI1_MISO', None, None),
-    (13, "6000d000.gpio", 22, 25, 'SPI1_MISO', 'SPI2_MISO', None, None),
-    (18, "6000d000.gpio", 23, 11, 'SPI0_SCK', 'SPI1_SCK', None, None),
-    (19, "6000d000.gpio", 24, 8, 'SPI0_CS0', 'SPI1_CS0', None, None),
-    (20, "6000d000.gpio", 26, 7, 'SPI0_CS1', 'SPI1_CS1', None, None),
-    (149, "6000d000.gpio", 29, 5, 'GPIO01', 'CAM_AF_EN', None, None),
-    (200, "6000d000.gpio", 31, 6, 'GPIO11', 'GPIO_PZ0', None, None),
+    (216, {}, "6000d000.gpio", 7, 4, 'GPIO9', 'AUD_MCLK', None, None),
+    (50, {}, "6000d000.gpio", 11, 17, 'UART1_RTS', 'UART2_RTS', None, None),
+    (79, {}, "6000d000.gpio", 12, 18, 'I2S0_SCLK', 'DAP4_SCLK', None, None),
+    (14, {}, "6000d000.gpio", 13, 27, 'SPI1_SCK', 'SPI2_SCK', None, None),
+    (194, {}, "6000d000.gpio", 15, 22, 'GPIO12', 'LCD_TE', None, None),
+    (232, {}, "6000d000.gpio", 16, 23, 'SPI1_CS1', 'SPI2_CS1', None, None),
+    (15, {}, "6000d000.gpio", 18, 24, 'SPI1_CS0', 'SPI2_CS0', None, None),
+    (16, {}, "6000d000.gpio", 19, 10, 'SPI0_MOSI', 'SPI1_MOSI', None, None),
+    (17, {}, "6000d000.gpio", 21, 9, 'SPI0_MISO', 'SPI1_MISO', None, None),
+    (13, {}, "6000d000.gpio", 22, 25, 'SPI1_MISO', 'SPI2_MISO', None, None),
+    (18, {}, "6000d000.gpio", 23, 11, 'SPI0_SCK', 'SPI1_SCK', None, None),
+    (19, {}, "6000d000.gpio", 24, 8, 'SPI0_CS0', 'SPI1_CS0', None, None),
+    (20, {}, "6000d000.gpio", 26, 7, 'SPI0_CS1', 'SPI1_CS1', None, None),
+    (149, {}, "6000d000.gpio", 29, 5, 'GPIO01', 'CAM_AF_EN', None, None),
+    (200, {}, "6000d000.gpio", 31, 6, 'GPIO11', 'GPIO_PZ0', None, None),
     # Older versions of L4T have a DT bug which instantiates a bogus device
     # which prevents this library from using this PWM channel.
-    (168, "6000d000.gpio", 32, 12, 'GPIO07', 'LCD_BL_PW', '7000a000.pwm', 0),
-    (38, "6000d000.gpio", 33, 13, 'GPIO13', 'GPIO_PE6', '7000a000.pwm', 2),
-    (76, "6000d000.gpio", 35, 19, 'I2S0_FS', 'DAP4_FS', None, None),
-    (51, "6000d000.gpio", 36, 16, 'UART1_CTS', 'UART2_CTS', None, None),
-    (12, "6000d000.gpio", 37, 26, 'SPI1_MOSI', 'SPI2_MOSI', None, None),
-    (77, "6000d000.gpio", 38, 20, 'I2S0_DIN', 'DAP4_DIN', None, None),
-    (78, "6000d000.gpio", 40, 21, 'I2S0_DOUT', 'DAP4_DOUT', None, None)
+    (168, {}, "6000d000.gpio", 32, 12, 'GPIO07', 'LCD_BL_PW', '7000a000.pwm', 0),
+    (38, {}, "6000d000.gpio", 33, 13, 'GPIO13', 'GPIO_PE6', '7000a000.pwm', 2),
+    (76, {}, "6000d000.gpio", 35, 19, 'I2S0_FS', 'DAP4_FS', None, None),
+    (51, {}, "6000d000.gpio", 36, 16, 'UART1_CTS', 'UART2_CTS', None, None),
+    (12, {}, "6000d000.gpio", 37, 26, 'SPI1_MOSI', 'SPI2_MOSI', None, None),
+    (77, {}, "6000d000.gpio", 38, 20, 'I2S0_DIN', 'DAP4_DIN', None, None),
+    (78, {}, "6000d000.gpio", 40, 21, 'I2S0_DOUT', 'DAP4_DOUT', None, None)
 ]
 compats_nano = (
     'nvidia,p3450-0000',
@@ -309,11 +313,12 @@ jetson_gpio_data = {
 
 
 class ChannelInfo(object):
-    def __init__(self, channel, gpio_chip_dir, chip_gpio, gpio, pwm_chip_dir, pwm_id):
+    def __init__(self, channel, gpio_chip_dir, chip_gpio, gpio, gpio_name, pwm_chip_dir, pwm_id):
         self.channel = channel
         self.gpio_chip_dir = gpio_chip_dir
         self.chip_gpio = chip_gpio
         self.gpio = gpio
+        self.gpio_name = gpio_name
         self.pwm_chip_dir = pwm_chip_dir
         self.pwm_id = pwm_id
 
@@ -392,12 +397,13 @@ WARNING: and in fact is unlikely to work correctly.
     pin_defs, jetson_info = jetson_gpio_data[model]
     gpio_chip_dirs = {}
     gpio_chip_base = {}
+    gpio_chip_ngpio = {}
     pwm_dirs = {}
 
     sysfs_prefixes = ['/sys/devices/', '/sys/devices/platform/']
 
     # Get the gpiochip offsets
-    gpio_chip_names = set([x[1] for x in pin_defs if x[1] is not None])
+    gpio_chip_names = set([x[2] for x in pin_defs if x[2] is not None])
     for gpio_chip_name in gpio_chip_names:
         gpio_chip_dir = None
         for prefix in sysfs_prefixes:
@@ -412,17 +418,30 @@ WARNING: and in fact is unlikely to work correctly.
         for fn in os.listdir(gpio_chip_gpio_dir):
             if not fn.startswith('gpiochip'):
                 continue
-            gpiochip_fn = gpio_chip_gpio_dir + '/' + fn + '/base'
-            with open(gpiochip_fn, 'r') as f:
+            base_fn = gpio_chip_gpio_dir + '/' + fn + '/base'
+            with open(base_fn, 'r') as f:
                 gpio_chip_base[gpio_chip_name] = int(f.read().strip())
-                break
+            ngpio_fn = gpio_chip_gpio_dir + '/' + fn + '/ngpio'
+            with open(ngpio_fn, 'r') as f:
+                gpio_chip_ngpio[gpio_chip_name] = int(f.read().strip())
+            break
 
-    def global_gpio_id(gpio_chip_name, chip_relative_id):
-        if gpio_chip_name is None or chip_relative_id is None:
-            return None
-        return gpio_chip_base[gpio_chip_name] + chip_relative_id
+    def global_gpio_id_name(chip_relative_ids, gpio_names, gpio_chip_name):
+        chip_gpio_ngpio = gpio_chip_ngpio[gpio_chip_name]
+        if isinstance(chip_relative_ids, dict):
+            chip_relative_id = chip_relative_ids[chip_gpio_ngpio]
+        else:
+            chip_relative_id = chip_relative_ids
+        gpio = gpio_chip_base[gpio_chip_name] + chip_relative_id
+        if isinstance(gpio_names, dict):
+            gpio_name = gpio_names.get(chip_gpio_ngpio, None)
+        else:
+            gpio_name = gpio_names
+        if gpio_name is None:
+            gpio_name = 'gpio%i' % gpio
+        return (gpio, gpio_name)
 
-    pwm_chip_names = set([x[6] for x in pin_defs if x[6] is not None])
+    pwm_chip_names = set([x[7] for x in pin_defs if x[7] is not None])
     for pwm_chip_name in pwm_chip_names:
         pwm_chip_dir = None
         for prefix in sysfs_prefixes:
@@ -435,29 +454,30 @@ WARNING: and in fact is unlikely to work correctly.
         # aspects of the library continue to work.
         if pwm_chip_dir is None:
             continue
-        chip_pwm_dir = pwm_chip_dir + '/pwm'
-        if not os.path.exists(chip_pwm_dir):
+        pwm_chip_pwm_dir = pwm_chip_dir + '/pwm'
+        if not os.path.exists(pwm_chip_pwm_dir):
             continue
-        for fn in os.listdir(chip_pwm_dir):
+        for fn in os.listdir(pwm_chip_pwm_dir):
             if not fn.startswith('pwmchip'):
                 continue
-            chip_pwm_pwmchip_dir = chip_pwm_dir + '/' + fn
-            pwm_dirs[pwm_chip_name] = chip_pwm_pwmchip_dir
+            pwm_chip_pwm_pwmchipn_dir = pwm_chip_pwm_dir + '/' + fn
+            pwm_dirs[pwm_chip_name] = pwm_chip_pwm_pwmchipn_dir
             break
 
     def model_data(key_col, pin_defs):
         return {x[key_col]: ChannelInfo(
             x[key_col],
-            gpio_chip_dirs[x[1]],
+            gpio_chip_dirs[x[2]],
             x[0],
-            global_gpio_id(x[1], x[0]),
-            pwm_dirs.get(x[6], None), x[7]) for x in pin_defs}
+            *global_gpio_id_name(*x[0:3]),
+            pwm_chip_dir=pwm_dirs.get(x[7], None),
+            pwm_id=x[8]) for x in pin_defs}
 
     channel_data = {
-        'BOARD': model_data(2, pin_defs),
-        'BCM': model_data(3, pin_defs),
-        'CVM': model_data(4, pin_defs),
-        'TEGRA_SOC': model_data(5, pin_defs),
+        'BOARD': model_data(3, pin_defs),
+        'BCM': model_data(4, pin_defs),
+        'CVM': model_data(5, pin_defs),
+        'TEGRA_SOC': model_data(6, pin_defs),
     }
 
     return model, jetson_info, channel_data
