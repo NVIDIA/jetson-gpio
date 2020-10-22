@@ -1,3 +1,9 @@
+jetson-gpio (2.0.12) bionic; urgency=medium
+
+  * Support upstream kernel sysfs layout and GPIO naming/numbering.
+
+ -- Stephen Warren <swarren@nvidia.com>  Thu, 22 Oct 2020 17:15:35 -0600
+
 jetson-gpio (2.0.11) bionic; urgency=medium
 
   * Support Jetson Nano 2GB board.
