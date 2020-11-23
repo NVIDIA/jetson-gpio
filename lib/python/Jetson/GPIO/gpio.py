@@ -331,12 +331,25 @@ def getmode():
     return _gpio_mode
 
 
+# Mutable class to represent a default function argument.
+# See https://stackoverflow.com/a/57628817/2767322
+class _Default:
+    def __init__(self, val):
+        self.val = val
+
+
 # Function used to setup individual pins or lists/tuples of pins as
 # Input or Output. Param channels must an integer or list/tuple of integers,
 # direction must be IN or OUT, pull_up_down must be PUD_OFF, PUD_UP or
 # PUD_DOWN and is only valid when direction in IN, initial must be HIGH or LOW
 # and is only valid when direction is OUT
-def setup(channels, direction, pull_up_down=PUD_OFF, initial=None):
+def setup(channels, direction, pull_up_down=_Default(PUD_OFF), initial=None):
+    if pull_up_down in setup.__defaults__:
+        pull_up_down_explicit = False
+        pull_up_down = pull_up_down.val
+    else:
+        pull_up_down_explicit = True
+
     ch_infos = _channels_to_infos(channels, need_gpio=True)
 
     # check direction is valid
@@ -347,10 +360,12 @@ def setup(channels, direction, pull_up_down=PUD_OFF, initial=None):
     if direction == OUT and pull_up_down != PUD_OFF:
         raise ValueError("pull_up_down parameter is not valid for outputs")
 
-    # check if pullup/down value is valid
+    # check if pullup/down value is specified and/or valid
+    if pull_up_down_explicit:
+        warnings.warn("Jetson.GPIO ignores setup()'s pull_up_down parameter")
     if (pull_up_down != PUD_OFF and pull_up_down != PUD_UP and
             pull_up_down != PUD_DOWN):
-        raise ValueError("Invalid value for pull_up_down - should be either"
+        raise ValueError("Invalid value for pull_up_down; should be one of"
                          "PUD_OFF, PUD_UP or PUD_DOWN")
 
     if _gpio_warnings:

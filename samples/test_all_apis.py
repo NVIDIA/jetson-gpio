@@ -253,6 +253,13 @@ def test_setup_one_in():
 
 
 @test
+def test_setup_one_in_pull():
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(pin_data['in_a'], GPIO.IN, GPIO.PUD_OFF)
+    GPIO.cleanup()
+
+
+@test
 def test_setup_many_in():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup((pin_data['in_a'], pin_data['in_b']), GPIO.IN)
