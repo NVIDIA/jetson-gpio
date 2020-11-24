@@ -227,18 +227,19 @@ def _pwm_enable_path(ch_info):
 
 
 def _export_pwm(ch_info):
-    if os.path.exists(_pwm_path(ch_info)):
-        return
-
-    with open(_pwm_export_path(ch_info), 'w') as f:
-        f.write(str(ch_info.pwm_id))
+    if not os.path.exists(_pwm_path(ch_info)):
+        with open(_pwm_export_path(ch_info), 'w') as f:
+            f.write(str(ch_info.pwm_id))
 
     enable_path = _pwm_enable_path(ch_info)
     while not os.access(enable_path, os.R_OK | os.W_OK):
         time.sleep(0.01)
 
+    ch_info.f_duty_cycle = open(_pwm_duty_cycle_path(ch_info), 'r+')
 
 def _unexport_pwm(ch_info):
+    ch_info.f_duty_cycle.close()
+
     with open(_pwm_unexport_path(ch_info), 'w') as f:
         f.write(str(ch_info.pwm_id))
 
@@ -258,13 +259,14 @@ def _set_pwm_duty_cycle(ch_info, duty_cycle_ns):
     # this check only for the 0 duty cycle case, to avoid having to read the
     # current value every time the duty cycle is set.
     if not duty_cycle_ns:
-        with open(_pwm_duty_cycle_path(ch_info), 'r') as f:
-            cur = f.read().strip()
+        ch_info.f_duty_cycle.seek(0)
+        cur = ch_info.f_duty_cycle.read().strip()
         if cur == '0':
             return
 
-    with open(_pwm_duty_cycle_path(ch_info), 'w') as f:
-        f.write(str(duty_cycle_ns))
+    ch_info.f_duty_cycle.seek(0)
+    ch_info.f_duty_cycle.write(str(duty_cycle_ns))
+    ch_info.f_duty_cycle.flush()
 
 
 def _enable_pwm(ch_info):
