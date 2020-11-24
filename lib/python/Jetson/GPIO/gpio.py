@@ -152,36 +152,39 @@ def _app_channel_configuration(ch_info):
 
 
 def _export_gpio(ch_info):
-    if os.path.exists(_SYSFS_ROOT + "/" + ch_info.gpio_name):
-        return
-
-    with open(_SYSFS_ROOT + "/export", "w") as f_export:
-        f_export.write(str(ch_info.gpio))
+    if not os.path.exists(_SYSFS_ROOT + "/" + ch_info.gpio_name):
+        with open(_SYSFS_ROOT + "/export", "w") as f_export:
+            f_export.write(str(ch_info.gpio))
 
     while not os.access(_SYSFS_ROOT + "/" + ch_info.gpio_name + "/value",
                         os.R_OK | os.W_OK):
         time.sleep(0.01)
 
+    ch_info.f_direction = open(_SYSFS_ROOT + "/" + ch_info.gpio_name + "/direction", 'w')
+    ch_info.f_value = open(_SYSFS_ROOT + "/" + ch_info.gpio_name + "/value", 'r+')
+
 
 def _unexport_gpio(ch_info):
-    if not os.path.exists(_SYSFS_ROOT + "/" + ch_info.gpio_name):
-        return
+    ch_info.f_direction.close()
+    ch_info.f_value.close()
 
-    with open(_SYSFS_ROOT + "/unexport", "w") as f_unexport:
-        f_unexport.write(str(ch_info.gpio))
+    if os.path.exists(_SYSFS_ROOT + "/" + ch_info.gpio_name):
+        with open(_SYSFS_ROOT + "/unexport", "w") as f_unexport:
+            f_unexport.write(str(ch_info.gpio))
 
 
 def _output_one(ch_info, value):
-    with open(_SYSFS_ROOT + "/" + ch_info.gpio_name + "/value", 'w') as value_file:
-        value_file.write(str(int(bool(value))))
+    ch_info.f_value.seek(0)
+    ch_info.f_value.write(str(int(bool(value))))
+    ch_info.f_value.flush()
 
 
 def _setup_single_out(ch_info, initial=None):
     _export_gpio(ch_info)
 
-    gpio_dir_path = _SYSFS_ROOT + "/" + ch_info.gpio_name + "/direction"
-    with open(gpio_dir_path, 'w') as direction_file:
-        direction_file.write("out")
+    ch_info.f_direction.seek(0)
+    ch_info.f_direction.write("out")
+    ch_info.f_direction.flush()
 
     if initial is not None:
         _output_one(ch_info, initial)
@@ -192,9 +195,9 @@ def _setup_single_out(ch_info, initial=None):
 def _setup_single_in(ch_info):
     _export_gpio(ch_info)
 
-    gpio_dir_path = _SYSFS_ROOT + "/" + ch_info.gpio_name + "/direction"
-    with open(gpio_dir_path, 'w') as direction:
-        direction.write("in")
+    ch_info.f_direction.seek(0)
+    ch_info.f_direction.write("in")
+    ch_info.f_direction.flush()
 
     _channel_configuration[ch_info.channel] = IN
 
@@ -426,9 +429,9 @@ def input(channel):
     if app_cfg not in [IN, OUT]:
         raise RuntimeError("You must setup() the GPIO channel first")
 
-    with open(_SYSFS_ROOT + "/" + ch_info.gpio_name + "/value") as value:
-        value_read = int(value.read())
-        return value_read
+    ch_info.f_value.seek(0)
+    value_read = int(ch_info.f_value.read())
+    return value_read
 
 
 # Function used to set a value to a channel or list/tuple of channels.
