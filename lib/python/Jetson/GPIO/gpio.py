@@ -628,6 +628,8 @@ class PWM(object):
         _export_pwm(self._ch_info)
         self._started = False
         _set_pwm_duty_cycle(self._ch_info, 0)
+        # Anything that doesn't match new frequency_hz
+        self._frequency_hz = -1 * frequency_hz
         self._reconfigure(frequency_hz, 0.0)
 
         _channel_configuration[channel] = HARD_PWM
@@ -659,20 +661,22 @@ class PWM(object):
         if duty_cycle_percent < 0.0 or duty_cycle_percent > 100.0:
             raise ValueError("")
 
-        restart = start or self._started
-        if self._started:
+        freq_change = start or (frequency_hz != self._frequency_hz)
+        stop = self._started and freq_change
+        if stop:
             self._started = False
             _disable_pwm(self._ch_info)
 
-        self._frequency_hz = frequency_hz
-        self._period_ns = int(1000000000.0 / frequency_hz)
-        _set_pwm_period(self._ch_info, self._period_ns)
+        if freq_change:
+            self._frequency_hz = frequency_hz
+            self._period_ns = int(1000000000.0 / frequency_hz)
+            _set_pwm_period(self._ch_info, self._period_ns)
 
         self._duty_cycle_percent = duty_cycle_percent
         self._duty_cycle_ns = int(self._period_ns *
                                   (duty_cycle_percent / 100.0))
         _set_pwm_duty_cycle(self._ch_info, self._duty_cycle_ns)
 
-        if restart:
+        if stop or start:
             _enable_pwm(self._ch_info)
             self._started = True
