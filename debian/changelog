@@ -1,3 +1,9 @@
+jetson-gpio (2.0.14) bionic; urgency=medium
+
+  * Improve GPIO/PWM perf by caching sysfs file handles.
+
+ -- Stephen Warren <swarren@nvidia.com>  Mon, 30 Nov 2020 16:11:27 -0600
+
 jetson-gpio (2.0.13) bionic; urgency=medium
 
   * Warn when unimplemented pull_up_down argument is passed to setup().
