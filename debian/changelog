@@ -1,3 +1,9 @@
+jetson-gpio (2.0.15) bionic; urgency=medium
+
+  * Fix typo in GPIO table for Clara AGX Xavier
+
+ -- Stephen Warren <swarren@nvidia.com>  Thu, 17 Dec 2020 13:21:33 -0600
+
 jetson-gpio (2.0.14) bionic; urgency=medium
 
   * Improve GPIO/PWM perf by caching sysfs file handles.
