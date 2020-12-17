@@ -49,7 +49,7 @@ CLARA_AGX_XAVIER_PIN_DEFS = [
     ({224: 134, 169: 106}, {169:  'PQ.06'}, "2200000.gpio", 7, 4, 'MCLK05', 'SOC_GPIO42', None, None),
     ({224: 140, 169: 112}, {169:  'PR.04'}, "2200000.gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
     ({224:  63, 169:  51}, {169:  'PH.07'}, "2200000.gpio", 12, 18, 'I2S2_CLK', 'DAP2_SCLK', None, None),
-    ({224: 124, 169:  96}, {169:  'PP.00'}, "2200000.gpio", 13, 27, 'GPIO32', 'SOC_GPIO04', None, None),
+    ({224: 124, 169:  96}, {169:  'PP.04'}, "2200000.gpio", 13, 27, 'GPIO32', 'SOC_GPIO04', None, None),
     # Older versions of L4T don't enable this PWM controller in DT, so this PWM
     # channel may not be available.
     ({224: 105, 169:  84}, {169:  'PN.01'}, "2200000.gpio", 15, 22, 'GPIO27', 'SOC_GPIO54', '3280000.pwm', 0),
