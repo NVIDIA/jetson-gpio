@@ -43,6 +43,9 @@ pin_datas = {
     'CLARA_AGX_XAVIER': {
         'unimplemented': (),
     },
+    'JETSON_TX2_NX': {
+        'unimplemented': (),
+    },
 }
 pin_data = pin_datas.get(GPIO.model)
 all_pins = (7, 11, 12, 13, 15, 16, 18, 19, 21, 22, 23, 24, 26, 29, 31, 32, 33,

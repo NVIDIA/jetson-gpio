@@ -114,6 +114,23 @@ pin_datas = {
         'tegra_soc_pin': 'SOC_GPIO42',
         'all_pwms': (15, 18),
     },
+    'JETSON_TX2_NX': {
+        # Pre-test configuration, if boot-time pinmux doesn't set up PWM pins:
+        # Set BOARD pin 33 as mux function PWM (func 1):
+        # busybox devmem 0x0c3010a8 32 0x401
+        # Set BOARD pin 32 as mux function PWM (func 2):
+        # busybox devmem 0x0c301080 32 0x401
+        # Board mode pins
+        'out_a': 32,
+        'in_a': 31,
+        'out_b': 29,
+        'in_b': 26,
+        'unimplemented_pins': (),
+        # Other pin modes:
+        'cvm_pin': 'GPIO09',
+        'tegra_soc_pin': 'AUD_MCLK',
+        'all_pwms': (32, 33),
+    },
 }
 pin_data = pin_datas.get(GPIO.model)
 

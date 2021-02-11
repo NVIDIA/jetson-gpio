@@ -27,6 +27,7 @@ JETSON_XAVIER = 'JETSON_XAVIER'
 JETSON_TX2 = 'JETSON_TX2'
 JETSON_TX1 = 'JETSON_TX1'
 JETSON_NANO = 'JETSON_NANO'
+JETSON_TX2_NX='JETSON_TX2_NX'
 
 # These arrays contain tuples of all the relevant GPIO data for each Jetson
 # Platform. The fields are:
@@ -138,6 +139,34 @@ compats_xavier = (
     'nvidia,p2972-0000',
     'nvidia,p2972-0006',
     'nvidia,jetson-xavier',
+)
+
+JETSON_TX2_NX_PIN_DEFS = [
+    ({192:  76, 140: 66}, {140:  'PJ.04'}, "2200000.gpio", 7, 4, 'GPIO09', 'AUD_MCLK', None, None),
+    ({64: 28, 47: 23}, {47:  'PW.04'}, "c2f0000.gpio", 11, 17, 'UART1_RTS', 'UART3_RTS', None, None),
+    ({192:  72, 140: 62}, {140:  'PJ.00'}, "2200000.gpio", 12, 18, 'I2S0_SCLK', 'DAP1_SCLK', None, None),
+    ({64:  17, 47: 12}, {47:  'PV.01'}, "c2f0000.gpio", 13, 27, 'SPI1_SCK', 'GPIO_SEN1', None, None),
+    ({192:  18,  140: 16}, {140: 'PC.02'}, "2200000.gpio", 15, 22, 'GPIO12', 'DAP2_DOUT', None, None),
+    ({192: 19, 140: 17}, {140:  'PC.03'}, "2200000.gpio", 16, 23, 'SPI1_CS1', 'DAP2_DIN', None, None),
+    ({64: 20, 47: 15}, {47:  'PV.04'}, "c2f0000.gpio", 18, 24, 'SPI1_CS0', 'GPIO_SEN4', None, None),
+    ({192: 58, 140:  49}, {140:  'PH.02'}, "2200000.gpio", 19, 10, 'SPI0_MOSI', 'GPIO_WAN7', None, None),
+    ({192: 57, 140: 48}, {140:  'PH.01'}, "2200000.gpio", 21, 9, 'SPI0_MISO', 'GPIO_WAN6', None, None),
+    ({64: 18, 47: 13}, {47:  'PV.02'}, "c2f0000.gpio", 22, 25, 'SPI1_MISO', 'GPIO_SEN2', None, None),
+    ({192: 56, 140:  47}, {140:  'PH.00'}, "2200000.gpio", 23, 11, 'SPI1_CLK', 'GPIO_WAN5', None, None),
+    ({192: 59, 140: 50}, {140:  'PH.03'}, "2200000.gpio", 24, 8, 'SPI0_CS0', 'GPIO_WAN8', None, None),
+    ({192: 163, 140: 130}, {140:  'PY.03'}, "2200000.gpio", 26, 7, 'SPI0_CS1', 'GPIO_MDM4', None, None),
+    ({192: 105, 140: 86}, {140:  'PN.01'}, "2200000.gpio", 29, 5, 'GPIO01', 'GPIO_CAM2', None, None),
+    ({64: 50, 47: 41}, {47:  'PEE.02'}, "c2f0000.gpio", 31, 6, 'GPIO11', 'TOUCH_CLK', None, None),
+    ({64: 8, 47: 5}, {47:  'PU.00'}, "c2f0000.gpio", 32, 12, 'GPIO07', 'GPIO_DIS0', '3280000.pwm', 0),
+    ({64: 13, 47: 10}, {47:  'PU.05'}, "c2f0000.gpio", 33, 13, 'GPIO13', 'GPIO_DIS5', '32a0000.pwm', 0),
+    ({192: 75, 140: 65}, {140:  'PJ.03'}, "2200000.gpio", 35, 19, 'I2S0_FS', 'DAP1_FS', None, None),
+    ({64: 29, 47: 24}, {47:  'PW.05'}, "c2f0000.gpio", 36, 16, 'UART1_CTS', 'UART3_CTS', None, None),
+    ({64: 19, 47: 14}, {47:  'PV.03'}, "c2f0000.gpio", 37, 26, 'SPI1_MOSI', 'GPIO_SEN3', None, None),
+    ({192: 74, 140: 64}, {140:  'PJ.02'}, "2200000.gpio", 38, 20, 'I2S0_DIN', 'DAP1_DIN', None, None),
+    ({192:  73, 140:  63}, {140:  'PJ.01'}, "2200000.gpio", 40, 21, 'I2S0_DOUT', 'DAP1_DOUT', None, None)
+]
+compats_tx2_nx = (
+    'nvidia,p3509-0000+p3636-0001',
 )
 
 JETSON_TX2_PIN_DEFS = [
@@ -276,6 +305,17 @@ jetson_gpio_data = {
             'PROCESSOR': 'ARM Carmel'
         }
     ),
+    JETSON_TX2_NX: (
+        JETSON_TX2_NX_PIN_DEFS,
+        {
+            'P1_REVISION': 1,
+            'RAM': '4096M',
+            'REVISION': 'Unknown',
+            'TYPE': 'Jetson TX2 NX',
+            'MANUFACTURER': 'NVIDIA',
+            'PROCESSOR': 'ARM A57 + Denver'
+        }
+    ),
     JETSON_TX2: (
         JETSON_TX2_PIN_DEFS,
         {
@@ -375,6 +415,9 @@ WARNING: and in fact is unlikely to work correctly.
     elif matches(compats_clara_agx_xavier):
         model = CLARA_AGX_XAVIER
         warn_if_not_carrier_board('3900')
+    elif matches(compats_tx2_nx):
+        model = JETSON_TX2_NX
+        warn_if_not_carrier_board('3509')
     elif matches(compats_xavier):
         model = JETSON_XAVIER
         warn_if_not_carrier_board('2822')
