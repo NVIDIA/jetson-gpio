@@ -1,3 +1,9 @@
+jetson-gpio (2.0.17) bionic; urgency=medium
+
+  * Support Jetson AGX Xavier Industrial board.
+
+ -- Linh Hoang <lhoang@nvidia.com>  Thu, 19 Feb 2021 13:57:12 -0600
+
 jetson-gpio (2.0.16) bionic; urgency=medium
 
   * Support Jetson TX2 NX board.
