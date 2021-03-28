@@ -1,51 +1,93 @@
-#!/usr/bin/env python
+# ------------------------------------------------------------------------------
+# Name         : JetsonMotorInterface.py
+# Date Created : 2/22/2021
+# Author(s)    : Micheal Caracciolo, Chris Lloyd, Owen Casciotti
+# Github Link  : https://github.com/michealcarac/VSLAM-Mapping
+# Description  : A class to control a STM (CDL=> Add model here) microcontroller
+#                Controlling two stepper motors with individual (CDL=>
+#                Add Motor controller model here) motor controller boards.
+# ------------------------------------------------------------------------------
 
-# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
-# Permission is hereby granted, free of charge, to any person obtaining a
-# copy of this software and associated documentation files (the "Software"),
-# to deal in the Software without restriction, including without limitation
-# the rights to use, copy, modify, merge, publish, distribute, sublicense,
-# and/or sell copies of the Software, and to permit persons to whom the
-# Software is furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-# DEALINGS IN THE SOFTWARE.
+# External Imports
+import RPi.GPIO as GPIO  # For interfacing with the Jetson GPIO
+import time              # CDL=> Needed?
 
-import RPi.GPIO as GPIO
-import time
+# Jetson version (Change here for different boards)
+JETSON_BOARD_NAME = "NANO"  # AGX or NANO
 
-# Pin Definitions
-input_pin = 18  # BCM pin 18, BOARD pin 12
+# Pin Definitons: (BOARD pin notation)
+if (JETSON_BOARD_NAME == "NANO"):  # For Jetson Nano
+	FORWARDS_PIN    = 37
+	BACKWARDS_PIN   = 35
+	LEFT_PIN        = 38
+	RIGHT_PIN       = 36
+	JETSON_CTRL_PIN = 32
+elif (JETSON_BOARD_NAME == "AGX"):  # For Jetson AGX
+	# FORWARDS_PIN    = 37 # CDL=> Find value
+	# BACKWARDS_PIN   = 35 # CDL=> Find value
+	# LEFT_PIN        = 38 # CDL=> Find value
+	# RIGHT_PIN       = 36 # CDL=> Find value
+	# JETSON_CTRL_PIN = 32 # CDL=> Find value
+else
+	print("Unsupported Jetson board!")
 
-def main():
-    prev_value = None
+def initPins():
+	"""
+	Setup the Jetson GPIO pins for motor control.
+	"""
+	GPIO.setmode(GPIO.BOARD)                  # BOARD pin-numbering scheme
+	GPIO.setup(FORWARDS_PIN,    GPIO.OUT)
+	GPIO.setup(BACKWARDS_PIN,   GPIO.OUT)
+	GPIO.setup(LEFT_PIN,        GPIO.OUT)
+	GPIO.setup(RIGHT_PIN,       GPIO.OUT)
+	GPIO.setup(JETSON_CTRL_PIN, GPIO.IN)
+	stopMotors()                              # Init with motors stopped
 
-    # Pin Setup:
-    GPIO.setmode(GPIO.BCM)  # BCM pin-numbering scheme from Raspberry Pi
-    GPIO.setup(input_pin, GPIO.IN)  # set pin as an input pin
-    print("Starting demo now! Press CTRL+C to exit")
-    try:
-        while True:
-            value = GPIO.input(input_pin)
-            if value != prev_value:
-                if value == GPIO.HIGH:
-                    value_str = "HIGH"
-                else:
-                    value_str = "LOW"
-                print("Value read from pin {} : {}".format(input_pin,
-                                                           value_str))
-                prev_value = value
-            time.sleep(1)
-    finally:
-        GPIO.cleanup()
+# ------------------------------------------------------------------------------
+# High level user control of motors
+# ------------------------------------------------------------------------------
+def stopMotors():
+	GPIO.output(FORWARDS_PIN,  GPIO.LOW)
+	GPIO.output(BACKWARDS_PIN, GPIO.LOW)
+	GPIO.output(LEFT_PIN,      GPIO.LOW)
+	GPIO.output(RIGHT_PIN,     GPIO.LOW)
 
-if __name__ == '__main__':
-    main()
+def goForwards():
+	GPIO.output(FORWARDS_PIN,  GPIO.HIGH)
+	GPIO.output(BACKWARDS_PIN, GPIO.LOW)
+	GPIO.output(LEFT_PIN,      GPIO.LOW)
+	GPIO.output(RIGHT_PIN,     GPIO.LOW)
+
+def goBackwards():
+	GPIO.output(FORWARDS_PIN,  GPIO.LOW)
+	GPIO.output(BACKWARDS_PIN, GPIO.HIGH)
+	GPIO.output(LEFT_PIN,      GPIO.LOW)
+	GPIO.output(RIGHT_PIN,     GPIO.LOW)
+
+def turnLeft():
+	GPIO.output(FORWARDS_PIN,  GPIO.LOW)
+	GPIO.output(BACKWARDS_PIN, GPIO.LOW)
+	GPIO.output(LEFT_PIN,      GPIO.HIGH)
+	GPIO.output(RIGHT_PIN,     GPIO.LOW)
+
+def turnRight():
+	GPIO.output(FORWARDS_PIN,  GPIO.LOW)
+	GPIO.output(BACKWARDS_PIN, GPIO.LOW)
+	GPIO.output(LEFT_PIN,      GPIO.LOW)
+	GPIO.output(RIGHT_PIN,     GPIO.HIGH)
+
+# Main code for this file. Only runs if this file is the top file
+if __name__ == "__main__":
+	print("Init GPIO interface")
+	initPins()
+
+	print("Moving forwards for 5 seconds!")
+	goForwards()
+	time.sleep(5)
+
+	print("Rotate left for 5 seconds!")
+	turnLeft()
+	time.sleep(5)
+
+	print("Stop motors!")
+	stopMotors() 
