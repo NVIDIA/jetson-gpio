@@ -1,4 +1,4 @@
-jetson-gpio (2.0.17) bionic; urgency=medium
+jetson-gpio (2.0.170ubuntu1) focal; urgency=medium
 
   * Support Jetson AGX Xavier Industrial board.
 
