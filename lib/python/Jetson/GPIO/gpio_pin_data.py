@@ -61,7 +61,7 @@ JETSON_ORIN_PIN_DEFS = [
     ({164: 96}, {164:  'PP.04'}, "2200000.gpio", 22, 25, 'GPIO17', 'GP56', None, None),
     ({164: 133}, {164:  'PZ.03'}, "2200000.gpio", 23, 11, 'SPI1_CLK', 'GP47_SPI1_CLK', None, None),
     ({164: 136}, {164:  'PZ.06'}, "2200000.gpio", 24, 8, 'SPI1_CS0_N', 'GP50_SPI1_CS0_N', None, None),
-    ({164: 137}, {164:  'PZ.07'}, "2200000.gpio", 26, 7, 'SPI1_CS1_N', 'GP50_SPI1_CS0_N', None, None),
+    ({164: 137}, {164:  'PZ.07'}, "2200000.gpio", 26, 7, 'SPI1_CS1_N', 'GP51_SPI1_CS1_N', None, None),
     ({ 32:   1}, { 32: 'PAA.01'}, "c2f0000.gpio", 29, 5, 'CAN0_DIN', 'GP18_CAN0_DIN', None, None),
     ({ 32:   0}, { 32: 'PAA.00'}, "c2f0000.gpio", 31, 6, 'CAN0_DOUT', 'GP17_CAN0_DOUT', None, None),
     ({ 32:  9}, { 32: 'PBB.01'}, "c2f0000.gpio", 32, 12, 'GPIO9', 'GP26', None, None),
