@@ -50,6 +50,7 @@ JETSON_ORIN='JETSON_ORIN'
 
 JETSON_ORIN_PIN_DEFS = [
     ({164: 106}, {164:  'PQ.06'}, "2200000.gpio", 7, 4, 'GPIO40', 'GP66', None, None),
+    # Output-only (due to base board)
     ({164: 112}, {164:  'PR.04'}, "2200000.gpio", 11, 17, 'UART1_RTS', 'GP72_UART1_RTS_N', None, None),
     ({164:  50}, {164:  'PH.07'}, "2200000.gpio", 12, 18, 'I2S2_CLK', 'GP122', None, None),
     ({164:  108}, {164:  'PR.00'}, "2200000.gpio", 13, 27, 'GPIO32', 'GP58', None, None),
