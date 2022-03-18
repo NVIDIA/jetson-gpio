@@ -20,7 +20,6 @@
 import os
 import os.path
 import sys
-import platform
 
 CLARA_AGX_XAVIER = 'CLARA_AGX_XAVIER'
 JETSON_NX = 'JETSON_NX'
@@ -414,6 +413,7 @@ ids_warned = False
 def get_data():
     compatible_path = '/proc/device-tree/compatible'
     ids_path = '/proc/device-tree/chosen/plugin-manager/ids'
+    ids_path_k510 = '/proc/device-tree/chosen/ids'
 
     with open(compatible_path, 'r') as f:
         compatibles = f.read().split('\x00')
@@ -423,9 +423,17 @@ def get_data():
 
     def find_pmgr_board(prefix):
         global ids_warned
-        if not os.path.exists(ids_path):
-            if platform.uname()[2].startswith("5"):
-                return None
+        if os.path.exists(ids_path):
+            for f in os.listdir(ids_path):
+                if f.startswith(prefix):
+                    return f
+        elif os.path.exists(ids_path_k510):
+            with open(ids_path_k510, 'r') as f:
+                ids = f.read()
+                for s in ids.split():
+                    if s.startswith(prefix):
+                        return f
+        else:
             if not ids_warned:
                 ids_warned = True
                 msg = """\
@@ -434,9 +442,9 @@ WARNING: Cannot determine whether the expected Jetson board is present.
 """
                 sys.stderr.write(msg)
             return None
-        for f in os.listdir(ids_path):
-            if f.startswith(prefix):
-                return f
+
+
+
         return None
 
     def warn_if_not_carrier_board(*carrier_boards):
@@ -483,6 +491,7 @@ WARNING: and in fact is unlikely to work correctly.
         warn_if_not_carrier_board('3509', '3449')
     elif matches(compats_jetson_orins):
         model = JETSON_ORIN
+        warn_if_not_carrier_board('3737','0000')
     else:
         raise Exception('Could not determine Jetson model')
 
@@ -573,3 +582,4 @@ WARNING: and in fact is unlikely to work correctly.
     }
 
     return model, jetson_info, channel_data
+
