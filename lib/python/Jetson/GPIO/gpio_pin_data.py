@@ -432,7 +432,7 @@ def get_data():
                 ids = f.read()
                 for s in ids.split():
                     if s.startswith(prefix):
-                        return ids
+                        return s
         else:
             if not ids_warned:
                 ids_warned = True
