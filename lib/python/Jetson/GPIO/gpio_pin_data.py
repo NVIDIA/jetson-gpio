@@ -113,7 +113,7 @@ JETSON_NX_PIN_DEFS = [
     ({224: 140, 169: 112}, {169:  'PR.04'}, "2200000.gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
     ({224: 157, 169: 127}, {169:  'PT.05'}, "2200000.gpio", 12, 18, 'I2S0_SCLK', 'DAP5_SCLK', None, None),
     ({224: 192, 169: 149}, {169:  'PY.00'}, "2200000.gpio", 13, 27, 'SPI1_SCK', 'SPI3_SCK', None, None),
-    ({ 40:  20,  30:  16}, { 30: 'PCC.04'}, "c2f0000.gpio", 15, 22, 'GPIO12', 'TOUCH_CLK', None, None),
+    ({ 40:  20,  30:  16}, { 30: 'PCC.04'}, "c2f0000.gpio", 15, 22, 'GPIO12', 'TOUCH_CLK', "c340000.pwm", 0),
     ({224: 196, 169: 153}, {169:  'PY.04'}, "2200000.gpio", 16, 23, 'SPI1_CS1', 'SPI3_CS1_N', None, None),
     ({224: 195, 169: 152}, {169:  'PY.03'}, "2200000.gpio", 18, 24, 'SPI1_CS0', 'SPI3_CS0_N', None, None),
     ({224: 205, 169: 162}, {169:  'PZ.05'}, "2200000.gpio", 19, 10, 'SPI0_MOSI', 'SPI1_MOSI', None, None),
