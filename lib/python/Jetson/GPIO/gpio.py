@@ -672,6 +672,9 @@ class PWM(object):
         if freq_change:
             self._frequency_hz = frequency_hz
             self._period_ns = int(1000000000.0 / frequency_hz)
+            # Reset duty cycle period incase the previous duty
+            # cycle is higher than the period
+            _set_pwm_duty_cycle(self._ch_info, 0)
             _set_pwm_period(self._ch_info, self._period_ns)
 
         self._duty_cycle_percent = duty_cycle_percent
