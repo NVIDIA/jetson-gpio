@@ -137,6 +137,7 @@ compats_nx = (
     'nvidia,p3509-0000+p3668-0001',
     'nvidia,p3449-0000+p3668-0000',
     'nvidia,p3449-0000+p3668-0001',
+    'nvidia,p3449-0000+p3668-0003',
 )
 
 JETSON_XAVIER_PIN_DEFS = [
@@ -331,7 +332,7 @@ jetson_gpio_data = {
         JETSON_NX_PIN_DEFS,
         {
             'P1_REVISION': 1,
-            'RAM': '16384M',
+            'RAM': '16384M, 8192M',
             'REVISION': 'Unknown',
             'TYPE': 'Jetson NX',
             'MANUFACTURER': 'NVIDIA',
@@ -342,7 +343,7 @@ jetson_gpio_data = {
         JETSON_XAVIER_PIN_DEFS,
         {
             'P1_REVISION': 1,
-            'RAM': '16384M',
+            'RAM': '65536M, 32768M, 16384M, 8192M',
             'REVISION': 'Unknown',
             'TYPE': 'Jetson Xavier',
             'MANUFACTURER': 'NVIDIA',
@@ -364,7 +365,7 @@ jetson_gpio_data = {
         JETSON_TX2_PIN_DEFS,
         {
             'P1_REVISION': 1,
-            'RAM': '8192M',
+            'RAM': '8192M, 4096M',
             'REVISION': 'Unknown',
             'TYPE': 'Jetson TX2',
             'MANUFACTURER': 'NVIDIA',
@@ -386,7 +387,7 @@ jetson_gpio_data = {
         JETSON_NANO_PIN_DEFS,
         {
             'P1_REVISION': 1,
-            'RAM': '4096M',
+            'RAM': '4096M, 2048M',
             'REVISION': 'Unknown',
             'TYPE': 'Jetson Nano',
             'MANUFACTURER': 'NVIDIA',
