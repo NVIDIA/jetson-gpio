@@ -114,7 +114,7 @@ pin_datas = {
         # Other pin modes:
         'cvm_pin': 'GPIO09',
         'tegra_soc_pin': 'AUD_MCLK',
-        'all_pwms': (32, 33),
+        'all_pwms': (15, 32, 33),
     },
     'CLARA_AGX_XAVIER': {
         # Pre-test configuration, if boot-time pinmux doesn't set up PWM pins:
