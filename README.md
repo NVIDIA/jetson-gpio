@@ -240,7 +240,7 @@ You can also output to a list or tuple of channels:
 ```python
 channels = [18, 12, 13] # or use tuples
 GPIO.output(channels, GPIO.HIGH) # or GPIO.LOW
-# set first channel to HIGH and rest to LOW
+# set first channel to LOW and rest to HIGH
 GPIO.output(channel, (GPIO.LOW, GPIO.HIGH, GPIO.HIGH))
 ```
 
