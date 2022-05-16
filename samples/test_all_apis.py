@@ -234,6 +234,18 @@ def test_setup_one_tegra_soc():
     GPIO.cleanup()
     assert GPIO.getmode() is None
 
+@test
+def test_setup_twice():
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+
+    GPIO.setup(pin_data['in_a'], GPIO.IN)
+    GPIO.setup(pin_data['in_a'], GPIO.IN)
+
+    val = GPIO.input(pin_data['in_a'])
+    assert(val == GPIO.HIGH)
+    GPIO.cleanup()
 
 @test
 def test_setup_one_out_no_init():
