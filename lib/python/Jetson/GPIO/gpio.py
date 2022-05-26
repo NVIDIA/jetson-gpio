@@ -384,6 +384,11 @@ def setup(channels, direction, pull_up_down=_Default(PUD_OFF), initial=None):
                     "This channel is already in use, continuing anyway. "
                     "Use GPIO.setwarnings(False) to disable warnings",
                     RuntimeWarning)
+    
+    # cleanup if the channel is already setup
+    for ch_info in ch_infos:
+        if ch_info.channel in _channel_configuration:
+            _cleanup_one(ch_info)
 
     if direction == OUT:
         initial = _make_iterable(initial, len(ch_infos))
