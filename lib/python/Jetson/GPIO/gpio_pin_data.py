@@ -30,6 +30,8 @@ JETSON_NANO = 'JETSON_NANO'
 JETSON_TX2_NX='JETSON_TX2_NX'
 JETSON_ORIN='JETSON_ORIN'
 
+JETSON_MODELS = [JETSON_TX1, JETSON_TX2, CLARA_AGX_XAVIER, JETSON_TX2_NX, JETSON_XAVIER, JETSON_NANO, JETSON_NX, JETSON_ORIN]
+
 # These arrays contain tuples of all the relevant GPIO data for each Jetson
 # Platform. The fields are:
 # - Linux GPIO pin number (within chip, not global),
@@ -410,91 +412,106 @@ class ChannelInfo(object):
 
 ids_warned = False
 
-
-def get_data():
-    compatible_path = '/proc/device-tree/compatible'
+def find_pmgr_board(prefix):
+    global ids_warned
     ids_path = '/proc/device-tree/chosen/plugin-manager/ids'
     ids_path_k510 = '/proc/device-tree/chosen/ids'
 
-    with open(compatible_path, 'r') as f:
-        compatibles = f.read().split('\x00')
-
-    def matches(vals):
-        return any(v in compatibles for v in vals)
-
-    def find_pmgr_board(prefix):
-        global ids_warned
-        if os.path.exists(ids_path):
-            for f in os.listdir(ids_path):
-                if f.startswith(prefix):
-                    return f
-        elif os.path.exists(ids_path_k510):
-            with open(ids_path_k510, 'r') as f:
-                ids = f.read()
-                for s in ids.split():
-                    if s.startswith(prefix):
-                        return s
-        else:
-            if not ids_warned:
-                ids_warned = True
-                msg = """\
+    if os.path.exists(ids_path):
+        for f in os.listdir(ids_path):
+            if f.startswith(prefix):
+                return f
+    elif os.path.exists(ids_path_k510):
+        with open(ids_path_k510, 'r') as f:
+            ids = f.read()
+            for s in ids.split():
+                if s.startswith(prefix):
+                    return s
+    else:
+        if not ids_warned:
+            ids_warned = True
+            msg = """\
 WARNING: Plugin manager information missing from device tree.
 WARNING: Cannot determine whether the expected Jetson board is present.
 """
-                sys.stderr.write(msg)
-            return None
+            sys.stderr.write(msg)
+    
+    return None
+    
 
-
-
-        return None
-
-    def warn_if_not_carrier_board(*carrier_boards):
-        found = False
-        for b in carrier_boards:
-            found = find_pmgr_board(b + '-')
-            if found:
-                break
-        if not found:
-            msg = """\
+def warn_if_not_carrier_board(*carrier_boards):
+    found = False
+    for b in carrier_boards:
+        found = find_pmgr_board(b + '-')
+        if found:
+            break
+    if not found:
+        msg = """\
 WARNING: Carrier board is not from a Jetson Developer Kit.
 WARNNIG: Jetson.GPIO library has not been verified with this carrier board,
 WARNING: and in fact is unlikely to work correctly.
 """
+        sys.stderr.write(msg)
+
+
+def get_model():
+    compatible_path = '/proc/device-tree/compatible'
+
+    # get model info from compatible_path
+    if os.path.exists(compatible_path):
+        with open(compatible_path, 'r') as f:
+            compatibles = f.read().split('\x00')
+
+        def matches(vals):
+            return any(v in compatibles for v in vals)
+        
+        if matches(compats_tx1):
+            warn_if_not_carrier_board('2597')
+            return JETSON_TX1
+        elif matches(compats_tx2):
+            warn_if_not_carrier_board('2597')
+            return JETSON_TX2
+        elif matches(compats_clara_agx_xavier):
+            warn_if_not_carrier_board('3900')
+            return CLARA_AGX_XAVIER
+        elif matches(compats_tx2_nx):
+            warn_if_not_carrier_board('3509')
+            return JETSON_TX2_NX
+        elif matches(compats_xavier):
+            warn_if_not_carrier_board('2822')
+            return JETSON_XAVIER
+        elif matches(compats_nano):
+            module_id = find_pmgr_board('3448')
+            if not module_id:
+                raise Exception('Could not determine Jetson Nano module revision')
+            revision = module_id.split('-')[-1]
+            # Revision is an ordered string, not a decimal integer
+            if revision < "200":
+                raise Exception('Jetson Nano module revision must be A02 or later')
+            warn_if_not_carrier_board('3449', '3542')
+            return JETSON_NANO
+        elif matches(compats_nx):
+            warn_if_not_carrier_board('3509', '3449')
+            return JETSON_NX
+        elif matches(compats_jetson_orins):
+            warn_if_not_carrier_board('3737','0000')
+            return JETSON_ORIN
+
+    # get model info from the environment variables for docker containers
+    model_name = os.environ.get("JETSON_MODEL_NAME")
+    if model_name is not None:
+        model_name = model_name.strip()
+        if model_name in JETSON_MODELS:
+            return model_name
+        else:
+            msg = f"Environment variable 'JETSON_MODEL_NAME={model_name}' is invalid."
             sys.stderr.write(msg)
 
-    if matches(compats_tx1):
-        model = JETSON_TX1
-        warn_if_not_carrier_board('2597')
-    elif matches(compats_tx2):
-        model = JETSON_TX2
-        warn_if_not_carrier_board('2597')
-    elif matches(compats_clara_agx_xavier):
-        model = CLARA_AGX_XAVIER
-        warn_if_not_carrier_board('3900')
-    elif matches(compats_tx2_nx):
-        model = JETSON_TX2_NX
-        warn_if_not_carrier_board('3509')
-    elif matches(compats_xavier):
-        model = JETSON_XAVIER
-        warn_if_not_carrier_board('2822')
-    elif matches(compats_nano):
-        model = JETSON_NANO
-        module_id = find_pmgr_board('3448')
-        if not module_id:
-            raise Exception('Could not determine Jetson Nano module revision')
-        revision = module_id.split('-')[-1]
-        # Revision is an ordered string, not a decimal integer
-        if revision < "200":
-            raise Exception('Jetson Nano module revision must be A02 or later')
-        warn_if_not_carrier_board('3449', '3542')
-    elif matches(compats_nx):
-        model = JETSON_NX
-        warn_if_not_carrier_board('3509', '3449')
-    elif matches(compats_jetson_orins):
-        model = JETSON_ORIN
-        warn_if_not_carrier_board('3737','0000')
-    else:
-        raise Exception('Could not determine Jetson model')
+    raise Exception('Could not determine Jetson model')
+
+
+def get_data():
+    model = get_model()
 
     pin_defs, jetson_info = jetson_gpio_data[model]
     gpio_chip_dirs = {}
