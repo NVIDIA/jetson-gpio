@@ -396,6 +396,72 @@ reach the pins! The Jetson.GPIO library does not dynamically modify the pinmux
 configuration to achieve this. Read the L4T documentation for details on how to
 configure the pinmux.
 
+
+# Using the Jetson GPIO library from a docker container
+The following describes how to use the Jetson GPIO library from a docker container. 
+
+## Building a docker image
+`docker/Dockerfile` is a sample Dockerfile for the Jetson GPIO library. The following command will build a docker image named `testimg` from it. 
+
+```shell
+sudo docker image build -f docker/Dockerfile -t testimg .
+```
+
+## Running the container
+### Basic options 
+You should map `/sys/devices`, `/sys/class/gpio` into the container to access to the GPIO pins.
+So you need to add these options to `docker container run` command.
+- `-v /sys/devices/:/sys/devices/`
+- `-v /sys/class/gpio:/sys/class/gpio`
+
+### Running the container in privilleged mode
+The library determines the jetson model by checking `/proc/device-tree/compatible` and `/proc/device-tree/chosen` by default.
+These paths only can be mapped into the container in privilleged mode.
+
+The options you need to add are:
+- `--privileged`
+- `-v /proc/device-tree/compatible:/proc/device-tree/compatible`
+- `-v /proc/device-tree/chosen:/proc/device-tree/compatible`
+
+The following example will run `/bin/bash` from the container in privilleged mode. 
+```shell
+sudo docker container run -it --rm \
+--runtime=nvidia --gpus all \
+--privileged \
+-v /proc/device-tree/compatible:/proc/device-tree/compatible \
+-v /proc/device-tree/chosen:/proc/device-tree/chosen \
+-v /sys/devices/:/sys/devices/ \
+-v /sys/class/gpio:/sys/class/gpio \
+testimg /bin/bash
+```
+
+### Running the container in non-privilleged mode
+If you don't want to run the container in privilleged mode, you can directly provide your jetson model name to the library through the environment variable `JETSON_MODEL_NAME`.
+You can get the proper value for this variable by running `python3 samples/jetson_model.py`(To run this script, you should install the library on your host first).
+
+The option you need to add is:
+- `-e JETSON_MODEL_NAME=$(python3 samples/jetson_model.py)` or `-e JETSON_MODEL_NAME=[PUT_YOUR_JETSON_MODEL_NAME_HERE]` (ex> `-e JETSON_MODEL_NAME=JETSON_NANO`)
+
+The following example will run `/bin/bash` from the container in non-privilleged mode. 
+
+```shell
+sudo docker container run -it --rm \
+--runtime=nvidia --gpus all \
+-v /sys/devices/:/sys/devices/ \
+-v /sys/class/gpio:/sys/class/gpio \
+-e JETSON_MODEL_NAME=$(python3 samples/jetson_model.py) \
+testimg /bin/bash
+```
+
+### Running the container as a non-root user
+The container will be executed by root user by default. If you want to run it as a non-root user, add the following options.
+- `-e UID=$(id -u)`
+- `-e GID=$(id -g)`
+- `-e GID_GPIO=$(cut -d: -f3 < <(getent group gpio))`
+
+Note that you should set the user permissions for the library on your jetson before you set these options.
+
+
 # Obtaining L4T Documentation
 
 The L4T documentation may be available in the following locations:
