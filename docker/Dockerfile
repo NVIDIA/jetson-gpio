@@ -30,7 +30,7 @@ RUN chmod +x /entrypoint.sh
 # # for debug
 # WORKDIR /app
 # COPY samples /app
-# COPY lib/python/Jetson /app/Jetson
+# COPY lib/python /app
 # #==================
 
 ENTRYPOINT [ "/entrypoint.sh" ]
