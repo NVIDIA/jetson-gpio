@@ -454,13 +454,18 @@ WARNING: and in fact is unlikely to work correctly.
         sys.stderr.write(msg)
 
 
+def get_compatibles(compatible_path):
+    with open(compatible_path, 'r') as f:
+        compatibles = f.read().split('\x00')
+    return compatibles
+
+
 def get_model():
     compatible_path = '/proc/device-tree/compatible'
 
     # get model info from compatible_path
     if os.path.exists(compatible_path):
-        with open(compatible_path, 'r') as f:
-            compatibles = f.read().split('\x00')
+        compatibles = get_compatibles(compatible_path)
 
         def matches(vals):
             return any(v in compatibles for v in vals)
