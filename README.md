@@ -427,14 +427,6 @@ and if you want to use GPU from the container you also need to add these options
 The library determines the jetson model by checking `/proc/device-tree/compatible` and `/proc/device-tree/chosen` by default.
 These paths only can be mapped into the container in privilleged mode.
 
-The options you need to add are:
-```shell
---privileged \
--v /proc/device-tree/compatible:/proc/device-tree/compatible \
--v /proc/device-tree/chosen:/proc/device-tree/compatible
-```
-
-
 The following example will run `/bin/bash` from the container in privilleged mode. 
 ```shell
 sudo docker container run -it --rm \
@@ -448,15 +440,19 @@ testimg /bin/bash
 ```
 
 ### Running the container in non-privilleged mode
-If you don't want to run the container in privilleged mode, you can directly provide your jetson model name to the library through the environment variable `JETSON_MODEL_NAME`.  
-You can get the proper value for this variable by running `python3 samples/jetson_model.py` on the host or in previlleged mode.
-
-The option you need to add is:  
+If you don't want to run the container in privilleged mode, you can directly provide your jetson model name to the library through the environment variable `JETSON_MODEL_NAME`:  
  
 ```shell
 # ex> -e JETSON_MODEL_NAME=JETSON_NANO
 -e JETSON_MODEL_NAME=[PUT_YOUR_JETSON_MODEL_NAME_HERE]
 ``` 
+
+You can get the proper value for this variable by running `samples/jetson_model.py` on the host or in previlleged mode.
+```shell
+# run on the host or in previlleged mode
+sudo python3 samples/jetson_model.py
+```
+
 
 The following example will run `/bin/bash` from the container in non-privilleged mode. 
 
