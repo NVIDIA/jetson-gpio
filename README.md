@@ -453,14 +453,6 @@ sudo docker container run -it --rm \
 testimg /bin/bash
 ```
 
-### Running the container as a non-root user
-The container will be executed by root user by default. If you want to run it as a non-root user, add the following options.
-- `-e UID=$(id -u)`
-- `-e GID=$(id -g)`
-- `-e GID_GPIO=$(cut -d: -f3 < <(getent group gpio))`
-
-Note that you should set the user permissions for the library on your jetson before you set these options.
-
 
 # Obtaining L4T Documentation
 

@@ -22,15 +22,3 @@ FROM nvcr.io/nvidia/l4t-base:r32.4.3 AS base
 RUN apt-get update 
 RUN apt-get install -y python3-pip
 RUN pip3 install Jetson.GPIO
-
-COPY samples/docker/entrypoint.sh /
-RUN chmod +x /entrypoint.sh
-
-# #==================
-# # for debug
-# WORKDIR /app
-# COPY samples /app
-# COPY lib/python /app
-# #==================
-
-ENTRYPOINT [ "/entrypoint.sh" ]
