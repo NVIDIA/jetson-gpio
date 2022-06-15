@@ -23,7 +23,7 @@ RUN apt-get update
 RUN apt-get install -y python3-pip
 RUN pip3 install Jetson.GPIO
 
-COPY docker/entrypoint.sh /
+COPY samples/docker/entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
 # #==================

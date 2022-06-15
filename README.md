@@ -401,10 +401,10 @@ configure the pinmux.
 The following describes how to use the Jetson GPIO library from a docker container. 
 
 ## Building a docker image
-`docker/Dockerfile` is a sample Dockerfile for the Jetson GPIO library. The following command will build a docker image named `testimg` from it. 
+`samples/docker/Dockerfile` is a sample Dockerfile for the Jetson GPIO library. The following command will build a docker image named `testimg` from it. 
 
 ```shell
-sudo docker image build -f docker/Dockerfile -t testimg .
+sudo docker image build -f samples/docker/Dockerfile -t testimg .
 ```
 
 ## Running the container
