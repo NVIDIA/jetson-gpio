@@ -411,17 +411,29 @@ sudo docker image build -f samples/docker/Dockerfile -t testimg .
 ### Basic options 
 You should map `/sys/devices`, `/sys/class/gpio` into the container to access to the GPIO pins.
 So you need to add these options to `docker container run` command.
-- `-v /sys/devices/:/sys/devices/`
-- `-v /sys/class/gpio:/sys/class/gpio`
+
+```shell
+-v /sys/devices/:/sys/devices/ \
+-v /sys/class/gpio:/sys/class/gpi
+```
+
+and if you want to use GPU from the container you also need to add these options:
+```shell
+--runtime=nvidia --gpus all
+```
+
 
 ### Running the container in privilleged mode
 The library determines the jetson model by checking `/proc/device-tree/compatible` and `/proc/device-tree/chosen` by default.
 These paths only can be mapped into the container in privilleged mode.
 
 The options you need to add are:
-- `--privileged`
-- `-v /proc/device-tree/compatible:/proc/device-tree/compatible`
-- `-v /proc/device-tree/chosen:/proc/device-tree/compatible`
+```shell
+--privileged \
+-v /proc/device-tree/compatible:/proc/device-tree/compatible \
+-v /proc/device-tree/chosen:/proc/device-tree/compatible
+```
+
 
 The following example will run `/bin/bash` from the container in privilleged mode. 
 ```shell
@@ -436,11 +448,15 @@ testimg /bin/bash
 ```
 
 ### Running the container in non-privilleged mode
-If you don't want to run the container in privilleged mode, you can directly provide your jetson model name to the library through the environment variable `JETSON_MODEL_NAME`.
-You can get the proper value for this variable by running `python3 samples/jetson_model.py`(To run this script, you should install the library on your host first).
+If you don't want to run the container in privilleged mode, you can directly provide your jetson model name to the library through the environment variable `JETSON_MODEL_NAME`.  
+You can get the proper value for this variable by running `python3 samples/jetson_model.py` on the host or in previlleged mode.
 
-The option you need to add is:
-- `-e JETSON_MODEL_NAME=$(python3 samples/jetson_model.py)` or `-e JETSON_MODEL_NAME=[PUT_YOUR_JETSON_MODEL_NAME_HERE]` (ex> `-e JETSON_MODEL_NAME=JETSON_NANO`)
+The option you need to add is:  
+ 
+```shell
+# ex> -e JETSON_MODEL_NAME=JETSON_NANO
+-e JETSON_MODEL_NAME=[PUT_YOUR_JETSON_MODEL_NAME_HERE]
+``` 
 
 The following example will run `/bin/bash` from the container in non-privilleged mode. 
 
@@ -449,7 +465,7 @@ sudo docker container run -it --rm \
 --runtime=nvidia --gpus all \
 -v /sys/devices/:/sys/devices/ \
 -v /sys/class/gpio:/sys/class/gpio \
--e JETSON_MODEL_NAME=$(python3 samples/jetson_model.py) \
+-e JETSON_MODEL_NAME=[PUT_YOUR_JETSON_MODEL_NAME_HERE] \
 testimg /bin/bash
 ```
 
