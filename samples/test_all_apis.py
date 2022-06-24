@@ -41,7 +41,7 @@ pin_datas = {
         'in_b': 13,
         'unimplemented_pins': (),
         # Other pin modes:
-        'cvm_pin': 'GPIO40',
+        'cvm_pin': 'MCLK05',
         'tegra_soc_pin': 'GP66',
         'all_pwms': (15, 18),
     },
