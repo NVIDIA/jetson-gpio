@@ -1,3 +1,9 @@
+jetson-gpio (2.0.200ubuntu1) focal; urgency=medium
+
+  * Add support for Jetson Orin SKU4
+
+ -- Linh Hoang <lhoang@nvidia.com>  Thu, 28 Jun 2022 12:39:00 -0700
+
 jetson-gpio (2.0.190ubuntu1) focal; urgency=medium
 
   * Fix some typos in documentations
@@ -8,7 +14,7 @@ jetson-gpio (2.0.190ubuntu1) focal; urgency=medium
   * Clean up before setup when setup is called twice
   * Update tests for pwm for jetson nx
 
- -- Linh Hoang <lhoang@nvidia.com>  Thu, 27 Aug 2021 21:53:12 -0700
+ -- Linh Hoang <lhoang@nvidia.com>  Thu, 16 Jun 2022 08:53:12 -0700
 
 jetson-gpio (2.0.180ubuntu1) focal; urgency=medium
 
