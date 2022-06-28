@@ -311,7 +311,7 @@ jetson_gpio_data = {
         JETSON_ORIN_PIN_DEFS,
         {
             'P1_REVISION': 1,
-            'RAM': '32768M',
+            'RAM': '32768M, 65536M',
             'REVISION': 'Unknown',
             'TYPE': 'JETSON_ORIN',
             'MANUFACTURER': 'NVIDIA',
