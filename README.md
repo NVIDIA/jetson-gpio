@@ -414,7 +414,7 @@ So you need to add these options to `docker container run` command.
 
 ```shell
 -v /sys/devices/:/sys/devices/ \
--v /sys/class/gpio:/sys/class/gpi
+-v /sys/class/gpio:/sys/class/gpio
 ```
 
 and if you want to use GPU from the container you also need to add these options:
