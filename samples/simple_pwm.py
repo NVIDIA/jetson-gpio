@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019-2022, NVIDIA CORPORATION. All rights reserved.
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
 # to deal in the Software without restriction, including without limitation
@@ -29,6 +29,7 @@ output_pins = {
     'CLARA_AGX_XAVIER': 18,
     'JETSON_TX2_NX': 32,
     'JETSON_ORIN': 18,
+    'JETSON_ORIN_NX': 33
 }
 output_pin = output_pins.get(GPIO.model, None)
 if output_pin is None:

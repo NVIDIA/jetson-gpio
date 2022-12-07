@@ -1,3 +1,10 @@
+jetson-gpio (2.0.210ubuntu1) focal; urgency=medium
+
+  * Add support for Jetson Orin NX
+  * Add Docker examples (from from pjueon/docekr-support)
+
+ -- Linh Hoang <lhoang@nvidia.com>  Thu, 06 Dev 2022 16:41:00 -0700
+
 jetson-gpio (2.0.200ubuntu1) focal; urgency=medium
 
   * Add support for Jetson Orin SKU4

@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2018-2022, NVIDIA CORPORATION. All rights reserved.
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
 # to deal in the Software without restriction, including without limitation
@@ -29,8 +29,9 @@ JETSON_TX1 = 'JETSON_TX1'
 JETSON_NANO = 'JETSON_NANO'
 JETSON_TX2_NX='JETSON_TX2_NX'
 JETSON_ORIN='JETSON_ORIN'
+JETSON_ORIN_NX='JETSON_ORIN_NX'
 
-JETSON_MODELS = [JETSON_TX1, JETSON_TX2, CLARA_AGX_XAVIER, JETSON_TX2_NX, JETSON_XAVIER, JETSON_NANO, JETSON_NX, JETSON_ORIN]
+JETSON_MODELS = [JETSON_TX1, JETSON_TX2, CLARA_AGX_XAVIER, JETSON_TX2_NX, JETSON_XAVIER, JETSON_NANO, JETSON_NX, JETSON_ORIN, JETSON_ORIN_NX]
 
 # These arrays contain tuples of all the relevant GPIO data for each Jetson
 # Platform. The fields are:
@@ -48,6 +49,35 @@ JETSON_MODELS = [JETSON_TX1, JETSON_TX2, CLARA_AGX_XAVIER, JETSON_TX2_NX, JETSON
 # - PWM ID within PWM chip
 # The values are used to generate dictionaries that map the corresponding pin
 # mode numbers to the Linux GPIO pin number and GPIO chip directory
+
+JETSON_ORIN_NX_PIN_DEFS = [
+    ({164: 144}, {164:  'PAC.06'}, "2200000.gpio", 7, 4, 'GPIO09', 'GP167', None, None),
+    ({164: 112}, {164:  'PR.04'}, "2200000.gpio", 11, 17, 'UART1_RTS', 'GP72_UART1_RTS_N', None, None),
+    ({164:  50}, {164:  'PH.07'}, "2200000.gpio", 12, 18, 'I2S0_SCLK', 'GP122', None, None),
+    ({164:  122}, {164:  'PY.00'}, "2200000.gpio", 13, 27, 'SPI1_SCK', 'GP36_SPI3_CLK', None, None),
+    ({164:  85}, {164:  'PN.01'}, "2200000.gpio", 15, 22, 'GPIO12', 'GP88_PWM1', '3280000.pwm', 0),
+    ({164:   126}, { 164: 'PY.04'}, "2200000.gpio", 16, 23, 'SPI1_CS1', 'GP40_SPI3_CS1_N', None, None),
+    ({164:  125}, {164:  'PY.03'}, "2200000.gpio", 18, 24, 'SPI1_CS0', 'GP39_SPI3_CS0_N', None, None),
+    ({164: 135}, {164:  'PZ.05'}, "2200000.gpio", 19, 10, 'SPI0_MOSI', 'GP49_SPI1_MOSI', None, None),
+    ({164: 134}, {164:  'PZ.04'}, "2200000.gpio", 21, 9, 'SPI0_MISO', 'GP48_SPI1_MISO', None, None),
+    ({164: 123}, {164:  'PY.01'}, "2200000.gpio", 22, 25, 'SPI1_MISO', 'GP37_SPI3_MISO', None, None),
+    ({164: 133}, {164:  'PZ.03'}, "2200000.gpio", 23, 11, 'SPI0_SCK', 'GP47_SPI1_CLK', None, None),
+    ({164: 136}, {164:  'PZ.06'}, "2200000.gpio", 24, 8, 'SPI0_CS0', 'GP50_SPI1_CS0_N', None, None),
+    ({164: 137}, {164:  'PZ.07'}, "2200000.gpio", 26, 7, 'SPI0_CS1', 'GP51_SPI1_CS1_N', None, None),
+    ({ 164:   105}, { 164: 'PQ.05'}, "2200000.gpio", 29, 5, 'GPIO01', 'GP65', None, None),
+    ({ 164:   106}, { 164: 'PQ.06'}, "2200000.gpio", 31, 6, 'GPIO11', 'GP66', None, None),
+    ({ 164:  41}, { 164: 'PG.06'}, "2200000.gpio", 32, 12, 'GPIO07', 'GP113_PWM7', None, None),
+    ({164:  43}, {164:  'PH.00'}, "2200000.gpio", 33, 13, 'GPIO13', 'GP115', '32c0000.pwm', 0),
+    ({164: 53}, {164:  'PI.02'}, "2200000.gpio", 35, 19, 'I2S0_FS', 'GP125', None, None),
+    ({164: 113}, {164:  'PR.05'}, "2200000.gpio", 36, 16, 'UART1_CTS', 'GP73_UART1_CTS_N', None, None),
+    ({ 164:   124}, { 164: 'PY.02'}, "2200000.gpio", 37, 26, 'SPI1_MOSI', 'GP38_SPI3_MOSI', None, None),
+    ({164:  52}, {164:  'PI.01'}, "2200000.gpio", 38, 20, 'I2S0_SDIN', 'GP124', None, None),
+    ({164:  51}, {164:  'PI.00'}, "2200000.gpio", 40, 21, 'I2S0_SDOUT', 'GP123', None, None)
+]
+
+compats_jetson_orins_nx = (
+    "nvidia,p3509-0000+p3767-0000",
+)
 
 JETSON_ORIN_PIN_DEFS = [
     ({164: 106}, {164:  'PQ.06'}, "2200000.gpio", 7, 4, 'MCLK05', 'GP66', None, None),
@@ -86,7 +116,7 @@ CLARA_AGX_XAVIER_PIN_DEFS = [
     ({224:  63, 169:  51}, {169:  'PH.07'}, "2200000.gpio", 12, 18, 'I2S2_CLK', 'DAP2_SCLK', None, None),
     ({224: 124, 169:  96}, {169:  'PP.04'}, "2200000.gpio", 13, 27, 'GPIO32', 'SOC_GPIO04', None, None),
     # Older versions of L4T don't enable this PWM controller in DT, so this PWM
-    # channel may not be available.
+    # channel may not be available.[B
     ({224: 105, 169:  84}, {169:  'PN.01'}, "2200000.gpio", 15, 22, 'GPIO27', 'SOC_GPIO54', '3280000.pwm', 0),
     ({ 40:   8,  30:   8}, { 30: 'PBB.00'}, "c2f0000.gpio", 16, 23, 'GPIO8', 'CAN1_STB', None, None),
     ({224:  56, 169:  44}, {169:  'PH.00'}, "2200000.gpio", 18, 24, 'GPIO35', 'SOC_GPIO12', '32c0000.pwm', 0),
@@ -309,6 +339,17 @@ compats_nano = (
 )
 
 jetson_gpio_data = {
+    JETSON_ORIN_NX: (
+        JETSON_ORIN_NX_PIN_DEFS,
+        {
+            'P1_REVISION': 1,
+            'RAM': '32768M, 65536M',
+            'REVISION': 'Unknown',
+            'TYPE': 'JETSON_ORIN_NX',
+            'MANUFACTURER': 'NVIDIA',
+            'PROCESSOR': 'A78AE'
+        }
+    ),
     JETSON_ORIN: (
         JETSON_ORIN_PIN_DEFS,
         {
@@ -436,9 +477,9 @@ WARNING: Plugin manager information missing from device tree.
 WARNING: Cannot determine whether the expected Jetson board is present.
 """
             sys.stderr.write(msg)
-    
+
     return None
-    
+
 
 def warn_if_not_carrier_board(*carrier_boards):
     found = False
@@ -470,7 +511,7 @@ def get_model():
 
         def matches(vals):
             return any(v in compatibles for v in vals)
-        
+
         if matches(compats_tx1):
             warn_if_not_carrier_board('2597')
             return JETSON_TX1
@@ -500,8 +541,11 @@ def get_model():
             warn_if_not_carrier_board('3509', '3449')
             return JETSON_NX
         elif matches(compats_jetson_orins):
-            warn_if_not_carrier_board('3737','0000')
+            warn_if_not_carrier_board('3737')
             return JETSON_ORIN
+        elif matches(compats_jetson_orins_nx):
+            warn_if_not_carrier_board('3509')
+            return JETSON_ORIN_NX
 
     # get model info from the environment variables for docker containers
     model_name = os.environ.get("JETSON_MODEL_NAME")

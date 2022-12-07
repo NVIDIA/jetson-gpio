@@ -1,5 +1,5 @@
 # Copyright (c) 2012-2017 Ben Croston <ben@croston.org>.
-# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019-2022, NVIDIA CORPORATION. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -384,7 +384,7 @@ def setup(channels, direction, pull_up_down=_Default(PUD_OFF), initial=None):
                     "This channel is already in use, continuing anyway. "
                     "Use GPIO.setwarnings(False) to disable warnings",
                     RuntimeWarning)
-    
+
     # cleanup if the channel is already setup
     for ch_info in ch_infos:
         if ch_info.channel in _channel_configuration:
