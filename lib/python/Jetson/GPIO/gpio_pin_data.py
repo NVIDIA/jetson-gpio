@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2022, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2018-2023, NVIDIA CORPORATION. All rights reserved.
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
 # to deal in the Software without restriction, including without limitation
@@ -77,6 +77,7 @@ JETSON_ORIN_NX_PIN_DEFS = [
 
 compats_jetson_orins_nx = (
     "nvidia,p3509-0000+p3767-0000",
+    "nvidia,p3768-0000+p3767-0000"
 )
 
 JETSON_ORIN_PIN_DEFS = [
@@ -544,7 +545,7 @@ def get_model():
             warn_if_not_carrier_board('3737')
             return JETSON_ORIN
         elif matches(compats_jetson_orins_nx):
-            warn_if_not_carrier_board('3509')
+            warn_if_not_carrier_board('3509','3768')
             return JETSON_ORIN_NX
 
     # get model info from the environment variables for docker containers
