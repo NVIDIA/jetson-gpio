@@ -5,7 +5,7 @@
 # copy of this software and associated documentation files (the "Software"),
 # to deal in the Software without restriction, including without limitation
 # the rights to use, copy, modify, merge, publish, distribute, sublicense,
-# and/or sell copies of the Software, and to permit persons to whom the
+# and/or sell copies of the Software, and to permit persons to whom the 
 # Software is furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in
@@ -20,9 +20,7 @@
 # DEALINGS IN THE SOFTWARE.
 
 SUBSYSTEM=="gpio", KERNEL=="gpiochip*", ACTION=="add", \
-    PROGRAM="/bin/sh -c 'chown root:gpio /sys/class/gpio/export /sys/class/gpio/unexport; chmod 220 /sys/class/gpio/export /sys/class/gpio/unexport'"
-SUBSYSTEM=="gpio", DEVPATH=="/*/gpiochip*/gpio/*", ACTION=="add", \
-    PROGRAM="/bin/sh -c 'chown root:gpio /sys%p/active_low /sys%p/direction /sys%p/edge /sys%p/value; chmod 660 /sys%p/active_low /sys%p/direction /sys%p/edge /sys%p/value'"
+    PROGRAM="/bin/sh -c 'chown root:gpio /dev/%k; chmod 660 /dev/%k'"
 
 SUBSYSTEM=="pwm", KERNEL=="pwmchip*", ACTION=="add", \
     PROGRAM="/bin/bash -c 'chown root:gpio /sys%p/{,un}export; chmod 220 /sys%p/{,un}export'"

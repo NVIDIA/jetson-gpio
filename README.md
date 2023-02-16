@@ -409,12 +409,11 @@ sudo docker image build -f samples/docker/Dockerfile -t testimg .
 
 ## Running the container
 ### Basic options 
-You should map `/sys/devices`, `/sys/class/gpio` into the container to access to the GPIO pins.
+You should map `/dev` into the container to access to the GPIO pins.
 So you need to add these options to `docker container run` command.
 
 ```shell
--v /sys/devices/:/sys/devices/ \
--v /sys/class/gpio:/sys/class/gpi
+-v /dev:/dev \
 ```
 
 and if you want to use GPU from the container you also need to add these options:
@@ -434,8 +433,7 @@ sudo docker container run -it --rm \
 --privileged \
 -v /proc/device-tree/compatible:/proc/device-tree/compatible \
 -v /proc/device-tree/chosen:/proc/device-tree/chosen \
--v /sys/devices/:/sys/devices/ \
--v /sys/class/gpio:/sys/class/gpio \
+-v /dev:/dev \
 testimg /bin/bash
 ```
 
@@ -459,8 +457,7 @@ The following example will run `/bin/bash` from the container in non-privilleged
 ```shell
 sudo docker container run -it --rm \
 --runtime=nvidia --gpus all \
--v /sys/devices/:/sys/devices/ \
--v /sys/class/gpio:/sys/class/gpio \
+-v /dev:/dev \
 -e JETSON_MODEL_NAME=[PUT_YOUR_JETSON_MODEL_NAME_HERE] \
 testimg /bin/bash
 ```
