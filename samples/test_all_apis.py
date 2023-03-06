@@ -28,6 +28,23 @@ import RPi.GPIO as GPIO
 
 # If a board has PWM support, the PWM tests expect 'out_a' to be PWM-capable.
 pin_datas = {
+     'JETSON_ORIN_NANO': {
+        # Pre-test configuration, if boot-time pinmux doesn't set up PWM pins:
+        # Set BOARD pin 15 as mux function PWM:
+        # busybox devmem 0x02440020 32 0x400
+        # Set BOARD pin 33 as mux function PWM:
+        # busybox devmem 0x02434040 32 0x401
+        # Board mode pins
+        'out_a': 33,
+        'in_a': 19,
+        'out_b': 11,
+        'in_b': 13,
+        'unimplemented_pins': (),
+        # Other pin modes:
+        'cvm_pin': 'GPIO09',
+        'tegra_soc_pin': 'GP167',
+        'all_pwms': (15, 33),
+    },
      'JETSON_ORIN_NX': {
         # Pre-test configuration, if boot-time pinmux doesn't set up PWM pins:
         # Set BOARD pin 15 as mux function PWM:

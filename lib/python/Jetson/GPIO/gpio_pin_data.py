@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2022, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2018-2023, NVIDIA CORPORATION. All rights reserved.
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
 # to deal in the Software without restriction, including without limitation
@@ -30,8 +30,9 @@ JETSON_NANO = 'JETSON_NANO'
 JETSON_TX2_NX='JETSON_TX2_NX'
 JETSON_ORIN='JETSON_ORIN'
 JETSON_ORIN_NX='JETSON_ORIN_NX'
+JETSON_ORIN_NANO='JETSON_ORIN_NANO'
 
-JETSON_MODELS = [JETSON_TX1, JETSON_TX2, CLARA_AGX_XAVIER, JETSON_TX2_NX, JETSON_XAVIER, JETSON_NANO, JETSON_NX, JETSON_ORIN, JETSON_ORIN_NX]
+JETSON_MODELS = [JETSON_TX1, JETSON_TX2, CLARA_AGX_XAVIER, JETSON_TX2_NX, JETSON_XAVIER, JETSON_NANO, JETSON_NX, JETSON_ORIN, JETSON_ORIN_NX, JETSON_ORIN_NANO]
 
 # These arrays contain tuples of all the relevant GPIO data for each Jetson
 # Platform. The fields are:
@@ -76,6 +77,18 @@ JETSON_ORIN_NX_PIN_DEFS = [
 
 compats_jetson_orins_nx = (
     "nvidia,p3509-0000+p3767-0000",
+    "nvidia,p3768-0000+p3767-0000",
+    "nvidia,p3509-0000+p3767-0001",
+    "nvidia,p3768-0000+p3767-0001",
+)
+
+compats_jetson_orins_nano = (
+    "nvidia,p3509-0000+p3767-0003",
+    "nvidia,p3768-0000+p3767-0003",
+    "nvidia,p3509-0000+p3767-0004",
+    "nvidia,p3768-0000+p3767-0004",
+    "nvidia,p3509-0000+p3767-0005",
+    "nvidia,p3768-0000+p3767-0005",
 )
 
 JETSON_ORIN_PIN_DEFS = [
@@ -274,31 +287,31 @@ compats_tx2 = (
 )
 
 JETSON_TX1_PIN_DEFS = [
-    (216, "tegra-gpio", 7, 4, 'AUDIO_MCLK', 'AUD_MCLK', None, None),
+    (216, '', "tegra-gpio", 7, 4, 'AUDIO_MCLK', 'AUD_MCLK', None, None),
     # Output-only (due to base board)
-    (162, "tegra-gpio", 11, 17, 'UART0_RTS', 'UART1_RTS', None, None),
-    (11, "tegra-gpio", 12, 18, 'I2S0_CLK', 'DAP1_SCLK', None, None),
-    (38, "tegra-gpio", 13, 27, 'GPIO20_AUD_INT', 'GPIO_PE6', None, None),
-    (15, "tca9539", 15, 22, 'GPIO_EXP_P17', 'GPIO_EXP_P17', None, None),
-    (37, "tegra-gpio", 16, 23, 'AO_DMIC_IN_DAT', 'DMIC3_DAT', None, None),
-    (184, "tegra-gpio", 18, 24, 'GPIO16_MDM_WAKE_AP', 'MODEM_WAKE_AP', None, None),
-    (16, "tegra-gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
-    (17, "tegra-gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None),
-    (14, "tca9539", 22, 25, 'GPIO_EXP_P16', 'GPIO_EXP_P16', None, None),
-    (18, "tegra-gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
-    (19, "tegra-gpio", 24, 8, 'SPI1_CS0', 'SPI1_CS0', None, None),
-    (20, "tegra-gpio", 26, 7, 'SPI1_CS1', 'SPI1_CS1', None, None),
-    (219, "tegra-gpio", 29, 5, 'GPIO19_AUD_RST', 'GPIO_X1_AUD', None, None),
-    (186, "tegra-gpio", 31, 6, 'GPIO9_MOTION_INT', 'MOTION_INT', None, None),
-    (36, "tegra-gpio", 32, 12, 'AO_DMIC_IN_CLK', 'DMIC3_CLK', None, None),
-    (63, "tegra-gpio", 33, 13, 'GPIO11_AP_WAKE_BT', 'AP_WAKE_NFC', None, None),
-    (8, "tegra-gpio", 35, 19, 'I2S0_LRCLK', 'DAP1_FS', None, None),
+    (162, '', "tegra-gpio", 11, 17, 'UART0_RTS', 'UART1_RTS', None, None),
+    (11, '',  "tegra-gpio", 12, 18, 'I2S0_CLK', 'DAP1_SCLK', None, None),
+    (38, '', "tegra-gpio", 13, 27, 'GPIO20_AUD_INT', 'GPIO_PE6', None, None),
+    (15, '', "tca9539", 15, 22, 'GPIO_EXP_P17', 'GPIO_EXP_P17', None, None),
+    (37, '', "tegra-gpio", 16, 23, 'AO_DMIC_IN_DAT', 'DMIC3_DAT', None, None),
+    (184, '', "tegra-gpio", 18, 24, 'GPIO16_MDM_WAKE_AP', 'MODEM_WAKE_AP', None, None),
+    (16, '', "tegra-gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
+    (17, '', "tegra-gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None),
+    (14, '', "tca9539", 22, 25, 'GPIO_EXP_P16', 'GPIO_EXP_P16', None, None),
+    (18, '', "tegra-gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
+    (19, '', "tegra-gpio", 24, 8, 'SPI1_CS0', 'SPI1_CS0', None, None),
+    (20, '', "tegra-gpio", 26, 7, 'SPI1_CS1', 'SPI1_CS1', None, None),
+    (219, '', "tegra-gpio", 29, 5, 'GPIO19_AUD_RST', 'GPIO_X1_AUD', None, None),
+    (186, '', "tegra-gpio", 31, 6, 'GPIO9_MOTION_INT', 'MOTION_INT', None, None),
+    (36, '', "tegra-gpio", 32, 12, 'AO_DMIC_IN_CLK', 'DMIC3_CLK', None, None),
+    (63, '', "tegra-gpio", 33, 13, 'GPIO11_AP_WAKE_BT', 'AP_WAKE_NFC', None, None),
+    (8, '', "tegra-gpio", 35, 19, 'I2S0_LRCLK', 'DAP1_FS', None, None),
     # Input-only (due to base board) IF NVIDIA debug card NOT plugged in
     # Input-only (due to base board) (always reads fixed value) IF NVIDIA debug card plugged in
-    (163, "tegra-gpio", 36, 16, 'UART0_CTS', 'UART1_CTS', None, None),
-    (187, "tegra-gpio", 37, 26, 'GPIO8_ALS_PROX_INT', 'ALS_PROX_INT', None, None),
-    (9, "tegra-gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN', None, None),
-    (10, "tegra-gpio", 40, 21, 'I2S0_SDOUT', 'DAP1_DOUT', None, None)
+    (163, '', "tegra-gpio", 36, 16, 'UART0_CTS', 'UART1_CTS', None, None),
+    (187, '',  "tegra-gpio", 37, 26, 'GPIO8_ALS_PROX_INT', 'ALS_PROX_INT', None, None),
+    (9, '', "tegra-gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN', None, None),
+    (10, '', "tegra-gpio", 40, 21, 'I2S0_SDOUT', 'DAP1_DOUT', None, None)
 ]
 compats_tx1 = (
     'nvidia,p2371-2180',
@@ -306,30 +319,30 @@ compats_tx1 = (
 )
 
 JETSON_NANO_PIN_DEFS = [
-    (216, "tegra-gpio", 7, 4, 'GPIO9', 'AUD_MCLK', None, None),
-    (50, "tegra-gpio", 11, 17, 'UART1_RTS', 'UART2_RTS', None, None),
-    (79, "tegra-gpio", 12, 18, 'I2S0_SCLK', 'DAP4_SCLK', None, None),
-    (14, "tegra-gpio", 13, 27, 'SPI1_SCK', 'SPI2_SCK', None, None),
-    (194, "tegra-gpio", 15, 22, 'GPIO12', 'LCD_TE', None, None),
-    (232, "tegra-gpio", 16, 23, 'SPI1_CS1', 'SPI2_CS1', None, None),
-    (15, "tegra-gpio", 18, 24, 'SPI1_CS0', 'SPI2_CS0', None, None),
-    (16, "tegra-gpio", 19, 10, 'SPI0_MOSI', 'SPI1_MOSI', None, None),
-    (17, "tegra-gpio", 21, 9, 'SPI0_MISO', 'SPI1_MISO', None, None),
-    (13, "tegra-gpio", 22, 25, 'SPI1_MISO', 'SPI2_MISO', None, None),
-    (18, "tegra-gpio", 23, 11, 'SPI0_SCK', 'SPI1_SCK', None, None),
-    (19, "tegra-gpio", 24, 8, 'SPI0_CS0', 'SPI1_CS0', None, None),
-    (20, "tegra-gpio", 26, 7, 'SPI0_CS1', 'SPI1_CS1', None, None),
-    (149, "tegra-gpio", 29, 5, 'GPIO01', 'CAM_AF_EN', None, None),
-    (200, "tegra-gpio", 31, 6, 'GPIO11', 'GPIO_PZ0', None, None),
+    (216,  '', "tegra-gpio", 7, 4, 'GPIO9', 'AUD_MCLK', None, None),
+    (50,  '', "tegra-gpio", 11, 17, 'UART1_RTS', 'UART2_RTS', None, None),
+    (79, '',  "tegra-gpio", 12, 18, 'I2S0_SCLK', 'DAP4_SCLK', None, None),
+    (14,  '', "tegra-gpio", 13, 27, 'SPI1_SCK', 'SPI2_SCK', None, None),
+    (194,  '', "tegra-gpio", 15, 22, 'GPIO12', 'LCD_TE', None, None),
+    (232,  '', "tegra-gpio", 16, 23, 'SPI1_CS1', 'SPI2_CS1', None, None),
+    (15,  '', "tegra-gpio", 18, 24, 'SPI1_CS0', 'SPI2_CS0', None, None),
+    (16,  '', "tegra-gpio", 19, 10, 'SPI0_MOSI', 'SPI1_MOSI', None, None),
+    (17,  '', "tegra-gpio", 21, 9, 'SPI0_MISO', 'SPI1_MISO', None, None),
+    (13,  '', "tegra-gpio", 22, 25, 'SPI1_MISO', 'SPI2_MISO', None, None),
+    (18,  '', "tegra-gpio", 23, 11, 'SPI0_SCK', 'SPI1_SCK', None, None),
+    (19,  '', "tegra-gpio", 24, 8, 'SPI0_CS0', 'SPI1_CS0', None, None),
+    (20,  '', "tegra-gpio", 26, 7, 'SPI0_CS1', 'SPI1_CS1', None, None),
+    (149,  '', "tegra-gpio", 29, 5, 'GPIO01', 'CAM_AF_EN', None, None),
+    (200,  '', "tegra-gpio", 31, 6, 'GPIO11', 'GPIO_PZ0', None, None),
     # Older versions of L4T have a DT bug which instantiates a bogus device
     # which prevents this library from using this PWM channel.
-    (168, "tegra-gpio", 32, 12, 'GPIO07', 'LCD_BL_PW', '7000a000.pwm', 0),
-    (38, "tegra-gpio", 33, 13, 'GPIO13', 'GPIO_PE6', '7000a000.pwm', 2),
-    (76, "tegra-gpio", 35, 19, 'I2S0_FS', 'DAP4_FS', None, None),
-    (51, "tegra-gpio", 36, 16, 'UART1_CTS', 'UART2_CTS', None, None),
-    (12, "tegra-gpio", 37, 26, 'SPI1_MOSI', 'SPI2_MOSI', None, None),
-    (77, "tegra-gpio", 38, 20, 'I2S0_DIN', 'DAP4_DIN', None, None),
-    (78, "tegra-gpio", 40, 21, 'I2S0_DOUT', 'DAP4_DOUT', None, None)
+    (168,  '', "tegra-gpio", 32, 12, 'GPIO07', 'LCD_BL_PW', '7000a000.pwm', 0),
+    (38,  '', "tegra-gpio", 33, 13, 'GPIO13', 'GPIO_PE6', '7000a000.pwm', 2),
+    (76,  '', "tegra-gpio", 35, 19, 'I2S0_FS', 'DAP4_FS', None, None),
+    (51,  '', "tegra-gpio", 36, 16, 'UART1_CTS', 'UART2_CTS', None, None),
+    (12,  '', "tegra-gpio", 37, 26, 'SPI1_MOSI', 'SPI2_MOSI', None, None),
+    (77,  '', "tegra-gpio", 38, 20, 'I2S0_DIN', 'DAP4_DIN', None, None),
+    (78,  '', "tegra-gpio", 40, 21, 'I2S0_DOUT', 'DAP4_DOUT', None, None)
 ]
 compats_nano = (
     'nvidia,p3450-0000',
@@ -345,6 +358,17 @@ jetson_gpio_data = {
             'RAM': '32768M, 65536M',
             'REVISION': 'Unknown',
             'TYPE': 'JETSON_ORIN_NX',
+            'MANUFACTURER': 'NVIDIA',
+            'PROCESSOR': 'A78AE'
+        }
+    ),
+    JETSON_ORIN_NANO: (
+        JETSON_ORIN_NX_PIN_DEFS,
+        {
+            'P1_REVISION': 1,
+            'RAM': '32768M, 65536M',
+            'REVISION': 'Unknown',
+            'TYPE': 'JETSON_ORIN_NANO',
             'MANUFACTURER': 'NVIDIA',
             'PROCESSOR': 'A78AE'
         }
@@ -547,8 +571,11 @@ def get_model():
             warn_if_not_carrier_board('3737')
             return JETSON_ORIN
         elif matches(compats_jetson_orins_nx):
-            warn_if_not_carrier_board('3509')
+            warn_if_not_carrier_board('3509', '3768')
             return JETSON_ORIN_NX
+        elif matches(compats_jetson_orins_nano):
+            warn_if_not_carrier_board('3509', '3768')
+            return JETSON_ORIN_NANO
 
     # get model info from the environment variables for docker containers
     model_name = os.environ.get("JETSON_MODEL_NAME")
