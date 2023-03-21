@@ -282,4 +282,6 @@ def blocking_wait_for_edge(chip_fd, channel, request, bouncetime, timeout):
             print("GPIOEVENT_REQUEST_FALLING_EDGE")
         else:
             print("unknown event")
+        return channel
+    return None
 
