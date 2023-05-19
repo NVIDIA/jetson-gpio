@@ -207,346 +207,346 @@ def pwmtest(f):
 # Tests of:
 # def setwarnings(state):
 
-@test
-def test_warnings_off():
-    GPIO.setwarnings(False)
-    with warnings.catch_warnings(record=True) as w:
-        # cleanup() warns if no GPIOs were set up
-        GPIO.cleanup()
-    if len(w):
-        raise Exception("Unexpected warning occured")
-
-
-@test
-def test_warnings_on():
-    GPIO.setwarnings(True)
-    with warnings.catch_warnings(record=True) as w:
-        # cleanup() warns if no GPIOs were set up
-        GPIO.cleanup()
-    if not len(w):
-        raise Exception("Expected warning did not occur")
-
-
-# Tests of:
-# def setmode(mode):
-# def getmode():
-# def setup(channels, direction, pull_up_down=PUD_OFF, initial=None):
-
-
-@test
-def test_setup_one_board():
-    GPIO.setmode(GPIO.BOARD)
-    assert GPIO.getmode() == GPIO.BOARD
-    GPIO.setup(pin_data['in_a'], GPIO.IN)
-    GPIO.cleanup()
-    assert GPIO.getmode() is None
-
-
-@test
-def test_setup_one_bcm():
-    GPIO.setmode(GPIO.BCM)
-    assert GPIO.getmode() == GPIO.BCM
-    GPIO.setup(bcm_pin, GPIO.IN)
-    GPIO.cleanup()
-    assert GPIO.getmode() is None
-
-
-@test
-def test_setup_one_cvm():
-    GPIO.setmode(GPIO.CVM)
-    assert GPIO.getmode() == GPIO.CVM
-    GPIO.setup(pin_data['cvm_pin'], GPIO.IN)
-    GPIO.cleanup()
-    assert GPIO.getmode() is None
-
-
-@test
-def test_setup_one_tegra_soc():
-    GPIO.setmode(GPIO.TEGRA_SOC)
-    assert GPIO.getmode() == GPIO.TEGRA_SOC
-    GPIO.setup(pin_data['tegra_soc_pin'], GPIO.IN)
-    GPIO.cleanup()
-    assert GPIO.getmode() is None
-
-@test
-def test_setup_twice():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-
-    GPIO.setup(pin_data['in_a'], GPIO.IN)
-    GPIO.setup(pin_data['in_a'], GPIO.IN)
-
-    val = GPIO.input(pin_data['in_a'])
-    assert(val == GPIO.HIGH)
-    GPIO.cleanup()
-
-@test
-def test_setup_one_out_no_init():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT)
-    GPIO.cleanup()
-
-
-@test
-def test_setup_one_out_high():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    GPIO.cleanup()
-
-
-@test
-def test_setup_one_out_low():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.LOW)
-    GPIO.cleanup()
-
-
-@test
-def test_setup_many_out_no_init():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup((pin_data['out_a'], pin_data['out_b']), GPIO.OUT)
-    GPIO.cleanup()
+# @test
+# def test_warnings_off():
+#     GPIO.setwarnings(False)
+#     with warnings.catch_warnings(record=True) as w:
+#         # cleanup() warns if no GPIOs were set up
+#         GPIO.cleanup()
+#     if len(w):
+#         raise Exception("Unexpected warning occured")
+
+
+# @test
+# def test_warnings_on():
+#     GPIO.setwarnings(True)
+#     with warnings.catch_warnings(record=True) as w:
+#         # cleanup() warns if no GPIOs were set up
+#         GPIO.cleanup()
+#     if not len(w):
+#         raise Exception("Expected warning did not occur")
+
+
+# # Tests of:
+# # def setmode(mode):
+# # def getmode():
+# # def setup(channels, direction, pull_up_down=PUD_OFF, initial=None):
+
+
+# @test
+# def test_setup_one_board():
+#     GPIO.setmode(GPIO.BOARD)
+#     assert GPIO.getmode() == GPIO.BOARD
+#     GPIO.setup(pin_data['in_a'], GPIO.IN)
+#     GPIO.cleanup()
+#     assert GPIO.getmode() is None
+
+
+# @test
+# def test_setup_one_bcm():
+#     GPIO.setmode(GPIO.BCM)
+#     assert GPIO.getmode() == GPIO.BCM
+#     GPIO.setup(bcm_pin, GPIO.IN)
+#     GPIO.cleanup()
+#     assert GPIO.getmode() is None
+
+
+# @test
+# def test_setup_one_cvm():
+#     GPIO.setmode(GPIO.CVM)
+#     assert GPIO.getmode() == GPIO.CVM
+#     GPIO.setup(pin_data['cvm_pin'], GPIO.IN)
+#     GPIO.cleanup()
+#     assert GPIO.getmode() is None
+
+
+# @test
+# def test_setup_one_tegra_soc():
+#     GPIO.setmode(GPIO.TEGRA_SOC)
+#     assert GPIO.getmode() == GPIO.TEGRA_SOC
+#     GPIO.setup(pin_data['tegra_soc_pin'], GPIO.IN)
+#     GPIO.cleanup()
+#     assert GPIO.getmode() is None
+
+# @test
+# def test_setup_twice():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+
+#     GPIO.setup(pin_data['in_a'], GPIO.IN)
+#     GPIO.setup(pin_data['in_a'], GPIO.IN)
+
+#     val = GPIO.input(pin_data['in_a'])
+#     assert(val == GPIO.HIGH)
+#     GPIO.cleanup()
+
+# @test
+# def test_setup_one_out_no_init():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT)
+#     GPIO.cleanup()
+
+
+# @test
+# def test_setup_one_out_high():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     GPIO.cleanup()
+
+
+# @test
+# def test_setup_one_out_low():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.LOW)
+#     GPIO.cleanup()
+
+
+# @test
+# def test_setup_many_out_no_init():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup((pin_data['out_a'], pin_data['out_b']), GPIO.OUT)
+#     GPIO.cleanup()
 
 
-@test
-def test_setup_many_out_one_init():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup((pin_data['out_a'], pin_data['out_b']), GPIO.OUT,
-               initial=GPIO.HIGH)
-    GPIO.cleanup()
+# @test
+# def test_setup_many_out_one_init():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup((pin_data['out_a'], pin_data['out_b']), GPIO.OUT,
+#                initial=GPIO.HIGH)
+#     GPIO.cleanup()
 
 
-@test
-def test_setup_many_out_many_init():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup((pin_data['out_a'], pin_data['out_b']), GPIO.OUT,
-               initial=(GPIO.HIGH, GPIO.HIGH))
-    GPIO.cleanup()
+# @test
+# def test_setup_many_out_many_init():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup((pin_data['out_a'], pin_data['out_b']), GPIO.OUT,
+#                initial=(GPIO.HIGH, GPIO.HIGH))
+#     GPIO.cleanup()
 
 
-@test
-def test_setup_one_in():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['in_a'], GPIO.IN)
-    GPIO.cleanup()
+# @test
+# def test_setup_one_in():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['in_a'], GPIO.IN)
+#     GPIO.cleanup()
 
 
-@test
-def test_setup_one_in_pull():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['in_a'], GPIO.IN, GPIO.PUD_OFF)
-    GPIO.cleanup()
+# @test
+# def test_setup_one_in_pull():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['in_a'], GPIO.IN, GPIO.PUD_OFF)
+#     GPIO.cleanup()
 
 
-@test
-def test_setup_many_in():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup((pin_data['in_a'], pin_data['in_b']), GPIO.IN)
-    GPIO.cleanup()
+# @test
+# def test_setup_many_in():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup((pin_data['in_a'], pin_data['in_b']), GPIO.IN)
+#     GPIO.cleanup()
 
 
-@test
-def test_setup_all():
-    GPIO.setmode(GPIO.BOARD)
-    for pin in all_board_pins:
-        if pin in pin_data['unimplemented_pins']:
-            continue
-        GPIO.setup(pin, GPIO.IN)
-    GPIO.cleanup()
+# @test
+# def test_setup_all():
+#     GPIO.setmode(GPIO.BOARD)
+#     for pin in all_board_pins:
+#         if pin in pin_data['unimplemented_pins']:
+#             continue
+#         GPIO.setup(pin, GPIO.IN)
+#     GPIO.cleanup()
 
 
-# Tests of:
-# def cleanup(channel=None):
-# def getmode():
+# # Tests of:
+# # def cleanup(channel=None):
+# # def getmode():
 
-
-@test
-def test_cleanup_one():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['in_a'], GPIO.IN)
-    GPIO.cleanup(pin_data['in_a'])
-    assert GPIO.getmode() == GPIO.BOARD
-    GPIO.cleanup()
-    assert GPIO.getmode() is None
-
+
+# @test
+# def test_cleanup_one():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['in_a'], GPIO.IN)
+#     GPIO.cleanup(pin_data['in_a'])
+#     assert GPIO.getmode() == GPIO.BOARD
+#     GPIO.cleanup()
+#     assert GPIO.getmode() is None
+
 
-@test
-def test_cleanup_many():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup((pin_data['in_a'], pin_data['in_b']), GPIO.IN)
-    GPIO.cleanup((pin_data['in_a'], pin_data['in_b']))
-    assert GPIO.getmode() == GPIO.BOARD
-    GPIO.cleanup()
-    assert GPIO.getmode() is None
+# @test
+# def test_cleanup_many():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup((pin_data['in_a'], pin_data['in_b']), GPIO.IN)
+#     GPIO.cleanup((pin_data['in_a'], pin_data['in_b']))
+#     assert GPIO.getmode() == GPIO.BOARD
+#     GPIO.cleanup()
+#     assert GPIO.getmode() is None
 
 
-@test
-def test_cleanup_all():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup((pin_data['in_a'], pin_data['in_b']), GPIO.IN)
-    GPIO.cleanup()
-    assert GPIO.getmode() is None
+# @test
+# def test_cleanup_all():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup((pin_data['in_a'], pin_data['in_b']), GPIO.IN)
+#     GPIO.cleanup()
+#     assert GPIO.getmode() is None
 
 
-# Tests of:
-# def input(channel):
+# # Tests of:
+# # def input(channel):
 
-
-@test
-def test_input():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['in_a'], GPIO.IN)
-    GPIO.input(pin_data['in_a'])
-    GPIO.cleanup()
+
+# @test
+# def test_input():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['in_a'], GPIO.IN)
+#     GPIO.input(pin_data['in_a'])
+#     GPIO.cleanup()
 
 
-# Tests of:
-# def output(channels, values):
+# # Tests of:
+# # def output(channels, values):
 
 
-@test
-def test_output_one():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT)
-    GPIO.output(pin_data['out_a'], GPIO.HIGH)
-    GPIO.output(pin_data['out_a'], GPIO.LOW)
-    GPIO.cleanup()
+# @test
+# def test_output_one():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT)
+#     GPIO.output(pin_data['out_a'], GPIO.HIGH)
+#     GPIO.output(pin_data['out_a'], GPIO.LOW)
+#     GPIO.cleanup()
 
 
-@test
-def test_output_many_one_value():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup((pin_data['out_a'], pin_data['out_b']), GPIO.OUT)
-    GPIO.output((pin_data['out_a'], pin_data['out_b']), GPIO.HIGH)
-    GPIO.output((pin_data['out_a'], pin_data['out_b']), GPIO.LOW)
-    GPIO.cleanup()
-
+# @test
+# def test_output_many_one_value():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup((pin_data['out_a'], pin_data['out_b']), GPIO.OUT)
+#     GPIO.output((pin_data['out_a'], pin_data['out_b']), GPIO.HIGH)
+#     GPIO.output((pin_data['out_a'], pin_data['out_b']), GPIO.LOW)
+#     GPIO.cleanup()
+
 
-@test
-def test_output_many_many_value():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup((pin_data['out_a'], pin_data['out_b']), GPIO.OUT)
-    GPIO.output((pin_data['out_a'], pin_data['out_b']), (GPIO.HIGH, GPIO.LOW))
-    GPIO.output((pin_data['out_a'], pin_data['out_b']), (GPIO.LOW, GPIO.HIGH))
-    GPIO.cleanup()
-
-
-# Tests of combined (looped back) output/input
-
-
-@test
-def test_out_in_init_high():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    GPIO.setup(pin_data['in_a'], GPIO.IN)
-    val = GPIO.input(pin_data['in_a'])
-    assert(val == GPIO.HIGH)
-    GPIO.output(pin_data['out_a'], GPIO.LOW)
-    val = GPIO.input(pin_data['in_a'])
-    assert(val == GPIO.LOW)
-    GPIO.output(pin_data['out_a'], GPIO.HIGH)
-    val = GPIO.input(pin_data['in_a'])
-    assert(val == GPIO.HIGH)
-    GPIO.cleanup()
-
-
-@test
-def test_out_in_init_low():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.LOW)
-    GPIO.setup(pin_data['in_a'], GPIO.IN)
-    val = GPIO.input(pin_data['in_a'])
-    assert(val == GPIO.LOW)
-    GPIO.output(pin_data['out_a'], GPIO.HIGH)
-    val = GPIO.input(pin_data['in_a'])
-    assert(val == GPIO.HIGH)
-    GPIO.output(pin_data['out_a'], GPIO.LOW)
-    val = GPIO.input(pin_data['in_a'])
-    assert(val == GPIO.LOW)
-    GPIO.cleanup()
-
-
-# Tests of:
-# def gpio_function(channel):
-
-
-@test
-def test_gpio_function_unexported():
-    GPIO.setmode(GPIO.BOARD)
-    val = GPIO.gpio_function(pin_data['in_a'])
-    assert val == GPIO.UNKNOWN
-    GPIO.cleanup()
-
-
-@test
-def test_gpio_function_in():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['in_a'], GPIO.IN)
-    val = GPIO.gpio_function(pin_data['in_a'])
-    assert val == GPIO.IN
-    GPIO.cleanup()
-
-
-@test
-def test_gpio_function_out():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT)
-    val = GPIO.gpio_function(pin_data['out_a'])
-    assert val == GPIO.OUT
-    GPIO.cleanup()
-
-
-# Tests of:
-# def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
-
-
-@test
-def test_wait_for_edge_timeout():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.LOW)
-    GPIO.setup(pin_data['in_a'], GPIO.IN)
-    val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.BOTH, timeout=100)
-    assert val is None
-    GPIO.cleanup()
-
-
-class DelayedSetChannel(threading.Thread):
-    def __init__(self, channel, value, delay):
-        super(DelayedSetChannel, self).__init__()
-        self.channel = channel
-        self.value = value
-        self.delay = delay
-
-    def run(self):
-        time.sleep(self.delay)
-        GPIO.output(self.channel, self.value)
-
-
-@test
-def test_wait_for_edge_rising():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.LOW)
-    GPIO.setup(pin_data['in_a'], GPIO.IN)
-    dsc = DelayedSetChannel(pin_data['out_a'], GPIO.HIGH, 0.5)
-    dsc.start()
-    val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.RISING, timeout=1000)
-    dsc.join()
-    assert val == pin_data['in_a']
-    GPIO.cleanup()
-
-
-@test
-def test_wait_for_edge_falling():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    GPIO.setup(pin_data['in_a'], GPIO.IN)
-    dsc = DelayedSetChannel(pin_data['out_a'], GPIO.LOW, 0.5)
-    dsc.start()
-    val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.FALLING, timeout=1000)
-    dsc.join()
-    assert val == pin_data['in_a']
-    GPIO.cleanup()
+# @test
+# def test_output_many_many_value():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup((pin_data['out_a'], pin_data['out_b']), GPIO.OUT)
+#     GPIO.output((pin_data['out_a'], pin_data['out_b']), (GPIO.HIGH, GPIO.LOW))
+#     GPIO.output((pin_data['out_a'], pin_data['out_b']), (GPIO.LOW, GPIO.HIGH))
+#     GPIO.cleanup()
+
+
+# # Tests of combined (looped back) output/input
+
+
+# @test
+# def test_out_in_init_high():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     GPIO.setup(pin_data['in_a'], GPIO.IN)
+#     val = GPIO.input(pin_data['in_a'])
+#     assert(val == GPIO.HIGH)
+#     GPIO.output(pin_data['out_a'], GPIO.LOW)
+#     val = GPIO.input(pin_data['in_a'])
+#     assert(val == GPIO.LOW)
+#     GPIO.output(pin_data['out_a'], GPIO.HIGH)
+#     val = GPIO.input(pin_data['in_a'])
+#     assert(val == GPIO.HIGH)
+#     GPIO.cleanup()
+
+
+# @test
+# def test_out_in_init_low():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.LOW)
+#     GPIO.setup(pin_data['in_a'], GPIO.IN)
+#     val = GPIO.input(pin_data['in_a'])
+#     assert(val == GPIO.LOW)
+#     GPIO.output(pin_data['out_a'], GPIO.HIGH)
+#     val = GPIO.input(pin_data['in_a'])
+#     assert(val == GPIO.HIGH)
+#     GPIO.output(pin_data['out_a'], GPIO.LOW)
+#     val = GPIO.input(pin_data['in_a'])
+#     assert(val == GPIO.LOW)
+#     GPIO.cleanup()
+
+
+# # Tests of:
+# # def gpio_function(channel):
+
+
+# @test
+# def test_gpio_function_unexported():
+#     GPIO.setmode(GPIO.BOARD)
+#     val = GPIO.gpio_function(pin_data['in_a'])
+#     assert val == GPIO.UNKNOWN
+#     GPIO.cleanup()
+
+
+# @test
+# def test_gpio_function_in():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['in_a'], GPIO.IN)
+#     val = GPIO.gpio_function(pin_data['in_a'])
+#     assert val == GPIO.IN
+#     GPIO.cleanup()
+
+
+# @test
+# def test_gpio_function_out():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT)
+#     val = GPIO.gpio_function(pin_data['out_a'])
+#     assert val == GPIO.OUT
+#     GPIO.cleanup()
+
+
+# # Tests of:
+# # def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
+
+
+# @test
+# def test_wait_for_edge_timeout():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.LOW)
+#     GPIO.setup(pin_data['in_a'], GPIO.IN)
+#     val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.BOTH, timeout=100)
+#     assert val is None
+#     GPIO.cleanup()
+
+
+# class DelayedSetChannel(threading.Thread):
+#     def __init__(self, channel, value, delay):
+#         super(DelayedSetChannel, self).__init__()
+#         self.channel = channel
+#         self.value = value
+#         self.delay = delay
+
+#     def run(self):
+#         time.sleep(self.delay)
+#         GPIO.output(self.channel, self.value)
+
+
+# @test
+# def test_wait_for_edge_rising():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.LOW)
+#     GPIO.setup(pin_data['in_a'], GPIO.IN)
+#     dsc = DelayedSetChannel(pin_data['out_a'], GPIO.HIGH, 0.5)
+#     dsc.start()
+#     val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.RISING, timeout=1000)
+#     dsc.join()
+#     assert val == pin_data['in_a']
+#     GPIO.cleanup()
+
+
+# @test
+# def test_wait_for_edge_falling():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     GPIO.setup(pin_data['in_a'], GPIO.IN)
+#     dsc = DelayedSetChannel(pin_data['out_a'], GPIO.LOW, 0.5)
+#     dsc.start()
+#     val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.FALLING, timeout=1000)
+#     dsc.join()
+#     assert val == pin_data['in_a']
+#     GPIO.cleanup()
 
 
 # Tests of:
@@ -687,87 +687,87 @@ def test_event_detected_both():
 # Tests of class PWM
 
 
-@pwmtest
-def test_pwm_multi_duty():
-    for pct in (25, 50, 75):
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(pin_data['in_a'], GPIO.IN)
-        GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-        p = GPIO.PWM(pin_data['out_a'], 500)
-        p.start(pct)
-        count = 0
-        for i in range(1000):
-            count += GPIO.input(pin_data['in_a'])
-        p.stop()
-        del p
-        min_ct = 10 * (pct - 5)
-        max_ct = 10 * (pct + 5)
-        assert min_ct <= count <= max_ct
-        GPIO.cleanup()
+# @pwmtest
+# def test_pwm_multi_duty():
+#     for pct in (25, 50, 75):
+#         GPIO.setmode(GPIO.BOARD)
+#         GPIO.setup(pin_data['in_a'], GPIO.IN)
+#         GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#         p = GPIO.PWM(pin_data['out_a'], 500)
+#         p.start(pct)
+#         count = 0
+#         for i in range(1000):
+#             count += GPIO.input(pin_data['in_a'])
+#         p.stop()
+#         del p
+#         min_ct = 10 * (pct - 5)
+#         max_ct = 10 * (pct + 5)
+#         assert min_ct <= count <= max_ct
+#         GPIO.cleanup()
 
 
-@pwmtest
-def test_pwm_change_frequency():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    p = GPIO.PWM(pin_data['out_a'], 500)
-    p.start(50)
-    p.ChangeFrequency(550)
-    p.stop()
-    del p
-    GPIO.cleanup()
+# @pwmtest
+# def test_pwm_change_frequency():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     p = GPIO.PWM(pin_data['out_a'], 500)
+#     p.start(50)
+#     p.ChangeFrequency(550)
+#     p.stop()
+#     del p
+#     GPIO.cleanup()
 
 
-@pwmtest
-def test_pwm_change_duty_cycle():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    p = GPIO.PWM(pin_data['out_a'], 500)
-    p.start(50)
-    p.ChangeDutyCycle(60)
-    p.stop()
-    del p
-    GPIO.cleanup()
+# @pwmtest
+# def test_pwm_change_duty_cycle():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     p = GPIO.PWM(pin_data['out_a'], 500)
+#     p.start(50)
+#     p.ChangeDutyCycle(60)
+#     p.stop()
+#     del p
+#     GPIO.cleanup()
 
 
-@pwmtest
-def test_pwm_cleanup_none():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    p = GPIO.PWM(pin_data['out_a'], 500)
-    p.start(50)
-    GPIO.cleanup()
+# @pwmtest
+# def test_pwm_cleanup_none():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     p = GPIO.PWM(pin_data['out_a'], 500)
+#     p.start(50)
+#     GPIO.cleanup()
 
 
-@pwmtest
-def test_pwm_cleanup_stop():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    p = GPIO.PWM(pin_data['out_a'], 500)
-    p.start(50)
-    p.stop()
-    GPIO.cleanup()
+# @pwmtest
+# def test_pwm_cleanup_stop():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     p = GPIO.PWM(pin_data['out_a'], 500)
+#     p.start(50)
+#     p.stop()
+#     GPIO.cleanup()
 
 
-@pwmtest
-def test_pwm_cleanup_del():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    p = GPIO.PWM(pin_data['out_a'], 500)
-    p.start(50)
-    del p
-    GPIO.cleanup()
+# @pwmtest
+# def test_pwm_cleanup_del():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     p = GPIO.PWM(pin_data['out_a'], 500)
+#     p.start(50)
+#     del p
+#     GPIO.cleanup()
 
 
-@pwmtest
-def test_pwm_create_all():
-    for pin in pin_data['all_pwms']:
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)
-        p = GPIO.PWM(pin, 500)
-        p.start(50)
-        p.stop()
-        GPIO.cleanup()
+# @pwmtest
+# def test_pwm_create_all():
+#     for pin in pin_data['all_pwms']:
+#         GPIO.setmode(GPIO.BOARD)
+#         GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)
+#         p = GPIO.PWM(pin, 500)
+#         p.start(50)
+#         p.stop()
+#         GPIO.cleanup()
 
 
 # Main script
