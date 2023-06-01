@@ -452,7 +452,7 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None, polltime=0.2
 
     if ch_info.line_handle:
         gpio_cdev.close_line(ch_info.line_handle)
-
+    print("add_event_detect: ", edge)
     request = gpio_cdev.request_event(ch_info.line_offset, edge, ch_info.consumer)
     event.add_edge_detect(ch_info.chip_fd, ch_info.gpio_chip, channel, request, bouncetime, polltime)
 
@@ -468,13 +468,18 @@ def remove_event_detect(channel, timeout=0.5):
     ch_info = _channel_to_info(channel, need_gpio=True)
     event.remove_edge_detect(ch_info.gpio_chip, channel, timeout)
 
+# Function used to remove event detection for channel
+def remove_event_detect(channel):
+    ch_info = _channel_to_info(channel, need_gpio=True)
+    event.remove_edge_detect(ch_info.gpio, ch_info.gpio_name)
+
+    raise RuntimeError("This function is deprecated")
 
 # Function used to check if an event occurred on the specified channel.
 # Param channel must be an integer.
 # This function return True or False
 def event_detected(channel):
     ch_info = _channel_to_info(channel, need_gpio=True)
-
     # channel must be setup as input
     if _app_channel_configuration(ch_info) != IN:
         raise RuntimeError("You must setup() the GPIO channel as an "
