@@ -18,6 +18,7 @@
 # DEALINGS IN THE SOFTWARE.
 
 import os
+import sys
 import fcntl
 import ctypes
 import select
@@ -42,7 +43,13 @@ GPIOHANDLE_GET_LINE_VALUES_IOCTL = 0xC040B408
 GPIOHANDLE_SET_LINE_VALUES_IOCTL = 0xC040B409
 GPIO_GET_LINEEVENT_IOCTL = 0xC030B404
 
-
+# /**
+#  * struct gpiochip_info - Information about a certain GPIO chip
+#  * @name: the Linux kernel name of this GPIO chip
+#  * @label: a functional name for this GPIO chip, such as a product
+#  * number, may be empty (i.e. label[0] == '\0')
+#  * @lines: number of GPIO lines on this chip
+#  */
 class gpiochip_info(ctypes.Structure):
     _fields_ = [
         ('name', ctypes.c_char * 32),
@@ -50,7 +57,31 @@ class gpiochip_info(ctypes.Structure):
         ('lines', ctypes.c_uint32),
     ]
 
-
+# /**
+#  * struct gpiohandle_request - Information about a GPIO handle request
+#  * @lineoffsets: an array of desired lines, specified by offset index for the
+#  * associated GPIO device
+#  * @flags: desired flags for the desired GPIO lines, such as
+#  * %GPIOHANDLE_REQUEST_OUTPUT, %GPIOHANDLE_REQUEST_ACTIVE_LOW etc, added
+#  * together. Note that even if multiple lines are requested, the same flags
+#  * must be applicable to all of them, if you want lines with individual
+#  * flags set, request them one by one. It is possible to select
+#  * a batch of input or output lines, but they must all have the same
+#  * characteristics, i.e. all inputs or all outputs, all active low etc
+#  * @default_values: if the %GPIOHANDLE_REQUEST_OUTPUT is set for a requested
+#  * line, this specifies the default output value, should be 0 (low) or
+#  * 1 (high), anything else than 0 or 1 will be interpreted as 1 (high)
+#  * @consumer_label: a desired consumer label for the selected GPIO line(s)
+#  * such as "my-bitbanged-relay"
+#  * @lines: number of lines requested in this request, i.e. the number of
+#  * valid fields in the above arrays, set to 1 to request a single line
+#  * @fd: if successful this field will contain a valid anonymous file handle
+#  * after a %GPIO_GET_LINEHANDLE_IOCTL operation, zero or negative value
+#  * means error
+#  *
+#  * Note: This struct is part of ABI v1 and is deprecated.
+#  * Use &struct gpio_v2_line_request instead.
+#  */
 class gpiohandle_request(ctypes.Structure):
     _fields_ = [
         ('lineoffsets', ctypes.c_uint32 * 64),
@@ -61,13 +92,35 @@ class gpiohandle_request(ctypes.Structure):
         ('fd', ctypes.c_int),
     ]
 
-
+# /**
+#  * struct gpiohandle_data - Information of values on a GPIO handle
+#  * @values: when getting the state of lines this contains the current
+#  * state of a line, when setting the state of lines these should contain
+#  * the desired target state
+#  *
+#  * Note: This struct is part of ABI v1 and is deprecated.
+#  * Use &struct gpio_v2_line_values instead.
+#  */
 class gpiohandle_data(ctypes.Structure):
     _fields_ = [
         ('values', ctypes.c_uint8 * 64),
     ]
 
-
+# /**
+#  * struct gpioline_info - Information about a certain GPIO line
+#  * @line_offset: the local offset on this GPIO device, fill this in when
+#  * requesting the line information from the kernel
+#  * @flags: various flags for this line
+#  * @name: the name of this GPIO line, such as the output pin of the line on the
+#  * chip, a rail or a pin header name on a board, as specified by the gpio
+#  * chip, may be empty (i.e. name[0] == '\0')
+#  * @consumer: a functional name for the consumer of this GPIO line as set by
+#  * whatever is using it, will be empty if there is no current user but may
+#  * also be empty if the consumer doesn't set this up
+#  *
+#  * Note: This struct is part of ABI v1 and is deprecated.
+#  * Use &struct gpio_v2_line_info instead.
+#  */
 class gpioline_info(ctypes.Structure):
      _fields_ = [
         ('line_offset', ctypes.c_uint32),
@@ -110,6 +163,7 @@ class GPIOError(IOError):
 
 def chip_open(gpio_chip):
     try:
+        #wip: O_RDONLY  
         chip_fd = os.open(gpio_chip, 0)
     except OSError as e:
         raise GPIOError(e.errno, "Opening GPIO chip: " + e.strerror)
@@ -204,7 +258,7 @@ def request_event(line_offset, edge, consumer):
     request.consumer_label = consumer.encode()
     return request
 
-
+# cdev
 def get_value(line_handle):
     data = gpiohandle_data()
 
@@ -226,32 +280,46 @@ def set_value(line_handle, value):
         raise GPIOError(e.errno, "Setting line value: " + e.strerror)
 
 
+#found that exiting thread should be elegant
 def _edge_handler(thread_name, cb_func, fd, channel):
-    while True:
-        try:
-            data = os.read(fd, ctypes.sizeof(gpioevent_data))
-        except OSError as e:
-            raise GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
+    try:
+        while True:
+            try:
+                print("read starting...\n")
+                data = os.read(fd, ctypes.sizeof(gpioevent_data))
+                print("read end...", data)
+            except OSError as e:
+                raise GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
 
-        event_data = gpioevent_data.from_buffer_copy(data)
+            event_data = gpioevent_data.from_buffer_copy(data)
 
-        if event_data.id == GPIOEVENT_REQUEST_RISING_EDGE:
-            print("GPIOEVENT_REQUEST_RISING_EDGE")
-            cb_func(channel)
-        elif event_data.id == GPIOEVENT_REQUEST_FALLING_EDGE:
-            print("GPIOEVENT_REQUEST_FALLING_EDGE")
-            cb_func(channel)
-        else:
-            print("unknown event")
+            if event_data.id == GPIOEVENT_REQUEST_RISING_EDGE:
+                print("GPIOEVENT_REQUEST_RISING_EDGE")
+            elif event_data.id == GPIOEVENT_REQUEST_FALLING_EDGE:
+                print("GPIOEVENT_REQUEST_FALLING_EDGE")
+            else:
+                print("unknown event")
+                continue
+
+            if cb_func:
+                cb_func(channel)
+
+    except OSError as err:
+        raise GPIOError(err.errno, "Reading GPIO event: " + err)
+    except:
+        print("thread Unexpected error:", sys.exc_info()[0])
+        raise
 
 
+#event
 def add_edge_detect(chip_fd, channel, request, callback, bouncetime):
     try:
         fcntl.ioctl(chip_fd, GPIO_GET_LINEEVENT_IOCTL, request)
     except (OSError, IOError) as e:
         raise GPIOError(e.errno, "Opening input line event handle: " + e.strerror)
 
-    get_value(request.fd)
+    print("get val: ", get_value(request.fd))
+    #get_value(request.fd)
 
     try:
         thread.start_new_thread(_edge_handler, ("edge_handler_thread", callback, request.fd, channel))
@@ -265,12 +333,14 @@ def blocking_wait_for_edge(chip_fd, channel, request, bouncetime, timeout):
     except (OSError, IOError) as e:
         raise GPIOError(e.errno, "Opening input line event handle: " + e.strerror)
 
+    #read some
     get_value(request.fd)
 
     ret = select.select([request.fd], [], [], timeout)
     if ret[0] == [request.fd]:
         try:
             data = os.read(request.fd, ctypes.sizeof(gpioevent_data))
+            print("read end...\n", data, " rghe")
         except OSError as e:
             raise GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
 
