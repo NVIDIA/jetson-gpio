@@ -261,6 +261,7 @@ def _cleanup_one(ch_info):
     # clean up line
     if ch_info.line_handle:
         gpio_cdev.close_line(ch_info.line_handle)
+
         ch_info.line_handle = None
 
 
@@ -269,7 +270,6 @@ def _cleanup_all():
 
     for channel in list(_channel_configuration.keys()):
         ch_info = _channel_to_info(channel)
-
         _cleanup_one(ch_info)
 
     _gpio_mode = None
@@ -348,6 +348,7 @@ def setup(channels, direction, pull_up_down=_Default(PUD_OFF), initial=None, con
         raise ValueError("Invalid value for pull_up_down; should be one of"
                          "PUD_OFF, PUD_UP or PUD_DOWN")
 
+    #WIP this is will close the fd
     for ch_info in ch_infos:
         if ch_info.channel in _channel_configuration:
             _cleanup_one(ch_info)
@@ -369,6 +370,7 @@ def setup(channels, direction, pull_up_down=_Default(PUD_OFF), initial=None, con
 # cleaned
 def cleanup(channel=None):
     # warn if no channel is setup
+    print("cleanup")
     if _gpio_mode is None:
         if _gpio_warnings:
             warnings.warn("No channels have been set up yet - nothing to "
@@ -383,8 +385,11 @@ def cleanup(channel=None):
 
     ch_infos = _channels_to_infos(channel)
     for ch_info in ch_infos:
+        gpio_cdev.close_chip(ch_info.chip_fd)
         if ch_info.channel in _channel_configuration:
             _cleanup_one(ch_info)
+    
+    
 
 
 # Function used to return the current value of the specified channel.
@@ -451,8 +456,9 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None, polltime=0.2
             raise ValueError("bouncetime must be an integer greater than 0")
 
     if ch_info.line_handle:
+        print("ch_info.line_handle:")
         gpio_cdev.close_line(ch_info.line_handle)
-    print("add_event_detect: ", edge)
+
     request = gpio_cdev.request_event(ch_info.line_offset, edge, ch_info.consumer)
     event.add_edge_detect(ch_info.chip_fd, ch_info.gpio_chip, channel, request, bouncetime, polltime)
 
@@ -471,9 +477,8 @@ def remove_event_detect(channel, timeout=0.5):
 # Function used to remove event detection for channel
 def remove_event_detect(channel):
     ch_info = _channel_to_info(channel, need_gpio=True)
-    event.remove_edge_detect(ch_info.gpio, ch_info.gpio_name)
+    event.remove_edge_detect(ch_info.gpio_chip, channel)
 
-    raise RuntimeError("This function is deprecated")
 
 # Function used to check if an event occurred on the specified channel.
 # Param channel must be an integer.

@@ -220,11 +220,12 @@ def open_line(ch_info, request):
 def close_line(line_handle):
     if line_handle is None:
         return
-
+    print("line close: ", line_handle)
     try:
         os.close(line_handle)
     except OSError as e:
-        raise GPIOError(e.errno, "Closing existing GPIO line: " + e.strerror)
+        print("Warning: already closed")
+        #raise GPIOError(e.errno, "Closing existing GPIO line: " + e.strerror)
 
 # @brief build a request handle struct
 # @param[in] line_offset: the offset of the line to its chip
