@@ -182,7 +182,8 @@ def chip_check_info(label, gpio_device):
 
     if label != chip_info.label.decode():
         try:
-            os.close(chip_fd)
+            #os.close(chip_fd)
+            close_chip(chip_fd)
         except OSError as e:
             raise GPIOError(e.errno, "Opening GPIO chip: " + e.strerror)
 
@@ -217,8 +218,11 @@ def close_chip(chip_fd):
 
 
 def open_line(ch_info, request):
+    
     try:
         fcntl.ioctl(ch_info.chip_fd, GPIO_GET_LINEHANDLE_IOCTL, request)
+        print("line open: ", ch_info.channel, request.fd)
+        
     except (OSError, IOError) as e:
         raise GPIOError(e.errno, "Opening output line handle: " + e.strerror)
 
@@ -228,11 +232,12 @@ def open_line(ch_info, request):
 def close_line(line_handle):
     if line_handle is None:
         return
-
+    print("line close: ", line_handle)
     try:
         os.close(line_handle)
     except OSError as e:
-        raise GPIOError(e.errno, "Closing existing GPIO line: " + e.strerror)
+        print("Warning: already closed")
+        #raise GPIOError(e.errno, "Closing existing GPIO line: " + e.strerror)
 
 
 def request_handle(line_offset, direction, initial, consumer):
@@ -281,50 +286,50 @@ def set_value(line_handle, value):
 
 
 #found that exiting thread should be elegant
-def _edge_handler(thread_name, cb_func, fd, channel):
-    try:
-        while True:
-            try:
-                print("read starting...\n")
-                data = os.read(fd, ctypes.sizeof(gpioevent_data))
-                print("read end...", data)
-            except OSError as e:
-                raise GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
+# def _edge_handler(thread_name, cb_func, fd, channel):
+#     try:
+#         while True:
+#             try:
+#                 print("read starting...\n")
+#                 data = os.read(fd, ctypes.sizeof(gpioevent_data))
+#                 print("read end...", data)
+#             except OSError as e:
+#                 raise GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
 
-            event_data = gpioevent_data.from_buffer_copy(data)
+#             event_data = gpioevent_data.from_buffer_copy(data)
 
-            if event_data.id == GPIOEVENT_REQUEST_RISING_EDGE:
-                print("GPIOEVENT_REQUEST_RISING_EDGE")
-            elif event_data.id == GPIOEVENT_REQUEST_FALLING_EDGE:
-                print("GPIOEVENT_REQUEST_FALLING_EDGE")
-            else:
-                print("unknown event")
-                continue
+#             if event_data.id == GPIOEVENT_REQUEST_RISING_EDGE:
+#                 print("GPIOEVENT_REQUEST_RISING_EDGE")
+#             elif event_data.id == GPIOEVENT_REQUEST_FALLING_EDGE:
+#                 print("GPIOEVENT_REQUEST_FALLING_EDGE")
+#             else:
+#                 print("unknown event")
+#                 continue
 
-            if cb_func:
-                cb_func(channel)
+#             if cb_func:
+#                 cb_func(channel)
 
-    except OSError as err:
-        raise GPIOError(err.errno, "Reading GPIO event: " + err)
-    except:
-        print("thread Unexpected error:", sys.exc_info()[0])
-        raise
+#     except OSError as err:
+#         raise GPIOError(err.errno, "Reading GPIO event: " + err)
+#     except:
+#         print("thread Unexpected error:", sys.exc_info()[0])
+#         raise
 
 
 #event
-def add_edge_detect(chip_fd, channel, request, callback, bouncetime):
-    try:
-        fcntl.ioctl(chip_fd, GPIO_GET_LINEEVENT_IOCTL, request)
-    except (OSError, IOError) as e:
-        raise GPIOError(e.errno, "Opening input line event handle: " + e.strerror)
+# def add_edge_detect(chip_fd, channel, request, callback, bouncetime):
+#     try:
+#         fcntl.ioctl(chip_fd, GPIO_GET_LINEEVENT_IOCTL, request)
+#     except (OSError, IOError) as e:
+#         raise GPIOError(e.errno, "Opening input line event handle: " + e.strerror)
 
-    print("get val: ", get_value(request.fd))
-    #get_value(request.fd)
+#     print("get val: ", get_value(request.fd))
+#     #get_value(request.fd)
 
-    try:
-        thread.start_new_thread(_edge_handler, ("edge_handler_thread", callback, request.fd, channel))
-    except:
-        print("Error: unable to start thread")
+#     try:
+#         thread.start_new_thread(_edge_handler, ("edge_handler_thread", callback, request.fd, channel))
+#     except:
+#         print("Error: unable to start thread")
 
 
 def blocking_wait_for_edge(chip_fd, channel, request, bouncetime, timeout):

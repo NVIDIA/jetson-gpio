@@ -158,17 +158,21 @@ def add_edge_detect(chip_fd, chip_name, channel, request, bouncetime):
     return 0
 
 
-def remove_edge_detect(gpio, gpio_name):
-    if gpio not in _gpio_event_list:
+def remove_edge_detect(chip_name, channel):
+    if chip_name not in _gpio_event_list:
+        return
+    if channel not in _gpio_event_list[chip_name]:
         return
 
     if _epoll_fd_thread is not None:
-        _epoll_fd_thread.unregister(_gpio_event_list[gpio].value_fd)
+        pass
+        #_epoll_fd_thread.unregister(_gpio_event_list[chip_name].value_fd)
 
-    _set_edge(gpio_name, NO_EDGE)
+    #_set_edge(gpio_name, NO_EDGE)
 
     _mutex.acquire()
-    del _gpio_event_list[gpio]
+    print("remove_edge_detect: ", _gpio_event_list[chip_name][channel].value_fd)
+    del _gpio_event_list[chip_name][channel]
     _mutex.release()
 
 
@@ -179,15 +183,17 @@ def add_edge_callback(gpio, callback):
     _gpio_event_list[gpio].callbacks.append(callback)
 
 
-def edge_event_detected(gpio):
+def edge_event_detected(chip_name, channel):
     retval = False
-    if gpio in _gpio_event_list:
+    if chip_name in _gpio_event_list:
         _mutex.acquire()
-        if _gpio_event_list[gpio].event_occurred:
-            _gpio_event_list[gpio].event_occurred = False
-            retval = True
+        if channel in _gpio_event_list[chip_name]:
+            if _gpio_event_list[chip_name][channel].event_occurred:
+                _gpio_event_list[chip_name][channel].event_occurred = False
+                retval = True
         _mutex.release()
-        return retval
+
+    return retval
 
 # @brief Check if any event is added to the channel in the chip controller
 # @param[in] chip_name
@@ -231,7 +237,7 @@ def _get_gpio_obj_keys(fd):
         for pin in _gpio_event_list[chip_name]:
             if _gpio_event_list[chip_name][pin].value_fd == fd:
                 return (chip_name, pin)
-    return None
+    return None, None
 
 
 def _get_gpio_file_object(fileno):
@@ -242,31 +248,62 @@ def _get_gpio_file_object(fileno):
     return None
 
 #found that exiting thread should be elegant
+#TODO: try epoll to avoid resource busy problem
+#TODO: finish the add callback function
+#TODO: solve the dual close line problem
 def _edge_handler(thread_name, fd, channel):
-    try:
-        while True:
-            try:
-                print("read starting...\n")
-                data = os.read(fd, ctypes.sizeof(cdev.gpioevent_data))
-                print("read end...", data)
-            except OSError as e:
-                raise cdev.GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
+    count = 0
+    while True:
+        try:
+            print("read starting...\n")
+            data = os.read(fd, ctypes.sizeof(cdev.gpioevent_data))
+            print("read end...", data)
+            count += 1
+        except OSError as e:
+            raise cdev.GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
 
-            event_data = cdev.gpioevent_data.from_buffer_copy(data)
+        event_data = cdev.gpioevent_data.from_buffer_copy(data)
 
-            if event_data.id == cdev.GPIOEVENT_REQUEST_RISING_EDGE:
-                print("GPIOEVENT_REQUEST_RISING_EDGE")
-            elif event_data.id == cdev.GPIOEVENT_REQUEST_FALLING_EDGE:
-                print("GPIOEVENT_REQUEST_FALLING_EDGE")
-            else:
-                print("unknown event")
-                continue
+        _mutex.acquire()
+        # check key to make sure gpio object has not been deleted
+        # from main thread
+        # WIP make sure none return 
+        chip_name, pin_num = _get_gpio_obj_keys(fd)
+        if chip_name is None or pin_num is None:
+            break
 
-            # if cb_func:
-            #     cb_func(channel)
+        gpio_obj = _gpio_event_list[chip_name][pin_num]
 
-    except OSError as err:
-        raise cdev.GPIOError(err.errno, "Reading GPIO event: " + err)
+        # event result
+        if event_data.id == cdev.GPIOEVENT_REQUEST_RISING_EDGE:
+            print("GPIOEVENT_REQUEST_RISING_EDGE")
+        elif event_data.id == cdev.GPIOEVENT_REQUEST_FALLING_EDGE:
+            print("GPIOEVENT_REQUEST_FALLING_EDGE")
+        else:
+            print("unknown event")
+            continue
+
+        # debounce the input event for the specified bouncetime
+        time = datetime.now()
+        time = time.second * 1E6 + time.microsecond
+        if (gpio_obj.bouncetime is None or
+                (time - gpio_obj.lastcall >
+                    gpio_obj.bouncetime * 1000) or
+                (gpio_obj.lastcall == 0) or gpio_obj.lastcall > time):
+            gpio_obj.lastcall = time
+            gpio_obj.event_occurred = True
+            print("event_occurred")
+
+            #update to the original list
+            _gpio_event_list[chip_name][pin_num] = gpio_obj
+            _mutex.release()
+
+            # callback function
+            for cb_func in gpio_obj.callbacks:
+                cb_func()
+            
+
+    thread.exit()
 
 
 #WIP: deprecated
@@ -440,7 +477,7 @@ def blocking_wait_for_edge(gpio, gpio_name, edge, bouncetime, timeout):
     # 1 if event was valid
     return int(res != [])
 
-
+#wip back
 def event_cleanup(gpio, gpio_name):
     global _epoll_fd_thread, _epoll_fd_blocking, _thread_running
 
