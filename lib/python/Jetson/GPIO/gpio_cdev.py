@@ -163,8 +163,7 @@ class GPIOError(IOError):
 
 def chip_open(gpio_chip):
     try:
-        #wip: O_RDONLY  
-        chip_fd = os.open(gpio_chip, 0)
+        chip_fd = os.open(gpio_chip, os.O_RDONLY)
     except OSError as e:
         raise GPIOError(e.errno, "Opening GPIO chip: " + e.strerror)
 
@@ -182,7 +181,6 @@ def chip_check_info(label, gpio_device):
 
     if label != chip_info.label.decode():
         try:
-            #os.close(chip_fd)
             close_chip(chip_fd)
         except OSError as e:
             raise GPIOError(e.errno, "Opening GPIO chip: " + e.strerror)
@@ -221,7 +219,6 @@ def open_line(ch_info, request):
     
     try:
         fcntl.ioctl(ch_info.chip_fd, GPIO_GET_LINEHANDLE_IOCTL, request)
-        print("line open: ", ch_info.channel, request.fd)
         
     except (OSError, IOError) as e:
         raise GPIOError(e.errno, "Opening output line handle: " + e.strerror)
@@ -232,12 +229,11 @@ def open_line(ch_info, request):
 def close_line(line_handle):
     if line_handle is None:
         return
-    print("line close: ", line_handle)
+
     try:
         os.close(line_handle)
     except OSError as e:
-        print("Warning: already closed")
-        #raise GPIOError(e.errno, "Closing existing GPIO line: " + e.strerror)
+        raise GPIOError(e.errno, "Closing existing GPIO line: " + e.strerror)
 
 
 def request_handle(line_offset, direction, initial, consumer):
@@ -345,7 +341,6 @@ def blocking_wait_for_edge(chip_fd, channel, request, bouncetime, timeout):
     if ret[0] == [request.fd]:
         try:
             data = os.read(request.fd, ctypes.sizeof(gpioevent_data))
-            print("read end...\n", data, " rghe")
         except OSError as e:
             raise GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
 
