@@ -527,7 +527,7 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
         gpio_cdev.close_line(ch_info.line_handle)
 
     request = gpio_cdev.request_event(ch_info.line_offset, edge, ch_info.consumer)
-    return gpio_cdev.blocking_wait_for_edge(ch_info.chip_fd, channel, request, bouncetime, timeout)
+    return event.blocking_wait_for_edge(ch_info.chip_fd, channel, request, bouncetime, timeout)
 
 # Function used to check the currently set function of the channel specified.
 # Param channel must be an integers. The function returns either IN, OUT,

@@ -18,14 +18,8 @@
 # DEALINGS IN THE SOFTWARE.
 
 import os
-import sys
 import fcntl
 import ctypes
-import select
-try:
-    import thread
-except:
-    import _thread as thread
 
 GPIO_HIGH = 1
 
@@ -259,7 +253,7 @@ def request_event(line_offset, edge, consumer):
     request.consumer_label = consumer.encode()
     return request
 
-# cdev
+
 def get_value(line_handle):
     data = gpiohandle_data()
 
@@ -280,78 +274,4 @@ def set_value(line_handle, value):
     except (OSError, IOError) as e:
         raise GPIOError(e.errno, "Setting line value: " + e.strerror)
 
-
-#found that exiting thread should be elegant
-# def _edge_handler(thread_name, cb_func, fd, channel):
-#     try:
-#         while True:
-#             try:
-#                 print("read starting...\n")
-#                 data = os.read(fd, ctypes.sizeof(gpioevent_data))
-#                 print("read end...", data)
-#             except OSError as e:
-#                 raise GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
-
-#             event_data = gpioevent_data.from_buffer_copy(data)
-
-#             if event_data.id == GPIOEVENT_REQUEST_RISING_EDGE:
-#                 print("GPIOEVENT_REQUEST_RISING_EDGE")
-#             elif event_data.id == GPIOEVENT_REQUEST_FALLING_EDGE:
-#                 print("GPIOEVENT_REQUEST_FALLING_EDGE")
-#             else:
-#                 print("unknown event")
-#                 continue
-
-#             if cb_func:
-#                 cb_func(channel)
-
-#     except OSError as err:
-#         raise GPIOError(err.errno, "Reading GPIO event: " + err)
-#     except:
-#         print("thread Unexpected error:", sys.exc_info()[0])
-#         raise
-
-
-#event
-# def add_edge_detect(chip_fd, channel, request, callback, bouncetime):
-#     try:
-#         fcntl.ioctl(chip_fd, GPIO_GET_LINEEVENT_IOCTL, request)
-#     except (OSError, IOError) as e:
-#         raise GPIOError(e.errno, "Opening input line event handle: " + e.strerror)
-
-#     print("get val: ", get_value(request.fd))
-#     #get_value(request.fd)
-
-#     try:
-#         thread.start_new_thread(_edge_handler, ("edge_handler_thread", callback, request.fd, channel))
-#     except:
-#         print("Error: unable to start thread")
-
-
-def blocking_wait_for_edge(chip_fd, channel, request, bouncetime, timeout):
-    try:
-        fcntl.ioctl(chip_fd, GPIO_GET_LINEEVENT_IOCTL, request)
-    except (OSError, IOError) as e:
-        raise GPIOError(e.errno, "Opening input line event handle: " + e.strerror)
-
-    #read some
-    get_value(request.fd)
-
-    ret = select.select([request.fd], [], [], timeout)
-    if ret[0] == [request.fd]:
-        try:
-            data = os.read(request.fd, ctypes.sizeof(gpioevent_data))
-        except OSError as e:
-            raise GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
-
-        event_data = gpioevent_data.from_buffer_copy(data)
-
-        if event_data.id == GPIOEVENT_REQUEST_RISING_EDGE:
-            print("GPIOEVENT_REQUEST_RISING_EDGE")
-        elif event_data.id == GPIOEVENT_REQUEST_FALLING_EDGE:
-            print("GPIOEVENT_REQUEST_FALLING_EDGE")
-        else:
-            print("unknown event")
-        return channel
-    return None
 
