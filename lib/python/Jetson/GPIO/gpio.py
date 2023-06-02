@@ -370,7 +370,6 @@ def setup(channels, direction, pull_up_down=_Default(PUD_OFF), initial=None, con
 # cleaned
 def cleanup(channel=None):
     # warn if no channel is setup
-    print("cleanup")
     if _gpio_mode is None:
         if _gpio_warnings:
             warnings.warn("No channels have been set up yet - nothing to "
@@ -456,7 +455,6 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None, polltime=0.2
             raise ValueError("bouncetime must be an integer greater than 0")
 
     if ch_info.line_handle:
-        print("ch_info.line_handle:")
         gpio_cdev.close_line(ch_info.line_handle)
 
     request = gpio_cdev.request_event(ch_info.line_offset, edge, ch_info.consumer)
