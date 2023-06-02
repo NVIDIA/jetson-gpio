@@ -26,7 +26,6 @@
 #  ioctl, etc are provided for usage to interact with the GPIO controller.
 
 import os
-import sys
 import fcntl
 import ctypes
 

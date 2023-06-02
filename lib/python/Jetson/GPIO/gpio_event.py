@@ -261,7 +261,6 @@ def _get_gpio_object(chip_name, channel):
         return None
     if channel not in _gpio_event_list[chip_name]:
         return None
-
     return _gpio_event_list[chip_name][channel]
 
 
