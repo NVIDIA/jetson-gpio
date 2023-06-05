@@ -283,7 +283,6 @@ def _get_gpio_obj_keys(fd):
 def _get_gpio_file_object(fileno):
     raise RuntimeError("This function is deprecated")
 
-
 def _set_thread_exit_state(fd):
     chip_name, channel = _get_gpio_obj_keys(fd)
 
