@@ -69,12 +69,15 @@ HARD_PWM = 43
 model, JETSON_INFO, _channel_data_by_mode = gpio_pin_data.get_data()
 RPI_INFO = JETSON_INFO
 
-# Dictionary objects used as lookup tables for pin to linux gpio mapping
+# Dictionary used as a lookup table from pin to pin info object mapping
+# key: channel, value: ChannelInfo object
 _channel_data = {}
 
 _gpio_warnings = True
 _gpio_mode = None
 _channel_configuration = {}
+
+# Dictionary used as a lookup table from GPIO chip name to chip fd
 _chip_fd = {}
 
 
@@ -232,7 +235,8 @@ def _disable_pwm(ch_info):
     with open(_pwm_enable_path(ch_info), 'w') as f:
         f.write("0")
 
-
+# Clean up all resources taken by a channel, 
+# including pwm, chip and lines
 def _cleanup_one(ch_info):
     #clean up pwm config
     app_cfg = _channel_configuration[ch_info.channel]
@@ -421,6 +425,8 @@ def output(channels, values):
 # Param gpio must be an integer specifying the channel, edge must be RISING,
 # FALLING or BOTH. A callback function to be called when the event is detected
 # and an integer bounctime in milliseconds can be optionally provided
+# Note that one channel only allows one event, which the duplicated event will
+# be ignored.
 def add_event_detect(channel, edge, callback=None, bouncetime=None):
     ch_info = _channel_to_info(channel, need_gpio=True)
     if (not callable(callback)) and callback is not None:
@@ -492,6 +498,7 @@ def add_event_callback(channel, callback):
     
     event.add_edge_callback(ch_info.gpio_chip, channel, lambda: callback(channel))
 
+# Function used to wait for a edge event in blocking mode, it is also one-shoot.
 def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
     ch_info = _channel_to_info(channel, need_gpio=True)
 

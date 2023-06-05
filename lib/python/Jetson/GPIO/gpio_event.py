@@ -19,6 +19,16 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
+# @File name: gpio_event.py
+# @Date:  
+# @Last modified by:  
+# @Last Modified time: 6/6/2023
+# @Description: This file manages all function needed for event detection 
+# that enables users to add or remove an event in a blocking or non-blocking 
+# mode. It keeps an global event dictionary that supports looking up a   
+# channel's registered event.
+
+
 # Python2 has module thread. Renamed to _thread in Python3
 try:
     import thread
@@ -71,7 +81,7 @@ class _Gpios:
     # @bouncetime the time interval for debouncing
     # @callbacks a list of callback functions to be executed when an edge event happened
     # @lastcall the timestamp for counting debounce
-    # @event_occurred  true if an edge event occured
+    # @event_occurred true if an edge event occured
     def __init__(self, line_fd, bouncetime=None):
         self.value_fd = line_fd 
         self.initial_thread = True
@@ -85,11 +95,15 @@ class _Gpios:
         cdev.close_line(self.value_fd)
         del self.callbacks
 
-
-# @chip_fd file descriptor 
-# @channel the file descriptor for the chip line
-# @request gpioevent_request struct that describes gpio event monitoring
-# @bouncetime the time interval for debouncing
+# @brief adding an edge detecting event 
+#   The detection event runs in an thread that enables non-blocking I/O multiplexing approach.
+#   However, one pin on a chip (channel) can only allow one edge detection event, the new added
+#   event will be removed if there's an existing event.
+# @param[in] chip_fd: file descriptor 
+# @param[in] channel: the file descriptor for the chip line
+# @param[in] request: gpioevent_request struct that describes gpio event monitoring
+# @param[in] bouncetime: the time interval for debouncing
+# @param[out] success on 0, otherwise return 2 if something fatal happened
 def add_edge_detect(chip_fd, chip_name, channel, request, bouncetime):
     global _epoll_fd_thread
     gpio_obj = None
@@ -137,7 +151,10 @@ def add_edge_detect(chip_fd, chip_name, channel, request, bouncetime):
             return 2
     return 0
 
-
+# @brief Remove an edge event detection
+#   Not only will the event be unregistered, the thread corresponds will also be cleared
+# @param[in] chip_name: the GPIO chip name/instance
+# @param[in] channel: the pin number in specified mode (board or bcm)
 def remove_edge_detect(chip_name, channel):
     if chip_name not in _gpio_event_list:
         return
@@ -160,7 +177,11 @@ def add_edge_callback(chip_name, channel, callback):
 
     _gpio_event_list[chip_name][channel].callbacks.append(callback)
 
-
+# @brief Check if any edge event occured
+#   If an adge event happened, the flag will be cleared for the next occurance
+# @param[in] chip_name: the GPIO chip name/instance
+# @param[in] channel: the pin number in specified mode (board or bcm)
+# @param[out] true if an edge event occured, otherwise false
 def edge_event_detected(chip_name, channel):
     retval = False
     if chip_name in _gpio_event_list:
@@ -174,9 +195,9 @@ def edge_event_detected(chip_name, channel):
     return retval
 
 # @brief Check if any event is added to the channel in the chip controller
-# @param[in] chip_name
-# @param[in] channel
-# @return the gpio object if an event exists, otherwise None
+# @param[in] chip_name: the GPIO chip name/instance
+# @param[in] channel: the pin number in specified mode (board or bcm)
+# @param[out] the gpio object if an event exists, otherwise None
 def gpio_event_added(chip_name, channel):
     if chip_name not in _gpio_event_list:
         return None
@@ -185,9 +206,11 @@ def gpio_event_added(chip_name, channel):
     
     return _gpio_event_list[chip_name][channel]
 
-# @brief Add an event to the channel in the chip controller
-# @param[in] chip_name
-# @param[in] channel
+# @brief Add an event to the event list
+# @param[in] chip_name: the GPIO chip name/instance
+# @param[in] channel: the pin number in specified mode (board or bcm)
+# @param[in] gpio_obj: the gpio handle with related information of a channel's 
+# event
 def _add_gpio_event(chip_name, channel, gpio_obj):
     if chip_name not in _gpio_event_list:
         _gpio_event_list[chip_name] = {}
@@ -195,6 +218,12 @@ def _add_gpio_event(chip_name, channel, gpio_obj):
     if channel not in _gpio_event_list[chip_name]:
         _gpio_event_list[chip_name][channel] = gpio_obj
 
+# @brief Look up by chip name and channel to get the gpio object 
+#   with related information of a channel's event
+# @param[in] chip_name: the GPIO chip name/instance
+# @param[in] channel: the pin number in specified mode (board or bcm)
+# @param[out] the gpio handle with related information of a channel's event, 
+# if such handle exist, otherwise return None
 def _get_gpio_object(chip_name, channel):
     if chip_name not in _gpio_event_list:
         return None
@@ -207,7 +236,11 @@ def _get_gpio_object(chip_name, channel):
 def _set_edge(gpio_name, edge):
     raise RuntimeError("This function is deprecated")
 
-
+# @brief Look up by chip name and channel to get the gpio object 
+#   with related information of a channel's event
+# @param[in] fd: the file descriptor of a channel/line
+# @param[out] a tuple of the GPIO chip name and the pin number in 
+# specified mode, otherwise return a tuple of None
 def _get_gpio_obj_keys(fd):
     for chip_name in _gpio_event_list:
         for pin in _gpio_event_list[chip_name]:
@@ -219,8 +252,12 @@ def _get_gpio_obj_keys(fd):
 def _get_gpio_file_object(fileno):
     raise RuntimeError("This function is deprecated")
     
-
-# Non-blocking 
+# @brief A thread that catches GPIO events in a non-blocking mode.
+#   Exit upon error (may be fd non-existance, information descrepency,
+#   unknown error)
+# @param[in] thread_name: a functional name of the thread
+# @param[in] fd: the file descriptor of a channel/line
+# @param[in] channel: the pin number in specified mode (board or bcm)
 def _edge_handler(thread_name, fd, channel):
     global _thread_running
 
@@ -255,7 +292,7 @@ def _edge_handler(thread_name, fd, channel):
             if channel != pin_num:
                 warnings.warn("Channel does not match with assigned file descriptor ", RuntimeWarning)
                 _thread_running = False
-                thread.exit()
+                break
             
             # Get the gpio object to do following updates
             gpio_obj = _get_gpio_object(chip_name, pin_num)
@@ -291,6 +328,9 @@ def _edge_handler(thread_name, fd, channel):
 
     thread.exit()
 
+# This function waits for a edge event in a blocking mode, which the user must 
+# specify the file descriptor of the chip, which channel of the chip, the event handle,
+# time for debouncing in milliseconds, the time limit to wait for the event
 def blocking_wait_for_edge(chip_fd, channel, request, bouncetime, timeout):
     try:
         fcntl.ioctl(chip_fd, cdev.GPIO_GET_LINEEVENT_IOCTL, request)
@@ -320,13 +360,19 @@ def blocking_wait_for_edge(chip_fd, channel, request, bouncetime, timeout):
 def _poll_thread():
     raise RuntimeError("This function is deprecated")
 
-def event_cleanup(gpio, gpio_name):
+# @brief clean up the event registered on the name of chip and channel
+#   Note that the event detection thread will also be removed
+# @param[in] chip_name: the GPIO chip name/instance
+# @param[in] channel: the pin number in specified mode (board or bcm)
+def event_cleanup(chip_name, channel):
     global _epoll_fd_thread, _epoll_fd_blocking, _thread_running
 
+    #remove all the event being detected in the event list
     _thread_running = False
-    if gpio in _gpio_event_list:
-        remove_edge_detect(gpio, gpio_name)
+    if chip_name in _gpio_event_list:
+        remove_edge_detect(chip_name, channel)
 
+    #unregister the device being polled
     if _gpio_event_list == {}:
         if _epoll_fd_blocking is not None:
             _epoll_fd_blocking.close()

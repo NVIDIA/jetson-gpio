@@ -465,6 +465,15 @@ jetson_gpio_data = {
 
 
 class ChannelInfo(object):
+    # @channel the pin number in specified mode (board or bcm)
+    # @chip_fd the file descriptor of the chip 
+    # @line_handle the file descriptor of the line
+    # @line_offset Linux GPIO pin number (line offset inside chip, not global)
+    # @direction the direction of a pin is configured (in or out)
+    # @edge rising and/or falling edge being monitored
+    # @consumer consumer label
+    # @gpio_name Linux exported GPIO name
+    # @gpio_chip GPIO chip name/instance
     def __init__(self, channel, line_offset, gpio_name, gpio_chip, pwm_chip_dir, pwm_id):
         self.channel = channel
         self.chip_fd = None
@@ -589,7 +598,10 @@ def get_model():
 
     raise Exception('Could not determine Jetson model')
 
-
+# @brief Retrieve all the data before connecting to any ports
+# @param[out] model: model number of an Jetson platform
+# @param[out] jetson_info:
+# @param[out] channel_info: the information related to pin/line, in
 def get_data():
     model = get_model()
 
