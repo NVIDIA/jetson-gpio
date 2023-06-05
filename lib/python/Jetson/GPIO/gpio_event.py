@@ -168,11 +168,18 @@ def remove_edge_detect(chip_name, channel):
     del _gpio_event_list[chip_name][channel]
     _mutex.release()
 
-
+# @brief Add a callback function for an event
+#   Note that if the function does not exist or the event has not been set up, warning
+#   will be shown, ignoring the action
+# @param[in] chip_name: the GPIO chip name/instance
+# @param[in] channel: the pin number in specified mode (board or bcm)
+# @param[in] callback: a callback function
 def add_edge_callback(chip_name, channel, callback):
     if chip_name not in _gpio_event_list or channel not in _gpio_event_list[chip_name]:
+        warnings.warn("Event not found", RuntimeWarning)
         return 
     if not _gpio_event_list[chip_name][channel].thread_added:
+        warnings.warn("Please add the event before adding callback", RuntimeWarning)
         return 
 
     _gpio_event_list[chip_name][channel].callbacks.append(callback)
