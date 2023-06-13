@@ -32,6 +32,8 @@ respectively.
 
 # Installation
 
+These are the way to install Jetson.GPIO python modules on your system. For the samples applications, please clone this repository to your system. 
+
 ## Using pip
 
 The easiest way to install this library is using `pip`:
