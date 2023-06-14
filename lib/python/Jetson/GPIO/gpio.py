@@ -261,7 +261,6 @@ def _cleanup_one(ch_info):
     # clean up line
     if ch_info.line_handle:
         gpio_cdev.close_line(ch_info.line_handle)
-
         ch_info.line_handle = None
 
 
@@ -348,7 +347,6 @@ def setup(channels, direction, pull_up_down=_Default(PUD_OFF), initial=None, con
         raise ValueError("Invalid value for pull_up_down; should be one of"
                          "PUD_OFF, PUD_UP or PUD_DOWN")
 
-    #WIP this is will close the fd
     for ch_info in ch_infos:
         if ch_info.channel in _channel_configuration:
             _cleanup_one(ch_info)
@@ -384,7 +382,6 @@ def cleanup(channel=None):
 
     ch_infos = _channels_to_infos(channel)
     for ch_info in ch_infos:
-        gpio_cdev.close_chip(ch_info.chip_fd)
         if ch_info.channel in _channel_configuration:
             _cleanup_one(ch_info)
     

@@ -186,6 +186,7 @@ def remove_edge_detect(chip_name, channel, timeout=0.3):
 
     if _epoll_fd_thread is not None:
         _epoll_fd_thread.unregister(_gpio_event_list[chip_name][channel].value_fd)
+        print("UNRegistering fd: ", _gpio_event_list[chip_name][channel].value_fd)
 
     _mutex.acquire()
     del _gpio_event_list[chip_name][channel]
@@ -365,6 +366,16 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
             if gpio_obj is None:
                 raise RuntimeError("GPIO object does not exists")
 
+            # # ignore first epoll trigger
+            # if gpio_obj.initial_thread:
+            #     gpio_obj.initial_thread = False
+            #     _gpio_event_list[chip_name][pin_num] = gpio_obj
+
+            #     continue
+            event_count += 1
+
+            if(event_count >= 3):
+                print("################ Three event detected ################")
             # debounce the input event for the specified bouncetime
             time = datetime.now()
             time = time.second * 1E6 + time.microsecond

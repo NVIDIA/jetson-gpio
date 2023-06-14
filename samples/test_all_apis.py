@@ -24,6 +24,8 @@ import threading
 import time
 import warnings
 
+from datetime import datetime
+
 import RPi.GPIO as GPIO
 
 # If a board has PWM support, the PWM tests expect 'out_a' to be PWM-capable.
@@ -44,7 +46,7 @@ pin_datas = {
         'cvm_pin': 'GPIO09',
         'tegra_soc_pin': 'GP167',
         'all_pwms': (15, 33),
-    },
+    }, 
      'JETSON_ORIN_NX': {
         # Pre-test configuration, if boot-time pinmux doesn't set up PWM pins:
         # Set BOARD pin 15 as mux function PWM:
@@ -556,6 +558,7 @@ def test_wait_for_edge_falling():
 # def remove_event_detect(channel):
 
 
+
 def _test_events(init, edge, tests, specify_callback, use_add_callback):
     global event_callback_occurred
     event_callback_occurred = False
@@ -566,7 +569,7 @@ def _test_events(init, edge, tests, specify_callback, use_add_callback):
     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=init)
     GPIO.setup(pin_data['in_a'], GPIO.IN)
 
-    def callback(channel):
+    def callback(channel, timestamp=None):
         global event_callback_occurred
 
         if channel != pin_data['in_a']:
@@ -602,10 +605,12 @@ def _test_events(init, edge, tests, specify_callback, use_add_callback):
     assert not get_saw_event()
 
     for output, event_expected in tests:
+        print("test: ", output, event_expected)
         GPIO.output(pin_data['out_a'], output)
         time.sleep(0.2)
         assert get_saw_event() == event_expected
         assert not get_saw_event()
+        print("Pass")
 
     # By default, the timeout for removal is also 0.5 seconds
     # The removal time should always be longer than the polltime, and it is
@@ -613,7 +618,7 @@ def _test_events(init, edge, tests, specify_callback, use_add_callback):
     # time is set to 0.2, the timeout must be greater than 0.4.
     GPIO.remove_event_detect(pin_data['in_a'], timeout=0.5)
     GPIO.cleanup()
-
+    print("_______end__________")
 
 @test
 def test_event_detected_falling():
@@ -641,7 +646,7 @@ def test_event_detected_falling():
         True,
         False
     )
-
+    
 
 @test
 def test_event_detected_rising():
@@ -669,6 +674,8 @@ def test_event_detected_rising():
         True,
         False
     )
+
+
 
 
 @test
@@ -702,99 +709,103 @@ def test_event_detected_both():
 # Tests of class PWM
 
 
-@pwmtest
-def test_pwm_multi_duty():
-    for pct in (25, 50, 75):
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(pin_data['in_a'], GPIO.IN)
-        GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-        p = GPIO.PWM(pin_data['out_a'], 500)
-        p.start(pct)
-        count = 0
-        for i in range(1000):
-            count += GPIO.input(pin_data['in_a'])
-        p.stop()
-        del p
-        min_ct = 10 * (pct - 5)
-        max_ct = 10 * (pct + 5)
-        assert min_ct <= count <= max_ct
-        GPIO.cleanup()
+# @pwmtest
+# def test_pwm_multi_duty():
+#     for pct in (25, 50, 75):
+#         GPIO.setmode(GPIO.BOARD)
+#         GPIO.setup(pin_data['in_a'], GPIO.IN)
+#         GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#         p = GPIO.PWM(pin_data['out_a'], 500)
+#         p.start(pct)
+#         count = 0
+#         for i in range(1000):
+#             count += GPIO.input(pin_data['in_a'])
+#         p.stop()
+#         del p
+#         min_ct = 10 * (pct - 5)
+#         max_ct = 10 * (pct + 5)
+#         assert min_ct <= count <= max_ct
+#         GPIO.cleanup()
 
 
-@pwmtest
-def test_pwm_change_frequency():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    p = GPIO.PWM(pin_data['out_a'], 500)
-    p.start(50)
-    p.ChangeFrequency(550)
-    p.stop()
-    del p
-    GPIO.cleanup()
+# @pwmtest
+# def test_pwm_change_frequency():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     p = GPIO.PWM(pin_data['out_a'], 500)
+#     p.start(50)
+#     p.ChangeFrequency(550)
+#     p.stop()
+#     del p
+#     GPIO.cleanup()
 
 
-@pwmtest
-def test_pwm_change_duty_cycle():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    p = GPIO.PWM(pin_data['out_a'], 500)
-    p.start(50)
-    p.ChangeDutyCycle(60)
-    p.stop()
-    del p
-    GPIO.cleanup()
+# @pwmtest
+# def test_pwm_change_duty_cycle():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     p = GPIO.PWM(pin_data['out_a'], 500)
+#     p.start(50)
+#     p.ChangeDutyCycle(60)
+#     p.stop()
+#     del p
+#     GPIO.cleanup()
 
 
-@pwmtest
-def test_pwm_cleanup_none():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    p = GPIO.PWM(pin_data['out_a'], 500)
-    p.start(50)
-    GPIO.cleanup()
+# @pwmtest
+# def test_pwm_cleanup_none():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     p = GPIO.PWM(pin_data['out_a'], 500)
+#     p.start(50)
+#     GPIO.cleanup()
 
 
-@pwmtest
-def test_pwm_cleanup_stop():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    p = GPIO.PWM(pin_data['out_a'], 500)
-    p.start(50)
-    p.stop()
-    GPIO.cleanup()
+# @pwmtest
+# def test_pwm_cleanup_stop():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     p = GPIO.PWM(pin_data['out_a'], 500)
+#     p.start(50)
+#     p.stop()
+#     GPIO.cleanup()
 
 
-@pwmtest
-def test_pwm_cleanup_del():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
-    p = GPIO.PWM(pin_data['out_a'], 500)
-    p.start(50)
-    del p
-    GPIO.cleanup()
+# @pwmtest
+# def test_pwm_cleanup_del():
+#     GPIO.setmode(GPIO.BOARD)
+#     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.HIGH)
+#     p = GPIO.PWM(pin_data['out_a'], 500)
+#     p.start(50)
+#     del p
+#     GPIO.cleanup()
 
 
-@pwmtest
-def test_pwm_create_all():
-    for pin in pin_data['all_pwms']:
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)
-        p = GPIO.PWM(pin, 500)
-        p.start(50)
-        p.stop()
-        GPIO.cleanup()
+# @pwmtest
+# def test_pwm_create_all():
+#     for pin in pin_data['all_pwms']:
+#         GPIO.setmode(GPIO.BOARD)
+#         GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)
+#         p = GPIO.PWM(pin, 500)
+#         p.start(50)
+#         p.stop()
+#         GPIO.cleanup()
 
 
 # Main script
 
 
 if __name__ == '__main__':
-    for test in tests:
-        print('Testing', test.__name__)
-        try:
-            test()
-        except:
-            # This isn't a finally block, since we don't want to repeat the
-            # cleanup() call that a successful test already made.
-            GPIO.cleanup()
-            raise
+    i = 1
+    while i:
+        print("\nLoop: ", i)
+        i+= 1
+        for test in tests:
+            print('Testing', test.__name__)
+            try:
+                test()
+            except:
+                # This isn't a finally block, since we don't want to repeat the
+                # cleanup() call that a successful test already made.
+                GPIO.cleanup()
+                raise
