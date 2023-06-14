@@ -31,7 +31,6 @@
 #   1. polling for maxevents should not be specified
 #   2. Each thread should not share epoll instance
 
-
 # Python2 has module thread. Renamed to _thread in Python3
 try:
     import thread
@@ -186,7 +185,6 @@ def remove_edge_detect(chip_name, channel, timeout=0.3):
 
     if _epoll_fd_thread is not None:
         _epoll_fd_thread.unregister(_gpio_event_list[chip_name][channel].value_fd)
-        print("UNRegistering fd: ", _gpio_event_list[chip_name][channel].value_fd)
 
     _mutex.acquire()
     del _gpio_event_list[chip_name][channel]
@@ -325,13 +323,11 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
         try:
             # poll for event
             events = _epoll_fd_thread.poll(timeout=poll_timeout, maxevents=1)
-
             # Timeout without any event
             if len(events) == 0:
                 # The timeout is especially added to confirm the thread running status, so
                 # it is a design that no warning signal is shown when timeout
                 continue
-            fd = events[0][0]
 
             # Check if the returning fd is the one we are waiting for
             if fd != fileno:
@@ -350,7 +346,6 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
                 event_data.id != cdev.GPIOEVENT_REQUEST_FALLING_EDGE):
                 warnings.warn("Unknown event caught", RuntimeWarning)
                 continue
-
             _mutex.acquire()
             # check key to make sure gpio object has not been deleted
             # from main thread
@@ -366,16 +361,6 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
             if gpio_obj is None:
                 raise RuntimeError("GPIO object does not exists")
 
-            # # ignore first epoll trigger
-            # if gpio_obj.initial_thread:
-            #     gpio_obj.initial_thread = False
-            #     _gpio_event_list[chip_name][pin_num] = gpio_obj
-
-            #     continue
-            event_count += 1
-
-            if(event_count >= 3):
-                print("################ Three event detected ################")
             # debounce the input event for the specified bouncetime
             time = datetime.now()
             time = time.second * 1E6 + time.microsecond
