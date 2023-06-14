@@ -424,10 +424,11 @@ def output(channels, values):
 # Function used to add threaded event detection for a specified gpio channel.
 # Param gpio must be an integer specifying the channel, edge must be RISING,
 # FALLING or BOTH. A callback function to be called when the event is detected
-# and an integer bounctime in milliseconds can be optionally provided
+# and an integer bounctime in milliseconds can be optionally provided. A optional
+# polltime in second can be provided to indicate the max time waiting for an edge.
 # Note that one channel only allows one event, which the duplicated event will
 # be ignored.
-def add_event_detect(channel, edge, callback=None, bouncetime=None):
+def add_event_detect(channel, edge, callback=None, bouncetime=None, polltime=0.2):
     ch_info = _channel_to_info(channel, need_gpio=True)
     if (not callable(callback)) and callback is not None:
         raise TypeError("Callback Parameter must be callable")
@@ -455,7 +456,7 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
         gpio_cdev.close_line(ch_info.line_handle)
 
     request = gpio_cdev.request_event(ch_info.line_offset, edge, ch_info.consumer)
-    event.add_edge_detect(ch_info.chip_fd, ch_info.gpio_chip, channel, request, bouncetime)
+    event.add_edge_detect(ch_info.chip_fd, ch_info.gpio_chip, channel, request, bouncetime, polltime)
 
     if callback is not None:
         event.add_edge_callback(ch_info.gpio_chip, channel, lambda: callback(channel))
