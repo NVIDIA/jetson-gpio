@@ -22,7 +22,7 @@
 # @File name: gpio_event.py
 # @Date:  
 # @Last modified by:  
-# @Last Modified time: 6/13/2023
+# @Last Modified time: 6/20/2023
 # @Description: This file manages all function needed for event detection 
 # that enables users to add or remove an event in a blocking or non-blocking 
 # mode. It keeps an global event dictionary that supports looking up a   
@@ -30,6 +30,7 @@
 # @Note: Ideas for multiple channel detection
 #   1. polling for maxevents should not be specified
 #   2. Each thread should not share epoll instance
+# @Note: The first epoll event will occasionally have an edge event
             
 
 # Python2 has module thread. Renamed to _thread in Python3
