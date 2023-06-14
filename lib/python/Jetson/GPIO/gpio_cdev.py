@@ -130,7 +130,7 @@ class gpioevent_request(ctypes.Structure):
 # @id: event identifier
 class gpioevent_data(ctypes.Structure):
     _fields_ = [
-        ('lineoffset', ctypes.c_uint64),
+        ('timestamp', ctypes.c_uint64),
         ('id', ctypes.c_uint32),
     ]
 

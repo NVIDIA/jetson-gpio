@@ -69,12 +69,15 @@ HARD_PWM = 43
 model, JETSON_INFO, _channel_data_by_mode = gpio_pin_data.get_data()
 RPI_INFO = JETSON_INFO
 
-# Dictionary used as a lookup table from pin to pin info object mapping
+# Dictionary used as a lookup table for pin to its info object (_Gpios) mapping
 # key: channel, value: ChannelInfo object
 _channel_data = {}
 
 _gpio_warnings = True
 _gpio_mode = None
+
+# Dictionary used as a lookup table for pin to its configuration
+# key: channel, value: GPIO directions (IN/OUT deprecated)
 _channel_configuration = {}
 
 # Dictionary used as a lookup table from GPIO chip name to chip fd
@@ -258,7 +261,6 @@ def _cleanup_one(ch_info):
     # clean up line
     if ch_info.line_handle:
         gpio_cdev.close_line(ch_info.line_handle)
-
         ch_info.line_handle = None
 
 
@@ -346,7 +348,6 @@ def setup(channels, direction, pull_up_down=_Default(PUD_OFF), initial=None, con
         raise ValueError("Invalid value for pull_up_down; should be one of"
                          "PUD_OFF, PUD_UP or PUD_DOWN")
 
-    #WIP this is will close the fd
     for ch_info in ch_infos:
         if ch_info.channel in _channel_configuration:
             _cleanup_one(ch_info)
@@ -382,7 +383,6 @@ def cleanup(channel=None):
 
     ch_infos = _channels_to_infos(channel)
     for ch_info in ch_infos:
-        gpio_cdev.close_chip(ch_info.chip_fd)
         if ch_info.channel in _channel_configuration:
             _cleanup_one(ch_info)
     
@@ -455,7 +455,7 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
         gpio_cdev.close_line(ch_info.line_handle)
 
     request = gpio_cdev.request_event(ch_info.line_offset, edge, ch_info.consumer)
-    event.add_edge_detect(ch_info.chip_fd, ch_info.gpio_chip, channel, request, bouncetime) #wip
+    event.add_edge_detect(ch_info.chip_fd, ch_info.gpio_chip, channel, request, bouncetime)
 
     if callback is not None:
         event.add_edge_callback(ch_info.gpio_chip, channel, lambda: callback(channel))
