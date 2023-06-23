@@ -155,7 +155,6 @@ def add_edge_detect(chip_fd, chip_name, channel, request, bouncetime, poll_time)
         remove_edge_detect(chip_name, channel)
         warnings.warn("Unable to start thread", RuntimeWarning)
         return 2
-
     gpio_obj.thread_added = True
     _add_gpio_event(chip_name, channel, gpio_obj)
 
