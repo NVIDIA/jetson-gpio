@@ -247,7 +247,7 @@ def _cleanup_one(ch_info):
         _disable_pwm(ch_info)
         _unexport_pwm(ch_info)
     else:
-        event.event_cleanup(ch_info.gpio_name, ch_info.channel)
+        event.event_cleanup(ch_info.gpio_chip, ch_info.channel)
     del _channel_configuration[ch_info.channel]
     
     # clean gpio config
@@ -386,8 +386,6 @@ def cleanup(channel=None):
         if ch_info.channel in _channel_configuration:
             _cleanup_one(ch_info)
     
-    
-
 
 # Function used to return the current value of the specified channel.
 # Function returns either HIGH or LOW
@@ -461,6 +459,7 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None, polltime=0.2
     if callback is not None:
         event.add_edge_callback(ch_info.gpio_chip, channel, lambda: callback(channel))
 
+
 # Function used to remove event detection for channel
 def remove_event_detect(channel):
     ch_info = _channel_to_info(channel, need_gpio=True)
@@ -479,7 +478,6 @@ def event_detected(channel):
                            "input first")
     
     return event.edge_event_detected(ch_info.gpio_chip, channel)
-
 
 
 # Function used to add a callback function to channel, after it has been
@@ -535,7 +533,23 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
         gpio_cdev.close_line(ch_info.line_handle)
 
     request = gpio_cdev.request_event(ch_info.line_offset, edge, ch_info.consumer)
-    return event.blocking_wait_for_edge(ch_info.chip_fd, channel, request, bouncetime, timeout)
+    result = event.blocking_wait_for_edge(ch_info.chip_fd, ch_info.gpio_chip, channel, request, bouncetime, timeout)
+    
+    # If not error, result == channel. If timeout occurs while waiting,
+    # result == None. If error occurs, result == -1 means channel is
+    # registered for conflicting edge detection, result == -2 means an error
+    # occurred while registering event or polling
+    if not result:
+        return None
+    elif result == -1:
+        raise RuntimeError("Conflicting edge detection event already exists "
+                           "for this GPIO channel")
+
+    elif result == -2:
+        raise RuntimeError("Error waiting for edge")
+
+    return channel
+
 
 # Function used to check the currently set function of the channel specified.
 # Param channel must be an integers. The function returns either IN, OUT,
