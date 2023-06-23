@@ -385,8 +385,6 @@ def cleanup(channel=None):
         if ch_info.channel in _channel_configuration:
             _cleanup_one(ch_info)
     
-    
-
 
 # Function used to return the current value of the specified channel.
 # Function returns either HIGH or LOW
@@ -487,7 +485,6 @@ def event_detected(channel):
 
     return event.edge_event_detected(ch_info.gpio_chip, channel)
 
-
 # Function used to add a callback function to channel, after it has been
 # registered for events using add_event_detect()
 def add_event_callback(channel, callback):
@@ -545,7 +542,6 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
 
     request = gpio_cdev.request_event(ch_info.line_offset, edge, ch_info.consumer)
     result = event.blocking_wait_for_edge(ch_info.chip_fd, ch_info.gpio_chip, channel, request, bouncetime, timeout)
-
     # If not error, result == channel. If timeout occurs while waiting,
     # result == None. If error occurs, result == -1 means channel is
     # registered for conflicting edge detection, result == -2 means an error

@@ -173,7 +173,7 @@ def remove_edge_detect(chip_name, channel, timeout=0.3):
         return
     if channel not in _gpio_event_list[chip_name]:
         return
-
+    
     thread_id = _gpio_event_list[chip_name][channel].thread_id
     _thread_running_dict[thread_id] = False
 
@@ -319,6 +319,16 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
         except OSError as e:
             raise cdev.GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
 
+    # clean device buffer
+    precedent_events = _epoll_fd_thread.poll(timeout=0.001, maxevents=1)
+    if len(precedent_events) > 0:
+        _fd = precedent_events[0][0]
+
+        try:
+            data = os.read(_fd, ctypes.sizeof(cdev.gpioevent_data))
+        except OSError as e:
+            raise cdev.GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
+
     while _thread_running_dict[thread_id]:
         try:
             # poll for event
@@ -328,6 +338,10 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
                 # The timeout is especially added to confirm the thread running status, so
                 # it is a design that no warning signal is shown when timeout
                 continue
+
+            # Check if the returning fd is the one we are waiting for
+            if fd != fileno:
+                raise RuntimeError("File object not found after wait for GPIO %s" % channel)
 
             # Check if the returning fd is the one we are waiting for
             if fd != fileno:
