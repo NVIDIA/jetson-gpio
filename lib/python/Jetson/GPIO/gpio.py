@@ -461,9 +461,10 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None, polltime=0.2
 
 
 # Function used to remove event detection for channel
-def remove_event_detect(channel):
+# Timeout param for the max time to wait for thread (event detecion) to end
+def remove_event_detect(channel, timeout=0.3):
     ch_info = _channel_to_info(channel, need_gpio=True)
-    event.remove_edge_detect(ch_info.gpio_chip, channel)
+    event.remove_edge_detect(ch_info.gpio_chip, channel, timeout)
 
 
 # Function used to check if an event occurred on the specified channel.

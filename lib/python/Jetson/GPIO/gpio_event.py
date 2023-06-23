@@ -43,6 +43,7 @@ import warnings
 import fcntl
 import select
 import ctypes
+import time
 
 from Jetson.GPIO import gpio_cdev as cdev
 from datetime import datetime
@@ -91,6 +92,7 @@ class _Gpios:
         self.initial_thread = True
         self.thread_added = False
         self.thread_id = 0
+        self.thread_exited = False
         self.bouncetime = bouncetime
         self.callbacks = []
         self.lastcall = 0
@@ -153,16 +155,19 @@ def add_edge_detect(chip_fd, chip_name, channel, request, bouncetime, poll_time)
         warnings.warn("Unable to start thread", RuntimeWarning)
         return 2
     
-    gpio_obj.thread_added = 1
+    gpio_obj.thread_added = True
     _add_gpio_event(chip_name, channel, gpio_obj)
 
     return 0
 
 # @brief Remove an edge event detection
-#   Not only will the event be unregistered, the thread corresponds will also be cleared
+#   Not only will the event be unregistered, the thread corresponds will also be cleared.
+# Suggestion about the timeout parameter: the value should be greater than the poll_time
+# in add_edge_detect to keep it safe.
 # @param[in] chip_name: the GPIO chip name/instance
 # @param[in] channel: the pin number in specified mode (board or bcm)
-def remove_edge_detect(chip_name, channel):
+# @param[in] timeout: the maximum time to wait for the thread detecting channel to stop
+def remove_edge_detect(chip_name, channel, timeout=0.3):
     if chip_name not in _gpio_event_list:
         return
     if channel not in _gpio_event_list[chip_name]:
@@ -171,7 +176,12 @@ def remove_edge_detect(chip_name, channel):
     thread_id = _gpio_event_list[chip_name][channel].thread_id
     _thread_running_dict[thread_id] = False
 
-    # TODO: join the thread
+    if _gpio_event_list[chip_name][channel].thread_added == True:
+        time.sleep(timeout)
+
+        if _gpio_event_list[chip_name][channel].thread_exited == False:
+            warnings.warn("Timeout in waiting event detection to be removed", RuntimeWarning)
+        
 
     if _epoll_fd_thread is not None:
         _epoll_fd_thread.unregister(_gpio_event_list[chip_name][channel].value_fd)
@@ -272,6 +282,20 @@ def _get_gpio_obj_keys(fd):
 
 def _get_gpio_file_object(fileno):
     raise RuntimeError("This function is deprecated")
+
+
+def _set_thread_exit_state(fd):
+    chip_name, channel = _get_gpio_obj_keys(fd)
+    
+    # Get the gpio object to do following updates
+    gpio_obj = _get_gpio_object(chip_name, channel)
+    if gpio_obj == None:
+        warnings.warn("Channel has been remove from detection before thread exits", RuntimeWarning)
+        return
+    
+    # Set state
+    _gpio_event_list[chip_name][channel].thread_exited = True
+
     
 # @brief A thread that catches GPIO events in a non-blocking mode.
 #   Exit upon error (may be fd non-existance, information descrepency,
@@ -365,6 +389,7 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
             if _mutex.locked():
                 _mutex.release()
 
+    _set_thread_exit_state(fileno)
     thread.exit()
 
 # This function waits for a edge event in a blocking mode, which the user must 
