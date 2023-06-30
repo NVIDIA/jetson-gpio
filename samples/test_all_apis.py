@@ -556,11 +556,12 @@ def test_wait_for_edge_falling():
 # def remove_event_detect(channel):
 
 
-
 def _test_events(init, edge, tests, specify_callback, use_add_callback):
     global event_callback_occurred
     event_callback_occurred = False
 
+    # This is set as 0.5 sec delay because default remove event time is 0.5
+    time.sleep(0.5)
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=init)
     GPIO.setup(pin_data['in_a'], GPIO.IN)
@@ -581,23 +582,28 @@ def _test_events(init, edge, tests, specify_callback, use_add_callback):
             return GPIO.event_detected(pin_data['in_a'])
 
     if specify_callback:
-        args = {'callback': callback}
+        args = {'callback': callback, 'polltime': 0.2}
     else:
-        args = {}
+        args = {'polltime': 0.2}
+
+    time.sleep(0.2)
+    # By default, the poll time is 0.2 seconds, too
     GPIO.add_event_detect(pin_data['in_a'], edge, **args)
     if use_add_callback:
         GPIO.add_event_callback(pin_data['in_a'], callback)
 
-    time.sleep(0.1)
+    # We should wait until the thread is up
+    time.sleep(1)
     assert not get_saw_event()
 
     for output, event_expected in tests:
         GPIO.output(pin_data['out_a'], output)
-        time.sleep(0.1)
+        time.sleep(0.2)
         assert get_saw_event() == event_expected
         assert not get_saw_event()
 
-    GPIO.remove_event_detect(pin_data['in_a'])
+    # By default, the timeout to remove is 0.5 seconds, too
+    GPIO.remove_event_detect(pin_data['in_a'], timeout=0.5)
     GPIO.cleanup()
 
 
@@ -627,7 +633,7 @@ def test_event_detected_falling():
         True,
         False
     )
-    
+
 
 @test
 def test_event_detected_rising():
@@ -655,8 +661,6 @@ def test_event_detected_rising():
         True,
         False
     )
-
-
 
 
 @test
