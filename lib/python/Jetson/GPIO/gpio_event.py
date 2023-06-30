@@ -172,7 +172,7 @@ def remove_edge_detect(chip_name, channel, timeout=0.3):
         return
     if channel not in _gpio_event_list[chip_name]:
         return
-    
+
     thread_id = _gpio_event_list[chip_name][channel].thread_id
     _thread_running_dict[thread_id] = False
 
@@ -319,7 +319,8 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
             raise cdev.GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
 
     # clean device buffer
-    precedent_events = _epoll_fd_thread.poll(timeout=0.001, maxevents=1)
+    # The timeout should be longer than time between the events
+    precedent_events = _epoll_fd_thread.poll(timeout=0.5, maxevents=1)
     if len(precedent_events) > 0:
         _fd = precedent_events[0][0]
 
@@ -435,7 +436,6 @@ def blocking_wait_for_edge(chip_fd, chip_name, channel, request, bouncetime, tim
         if (event_data.id != cdev.GPIOEVENT_REQUEST_RISING_EDGE and
             event_data.id != cdev.GPIOEVENT_REQUEST_FALLING_EDGE):
             warnings.warn("Unknown event caught", RuntimeWarning)
-
             return -2
 
         return int(ret != [])

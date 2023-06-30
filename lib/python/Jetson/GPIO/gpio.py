@@ -469,7 +469,7 @@ def remove_event_detect(channel, timeout=0.5):
 
 # Function used to remove event detection for channel
 # Timeout param for the max time to wait for thread (event detecion) to end
-def remove_event_detect(channel, timeout=0.3):
+def remove_event_detect(channel, timeout=0.5):
     ch_info = _channel_to_info(channel, need_gpio=True)
     event.remove_edge_detect(ch_info.gpio_chip, channel, timeout)
 

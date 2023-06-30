@@ -556,7 +556,6 @@ def test_wait_for_edge_falling():
 # def remove_event_detect(channel):
 
 
-
 def _test_events(init, edge, tests, specify_callback, use_add_callback):
     global event_callback_occurred
     event_callback_occurred = False
@@ -641,7 +640,7 @@ def test_event_detected_falling():
         True,
         False
     )
-    
+
 
 @test
 def test_event_detected_rising():
@@ -669,8 +668,6 @@ def test_event_detected_rising():
         True,
         False
     )
-
-
 
 
 @test
