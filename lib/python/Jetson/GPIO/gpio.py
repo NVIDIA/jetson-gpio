@@ -238,7 +238,7 @@ def _disable_pwm(ch_info):
     with open(_pwm_enable_path(ch_info), 'w') as f:
         f.write("0")
 
-# Clean up all resources taken by a channel, 
+# Clean up all resources taken by a channel,
 # including pwm, chip and lines
 def _cleanup_one(ch_info):
     #clean up pwm config
@@ -249,7 +249,7 @@ def _cleanup_one(ch_info):
     else:
         event.event_cleanup(ch_info.gpio_chip, ch_info.channel)
     del _channel_configuration[ch_info.channel]
-    
+
     # clean gpio config
     # clean up chip
     if ch_info.chip_fd:
@@ -269,7 +269,7 @@ def _cleanup_all():
 
     for channel in list(_channel_configuration.keys()):
         ch_info = _channel_to_info(channel)
-        
+
         _cleanup_one(ch_info)
 
     _gpio_mode = None
@@ -385,7 +385,7 @@ def cleanup(channel=None):
     for ch_info in ch_infos:
         if ch_info.channel in _channel_configuration:
             _cleanup_one(ch_info)
-    
+
 
 # Function used to return the current value of the specified channel.
 # Function returns either HIGH or LOW
@@ -472,12 +472,12 @@ def remove_event_detect(channel, timeout=0.5):
 # This function return True or False
 def event_detected(channel):
     ch_info = _channel_to_info(channel, need_gpio=True)
-    
+
     # channel must be setup as input
     if _app_channel_configuration(ch_info) != IN:
         raise RuntimeError("You must setup() the GPIO channel as an "
                            "input first")
-    
+
     return event.edge_event_detected(ch_info.gpio_chip, channel)
 
 
@@ -487,16 +487,19 @@ def add_event_callback(channel, callback):
     ch_info = _channel_to_info(channel, need_gpio=True)
     if not callable(callback):
         raise TypeError("Parameter must be callable")
-    
+
     if _app_channel_configuration(ch_info) != IN:
         raise RuntimeError("You must setup() the GPIO channel as an "
                            "input first")
-    
+
     if not event.gpio_event_added(ch_info.gpio_chip, channel):
         raise RuntimeError("Add event detection using add_event_detect first "
                            "before adding a callback")
-    
+
     event.add_edge_callback(ch_info.gpio_chip, channel, lambda: callback(channel))
+
+    # We should wait until the thread is up, which the device buffer cleaning takes time
+    time.sleep(1)
 
 # Function used to wait for a edge event in blocking mode, it is also one-shoot.
 def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
@@ -535,7 +538,7 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
 
     request = gpio_cdev.request_event(ch_info.line_offset, edge, ch_info.consumer)
     result = event.blocking_wait_for_edge(ch_info.chip_fd, ch_info.gpio_chip, channel, request, bouncetime, timeout)
-    
+
     # If not error, result == channel. If timeout occurs while waiting,
     # result == None. If error occurs, result == -1 means channel is
     # registered for conflicting edge detection, result == -2 means an error

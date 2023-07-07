@@ -592,8 +592,6 @@ def _test_events(init, edge, tests, specify_callback, use_add_callback):
     if use_add_callback:
         GPIO.add_event_callback(pin_data['in_a'], callback)
 
-    # We should wait until the thread is up
-    time.sleep(1)
     assert not get_saw_event()
 
     for output, event_expected in tests:
