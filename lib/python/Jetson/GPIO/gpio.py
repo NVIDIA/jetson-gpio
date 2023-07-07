@@ -459,6 +459,8 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None, polltime=0.2
     if callback is not None:
         event.add_edge_callback(ch_info.gpio_chip, channel, lambda: callback(channel))
 
+    # We should wait until the thread is up, which the device buffer cleaning takes time
+    time.sleep(1)
 
 # Function used to remove event detection for channel
 # Timeout param for the max time to wait for thread (event detecion) to end
