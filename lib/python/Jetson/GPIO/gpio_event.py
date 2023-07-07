@@ -360,6 +360,10 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
                 event_data.id != cdev.GPIOEVENT_REQUEST_FALLING_EDGE):
                 warnings.warn("Unknown event caught", RuntimeWarning)
                 continue
+<<<<<<< HEAD
+=======
+
+>>>>>>> Update README and move critical wait into the API
             _mutex.acquire()
             # check key to make sure gpio object has not been deleted
             # from main thread
