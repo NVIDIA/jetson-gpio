@@ -365,9 +365,13 @@ multiple events in to a single one, a debounce time can be optionally set:
 GPIO.add_event_detect(channel, GPIO.RISING, callback=callback_fn,
 bouncetime=200)
 ```
-The thread running in the background will be idle waiting
-for an event until timeout, which can be optionally set as
-the following. The default polling timeout is 0.2 sec.
+The thread running in the background will be idle waiting for an event until
+timeout, which can be optionally set as the following. The default polling
+timeout is 0.2 sec. When the poll time times out, the thread will wake up and
+check the thread status. If the thread is in the running state, it will go back
+to the idle state waiting for another event, otherwise, the thread will exit
+(event detection removal). This process will go on until the thread is in the
+exit state.
 
 ```python
 # polltime set in seconds

@@ -586,8 +586,14 @@ def _test_events(init, edge, tests, specify_callback, use_add_callback):
     else:
         args = {'polltime': 0.2}
 
+    # After every pin state change, it is suggested to leave a time for the
+    # pin to setup itself. Here, we are using 0.2 seconds to make sure the pin
+    # state is stabilize. (Same reason as the following wait time after setting
+    # the output pin)
     time.sleep(0.2)
-    # By default, the poll time is 0.2 seconds, too
+    # By default, the poll time is also 0.2 seconds. the poll time should be set
+    # to a large enough number to ensure the efficiency of thread, but also small
+    # enough so that it can respond to the event removal as fast as possible.
     GPIO.add_event_detect(pin_data['in_a'], edge, **args)
     if use_add_callback:
         GPIO.add_event_callback(pin_data['in_a'], callback)
@@ -600,7 +606,10 @@ def _test_events(init, edge, tests, specify_callback, use_add_callback):
         assert get_saw_event() == event_expected
         assert not get_saw_event()
 
-    # By default, the timeout to remove is 0.5 seconds, too
+    # By default, the timeout for removal is also 0.5 seconds
+    # The removal time should always be longer than the polltime, and it is
+    # suggested to be two times greater. Thus, in this example, as the poll
+    # time is set to 0.2, the timeout must be greater than 0.4.
     GPIO.remove_event_detect(pin_data['in_a'], timeout=0.5)
     GPIO.cleanup()
 
