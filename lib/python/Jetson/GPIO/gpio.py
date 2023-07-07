@@ -384,7 +384,7 @@ def cleanup(channel=None):
     for ch_info in ch_infos:
         if ch_info.channel in _channel_configuration:
             _cleanup_one(ch_info)
-    
+
 
 # Function used to return the current value of the specified channel.
 # Function returns either HIGH or LOW
