@@ -66,7 +66,7 @@ JETSON_ORIN_NX_PIN_DEFS = [
     (137, 'PZ.07', "tegra234-gpio", 26, 7, 'SPI0_CS1', 'GP51_SPI1_CS1_N', None, None),
     (105, 'PQ.05', "tegra234-gpio", 29, 5, 'GPIO01', 'GP65', None, None),
     (106, 'PQ.06', "tegra234-gpio", 31, 6, 'GPIO11', 'GP66', None, None),
-    (41, 'PG.06', "tegra234-gpio", 32, 12, 'GPIO07', 'GP113_PWM7', None, None),
+    (41, 'PG.06', "tegra234-gpio", 32, 12, 'GPIO07', 'GP113_PWM7', '32e0000.pwm', 0),
     (43, 'PH.00', "tegra234-gpio", 33, 13, 'GPIO13', 'GP115', '32c0000.pwm', 0),
     (53, 'PI.02', "tegra234-gpio", 35, 19, 'I2S0_FS', 'GP125', None, None),
     (113, 'PR.05', "tegra234-gpio", 36, 16, 'UART1_CTS', 'GP73_UART1_CTS_N', None, None),
