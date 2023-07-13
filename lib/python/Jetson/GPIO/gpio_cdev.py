@@ -17,14 +17,17 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
+# @File name: gpio_cdev.py
+# @Date:  
+# @Last modified by:  
+# @Last Modified time: 6/6/2023
+# @Description: This file provides the interface to the GPIO controller 
+# in form of a character device. File operations such as open, close, 
+#  ioctl, etc are provided for usage to interact with the GPIO controller.
+
 import os
 import fcntl
 import ctypes
-import select
-try:
-    import thread
-except:
-    import _thread as thread
 
 GPIO_HIGH = 1
 
@@ -42,7 +45,10 @@ GPIOHANDLE_GET_LINE_VALUES_IOCTL = 0xC040B408
 GPIOHANDLE_SET_LINE_VALUES_IOCTL = 0xC040B409
 GPIO_GET_LINEEVENT_IOCTL = 0xC030B404
 
-
+# @brief the information about a GPIO chip
+# @name: the Linux kernel name of the chip
+# @label: a name for the chip
+# @lines: number of GPIO lines on this chip
 class gpiochip_info(ctypes.Structure):
     _fields_ = [
         ('name', ctypes.c_char * 32),
@@ -50,7 +56,15 @@ class gpiochip_info(ctypes.Structure):
         ('lines', ctypes.c_uint32),
     ]
 
-
+# @brief the information about a GPIO handle request
+# @lineoffsets: an array of lines, specified by offset index
+# @flags: flags for the GPIO lines (the flag applies to all)
+# @default_values: the default output value, expecting 0 or 1
+#  anything else will be interpreted as 1 
+# @consumer_label: a label for the selected GPIO line(s)
+# @lines: number of lines requested in this request
+# @fd: this field will contain a valid file handle (value that 
+# is equal or smaller than 0 means error) on success
 class gpiohandle_request(ctypes.Structure):
     _fields_ = [
         ('lineoffsets', ctypes.c_uint32 * 64),
@@ -61,13 +75,20 @@ class gpiohandle_request(ctypes.Structure):
         ('fd', ctypes.c_int),
     ]
 
-
+# @brief the information of values on a GPIO handle
+# @values: current state of a line (get), contain the desired 
+# target state (set)
 class gpiohandle_data(ctypes.Structure):
     _fields_ = [
         ('values', ctypes.c_uint8 * 64),
     ]
 
-
+# @brief the information about a GPIO line
+# @line_offset: the local offset on this GPIO device
+# @flags: flags for this line
+# @name: the name of this GPIO line
+# @consumer: a functional name for the consumer of this GPIO line as set by
+# whatever is using it
 class gpioline_info(ctypes.Structure):
      _fields_ = [
         ('line_offset', ctypes.c_uint32),
@@ -76,7 +97,10 @@ class gpioline_info(ctypes.Structure):
         ('consumer', ctypes.c_char * 32),
     ]
 
-
+# @brief the information about a change in a GPIO line's status
+# @timestamp: estimated time of status change occurrence (ns)
+# @event_type: type of event
+# @info: updated line info
 class gpioline_info_changed(ctypes.Structure):
     _fields_ = [
         ('line_info', gpioline_info),
@@ -85,7 +109,13 @@ class gpioline_info_changed(ctypes.Structure):
         ('padding', ctypes.c_uint32 * 5),
     ]
 
-
+# @brief the information about a GPIO event request
+# @lineoffset: the line to subscribe to events from in offset index 
+# @handleflags: handle flags for the GPIO line
+# @eventflags: desired flags for the GPIO event line (what edge)
+# @consumer_label: a consumer label for the selected GPIO line(s)
+# @fd: contain a valid file handle if successful, otherwise zero or 
+# negative value
 class gpioevent_request(ctypes.Structure):
     _fields_ = [
         ('lineoffset', ctypes.c_uint32),
@@ -95,10 +125,12 @@ class gpioevent_request(ctypes.Structure):
         ('fd', ctypes.c_int),
     ]
 
-
+# @brief the actual event being pushed to userspace
+# @timestamp: best estimate of event occurrence's time (ns)
+# @id: event identifier
 class gpioevent_data(ctypes.Structure):
     _fields_ = [
-        ('lineoffset', ctypes.c_uint64),
+        ('timestamp', ctypes.c_uint64),
         ('id', ctypes.c_uint32),
     ]
 
@@ -107,16 +139,21 @@ class GPIOError(IOError):
     """Base class for GPIO errors."""
     pass
 
-
+# @brief open a chip by its name
+# @param[in] gpio_chip: name of the chip
+# @param[out] the file descriptor of the chip
 def chip_open(gpio_chip):
     try:
-        chip_fd = os.open(gpio_chip, 0)
+        chip_fd = os.open(gpio_chip, os.O_RDONLY)
     except OSError as e:
         raise GPIOError(e.errno, "Opening GPIO chip: " + e.strerror)
 
     return chip_fd
 
-
+# @brief open and check the information of the chip 
+# @param[in] label: label of the chip
+# @param[in] gpio_chip: name of the chip
+# @param[out] the file descriptor of the chip
 def chip_check_info(label, gpio_device):
     chip_fd = chip_open(gpio_device)
 
@@ -128,7 +165,7 @@ def chip_check_info(label, gpio_device):
 
     if label != chip_info.label.decode():
         try:
-            os.close(chip_fd)
+            close_chip(chip_fd)
         except OSError as e:
             raise GPIOError(e.errno, "Opening GPIO chip: " + e.strerror)
 
@@ -136,7 +173,9 @@ def chip_check_info(label, gpio_device):
 
     return chip_fd
 
-
+# @brief open a chip by its label
+# @param[in] label: 
+# @param[out] the file descriptor of the chip
 def chip_open_by_label(label):
     dev = '/dev/'
     for device in os.listdir(dev):
@@ -151,7 +190,8 @@ def chip_open_by_label(label):
 
     return chip_fd
 
-
+# @brief close a chip
+# @param[in] chip_fd: the file descriptor of the chip
 def close_chip(chip_fd):
     if chip_fd is None:
         return
@@ -161,16 +201,21 @@ def close_chip(chip_fd):
     except (OSError, IOError) as e:
         pass
 
-
+# @brief open a line of a chip
+# @param[in] ch_info: ChannelInfo object of the channel desired to open
+# @param[out] the file descriptor of the line
 def open_line(ch_info, request):
+    
     try:
         fcntl.ioctl(ch_info.chip_fd, GPIO_GET_LINEHANDLE_IOCTL, request)
+        
     except (OSError, IOError) as e:
         raise GPIOError(e.errno, "Opening output line handle: " + e.strerror)
 
     ch_info.line_handle = request.fd
 
-
+# @brief close a line
+# @param[in] line_handle: the file descriptor of the line
 def close_line(line_handle):
     if line_handle is None:
         return
@@ -180,7 +225,12 @@ def close_line(line_handle):
     except OSError as e:
         raise GPIOError(e.errno, "Closing existing GPIO line: " + e.strerror)
 
-
+# @brief build a request handle struct
+# @param[in] line_offset: the offset of the line to its chip
+# @param[in] direction: the direction of the line (in or out)
+# @param[in] initial: initial value of the line
+# @param[in] consumer: the consumer label that uses the line
+# @param[out] the request handle struct
 def request_handle(line_offset, direction, initial, consumer):
     request = gpiohandle_request()
     request.lineoffsets[0] = line_offset
@@ -195,7 +245,10 @@ def request_handle(line_offset, direction, initial, consumer):
 
     return request
 
-
+# @brief build a request event struct
+# @param[in] line_offset: the offset of the line to its chip
+# @param[in] edge: event's detection edge 
+# @param[in] consumer: the consumer label that uses the line
 def request_event(line_offset, edge, consumer):
     request = gpioevent_request()
     request.lineoffset = line_offset
@@ -204,7 +257,9 @@ def request_event(line_offset, edge, consumer):
     request.consumer_label = consumer.encode()
     return request
 
-
+# @brief read the value of a line
+# @param[in] line_handle: file descriptor of the line
+# @param[out] the value of the line
 def get_value(line_handle):
     data = gpiohandle_data()
 
@@ -215,7 +270,9 @@ def get_value(line_handle):
 
     return data.values[0]
 
-
+# @brief write the value of a line
+# @param[in] line_handle: file descriptor of the line
+# @param[in] value: the value to set the line
 def set_value(line_handle, value):
     data = gpiohandle_data()
     data.values[0] = value
@@ -225,63 +282,4 @@ def set_value(line_handle, value):
     except (OSError, IOError) as e:
         raise GPIOError(e.errno, "Setting line value: " + e.strerror)
 
-
-def _edge_handler(thread_name, cb_func, fd, channel):
-    while True:
-        try:
-            data = os.read(fd, ctypes.sizeof(gpioevent_data))
-        except OSError as e:
-            raise GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
-
-        event_data = gpioevent_data.from_buffer_copy(data)
-
-        if event_data.id == GPIOEVENT_REQUEST_RISING_EDGE:
-            print("GPIOEVENT_REQUEST_RISING_EDGE")
-            cb_func(channel)
-        elif event_data.id == GPIOEVENT_REQUEST_FALLING_EDGE:
-            print("GPIOEVENT_REQUEST_FALLING_EDGE")
-            cb_func(channel)
-        else:
-            print("unknown event")
-
-
-def add_edge_detect(chip_fd, channel, request, callback, bouncetime):
-    try:
-        fcntl.ioctl(chip_fd, GPIO_GET_LINEEVENT_IOCTL, request)
-    except (OSError, IOError) as e:
-        raise GPIOError(e.errno, "Opening input line event handle: " + e.strerror)
-
-    get_value(request.fd)
-
-    try:
-        thread.start_new_thread(_edge_handler, ("edge_handler_thread", callback, request.fd, channel))
-    except:
-        print("Error: unable to start thread")
-
-
-def blocking_wait_for_edge(chip_fd, channel, request, bouncetime, timeout):
-    try:
-        fcntl.ioctl(chip_fd, GPIO_GET_LINEEVENT_IOCTL, request)
-    except (OSError, IOError) as e:
-        raise GPIOError(e.errno, "Opening input line event handle: " + e.strerror)
-
-    get_value(request.fd)
-
-    ret = select.select([request.fd], [], [], timeout)
-    if ret[0] == [request.fd]:
-        try:
-            data = os.read(request.fd, ctypes.sizeof(gpioevent_data))
-        except OSError as e:
-            raise GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
-
-        event_data = gpioevent_data.from_buffer_copy(data)
-
-        if event_data.id == GPIOEVENT_REQUEST_RISING_EDGE:
-            print("GPIOEVENT_REQUEST_RISING_EDGE")
-        elif event_data.id == GPIOEVENT_REQUEST_FALLING_EDGE:
-            print("GPIOEVENT_REQUEST_FALLING_EDGE")
-        else:
-            print("unknown event")
-        return channel
-    return None
 

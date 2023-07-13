@@ -31,7 +31,8 @@ def main():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(pin, GPIO.IN)
 
-    GPIO.add_event_detect(pin, GPIO.FALLING, callback=on_falling, bouncetime=300)
+    # By default, the poll time is 0.2 seconds, too
+    GPIO.add_event_detect(pin, GPIO.FALLING, callback=on_falling, bouncetime=300, polltime=0.2)
     print("Starting demo now! Press CTRL+C to exit")
     try:
         while True:

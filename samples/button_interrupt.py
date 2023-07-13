@@ -46,7 +46,8 @@ def main():
     GPIO.output(led_pin_1, GPIO.LOW)
     GPIO.output(led_pin_2, GPIO.LOW)
 
-    GPIO.add_event_detect(but_pin, GPIO.FALLING, callback=blink, bouncetime=10)
+    # By default, the poll time is 0.2 seconds, too
+    GPIO.add_event_detect(but_pin, GPIO.FALLING, callback=blink, bouncetime=10, polltime=0.2)
     print("Starting demo now! Press CTRL+C to exit")
     try:
         while True:

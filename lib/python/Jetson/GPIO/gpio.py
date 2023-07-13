@@ -69,12 +69,18 @@ HARD_PWM = 43
 model, JETSON_INFO, _channel_data_by_mode = gpio_pin_data.get_data()
 RPI_INFO = JETSON_INFO
 
-# Dictionary objects used as lookup tables for pin to linux gpio mapping
+# Dictionary used as a lookup table for pin to its info object (_Gpios) mapping
+# key: channel, value: ChannelInfo object
 _channel_data = {}
 
 _gpio_warnings = True
 _gpio_mode = None
+
+# Dictionary used as a lookup table for pin to its configuration
+# key: channel, value: GPIO directions (IN/OUT deprecated)
 _channel_configuration = {}
+
+# Dictionary used as a lookup table from GPIO chip name to chip fd
 _chip_fd = {}
 
 
@@ -232,15 +238,27 @@ def _disable_pwm(ch_info):
     with open(_pwm_enable_path(ch_info), 'w') as f:
         f.write("0")
 
-
+# Clean up all resources taken by a channel,
+# including pwm, chip and lines
 def _cleanup_one(ch_info):
     #clean up pwm config
     app_cfg = _channel_configuration[ch_info.channel]
     if app_cfg == HARD_PWM:
         _disable_pwm(ch_info)
         _unexport_pwm(ch_info)
+    else:
+        event.event_cleanup(ch_info.gpio_chip, ch_info.channel)
     del _channel_configuration[ch_info.channel]
+
     # clean gpio config
+    # clean up chip
+    if ch_info.chip_fd:
+        gpio_cdev.close_chip(ch_info.chip_fd)
+        ch_info.chip_fd = None
+        if ch_info.gpio_chip in _chip_fd:
+            del _chip_fd[ch_info.gpio_chip]
+
+    # clean up line
     if ch_info.line_handle:
         gpio_cdev.close_line(ch_info.line_handle)
         ch_info.line_handle = None
@@ -251,6 +269,7 @@ def _cleanup_all():
 
     for channel in list(_channel_configuration.keys()):
         ch_info = _channel_to_info(channel)
+
         _cleanup_one(ch_info)
 
     _gpio_mode = None
@@ -403,8 +422,11 @@ def output(channels, values):
 # Function used to add threaded event detection for a specified gpio channel.
 # Param gpio must be an integer specifying the channel, edge must be RISING,
 # FALLING or BOTH. A callback function to be called when the event is detected
-# and an integer bounctime in milliseconds can be optionally provided
-def add_event_detect(channel, edge, callback=None, bouncetime=None):
+# and an integer bounctime in milliseconds can be optionally provided. A optional
+# polltime in second can be provided to indicate the max time waiting for an edge.
+# Note that one channel only allows one event, which the duplicated event will
+# be ignored.
+def add_event_detect(channel, edge, callback=None, bouncetime=None, polltime=0.2):
     ch_info = _channel_to_info(channel, need_gpio=True)
     if (not callable(callback)) and callback is not None:
         raise TypeError("Callback Parameter must be callable")
@@ -432,22 +454,56 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
         gpio_cdev.close_line(ch_info.line_handle)
 
     request = gpio_cdev.request_event(ch_info.line_offset, edge, ch_info.consumer)
-    gpio_cdev.add_edge_detect(ch_info.chip_fd, channel, request, callback, bouncetime)
+    event.add_edge_detect(ch_info.chip_fd, ch_info.gpio_chip, channel, request, bouncetime, polltime)
+
+    if callback is not None:
+        event.add_edge_callback(ch_info.gpio_chip, channel, lambda: callback(channel))
+
+    # We should wait until the thread is up, which the device buffer cleaning takes time
+    time.sleep(1)
+
+# Function used to remove event detection for channel
+# Timeout param for the max time to wait for thread (event detecion) to end
+def remove_event_detect(channel, timeout=0.5):
+    ch_info = _channel_to_info(channel, need_gpio=True)
+    event.remove_edge_detect(ch_info.gpio_chip, channel, timeout)
 
 
 # Function used to check if an event occurred on the specified channel.
 # Param channel must be an integer.
 # This function return True or False
 def event_detected(channel):
-    raise RuntimeError("This function is deprecated")
+    ch_info = _channel_to_info(channel, need_gpio=True)
 
+    # channel must be setup as input
+    if _app_channel_configuration(ch_info) != IN:
+        raise RuntimeError("You must setup() the GPIO channel as an "
+                           "input first")
+
+    return event.edge_event_detected(ch_info.gpio_chip, channel)
 
 
 # Function used to add a callback function to channel, after it has been
 # registered for events using add_event_detect()
 def add_event_callback(channel, callback):
-    raise RuntimeError("This function is deprecated. Please use add_event_detect")
+    ch_info = _channel_to_info(channel, need_gpio=True)
+    if not callable(callback):
+        raise TypeError("Parameter must be callable")
 
+    if _app_channel_configuration(ch_info) != IN:
+        raise RuntimeError("You must setup() the GPIO channel as an "
+                           "input first")
+
+    if not event.gpio_event_added(ch_info.gpio_chip, channel):
+        raise RuntimeError("Add event detection using add_event_detect first "
+                           "before adding a callback")
+
+    event.add_edge_callback(ch_info.gpio_chip, channel, lambda: callback(channel))
+
+    # We should wait until the thread is up, which the device buffer cleaning takes time
+    time.sleep(1)
+
+# Function used to wait for a edge event in blocking mode, it is also one-shoot.
 def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
     ch_info = _channel_to_info(channel, need_gpio=True)
 
@@ -483,7 +539,23 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
         gpio_cdev.close_line(ch_info.line_handle)
 
     request = gpio_cdev.request_event(ch_info.line_offset, edge, ch_info.consumer)
-    return gpio_cdev.blocking_wait_for_edge(ch_info.chip_fd, channel, request, bouncetime, timeout)
+    result = event.blocking_wait_for_edge(ch_info.chip_fd, ch_info.gpio_chip, channel, request, bouncetime, timeout)
+
+    # If not error, result == channel. If timeout occurs while waiting,
+    # result == None. If error occurs, result == -1 means channel is
+    # registered for conflicting edge detection, result == -2 means an error
+    # occurred while registering event or polling
+    if not result:
+        return None
+    elif result == -1:
+        raise RuntimeError("Conflicting edge detection event already exists "
+                           "for this GPIO channel")
+
+    elif result == -2:
+        raise RuntimeError("Error waiting for edge")
+
+    return channel
+
 
 # Function used to check the currently set function of the channel specified.
 # Param channel must be an integers. The function returns either IN, OUT,
