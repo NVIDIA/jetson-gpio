@@ -338,6 +338,7 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
                 # The timeout is especially added to confirm the thread running status, so
                 # it is a design that no warning signal is shown when timeout
                 continue
+            fd = events[0][0]
 
             # Check if the returning fd is the one we are waiting for
             if fd != fileno:
@@ -360,10 +361,6 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
                 event_data.id != cdev.GPIOEVENT_REQUEST_FALLING_EDGE):
                 warnings.warn("Unknown event caught", RuntimeWarning)
                 continue
-<<<<<<< HEAD
-=======
-
->>>>>>> Update README and move critical wait into the API
             _mutex.acquire()
             # check key to make sure gpio object has not been deleted
             # from main thread
