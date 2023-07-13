@@ -697,9 +697,117 @@ def test_event_detected_both():
         True
     )
 
+# Tests of multiple:
+# def add_event_callback(channel, callback):
+
+def _test_callbacks(init, edge, tests, specify_callback, use_add_callback):
+    global event_callback_occurred
+    global event_callback_occurred_2
+    event_callback_occurred = False
+    event_callback_occurred_2 = False
+
+    # This is set as 0.5 sec delay because default remove event time is 0.5
+    time.sleep(0.5)
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=init)
+    GPIO.setup(pin_data['in_a'], GPIO.IN)
+
+    def callback(channel):
+        global event_callback_occurred
+        if channel != pin_data['in_a']:
+            return
+        event_callback_occurred = True
+
+    def callback2(channel):
+        global event_callback_occurred_2
+        if channel != pin_data['in_a']:
+            return
+        event_callback_occurred_2 = True
+
+    def get_saw_event():
+        global event_callback_occurred
+        global event_callback_occurred_2
+        if specify_callback:
+            val = event_callback_occurred
+            event_callback_occurred = False
+            return val
+        elif use_add_callback:
+            val = event_callback_occurred and event_callback_occurred_2
+            event_callback_occurred = False
+            event_callback_occurred_2 = False
+            return val
+        else:
+            return GPIO.event_detected(pin_data['in_a'])
+
+    if specify_callback:
+        args = {'callback': callback, 'polltime': 0.2}
+    else:
+        args = {'polltime': 0.2}
+
+    time.sleep(0.2)
+
+    GPIO.add_event_detect(pin_data['in_a'], edge, **args)
+    if use_add_callback:
+        # adding double callback functions
+        GPIO.add_event_callback(pin_data['in_a'], callback)
+        GPIO.add_event_callback(pin_data['in_a'], callback2)
+
+    assert not get_saw_event()
+
+    for output, event_expected in tests:
+        GPIO.output(pin_data['out_a'], output)
+        time.sleep(0.2)
+        assert get_saw_event() == event_expected
+        assert not get_saw_event()
+
+    GPIO.remove_event_detect(pin_data['in_a'], timeout=0.5)
+    GPIO.cleanup()
+
+
+@test
+def test_event_callbacks():
+    _test_callbacks(
+        GPIO.HIGH,
+        GPIO.FALLING,
+        (
+            (GPIO.LOW, True),
+            (GPIO.HIGH, False),
+            (GPIO.LOW, True),
+            (GPIO.HIGH, False),
+        ),
+        False,
+        True
+    )
+    _test_callbacks(
+        GPIO.LOW,
+        GPIO.FALLING,
+        (
+            (GPIO.HIGH, False),
+            (GPIO.LOW, True),
+            (GPIO.HIGH, False),
+            (GPIO.LOW, True),
+        ),
+        True,
+        False
+    )
+    _test_callbacks(
+        GPIO.LOW,
+        GPIO.FALLING,
+        (
+            (GPIO.HIGH, False),
+            (GPIO.LOW, True),
+            (GPIO.HIGH, False),
+            (GPIO.LOW, True),
+        ),
+        False,
+        True
+    )
+
+# Tests of multiple events at a time:
+
 def _test_multi_events(init_a, edge_a, tests_a, init_b, edge_b, tests_b, specify_callback):
     event_dict = { 'series_a': {'in_pin_name': 'in_a',
-                                'in_pin_name': 'out_a',
+                                'out_pin_name': 'out_a',
                                 'event_callback_occurred': False,
                                 'init': init_a,
                                 'edge': edge_a,
@@ -718,16 +826,17 @@ def _test_multi_events(init_a, edge_a, tests_a, init_b, edge_b, tests_b, specify
             input_pin_name = event_dict[pin_series]['in_pin_name']
 
             if channel == pin_data[input_pin_name]:
-                event_dict[input_pin_name]['event_callback_occurred'] = True
+                event_dict[pin_series]['event_callback_occurred'] = True
 
                 return
 
-    def get_saw_event(pin_name):
+    def get_saw_event(series_name):
         if specify_callback:
-            val = event_dict[pin_name]['event_callback_occurred']
-            event_dict[pin_name]['event_callback_occurred'] = False
+            val = event_dict[series_name]['event_callback_occurred']
+            event_dict[series_name]['event_callback_occurred'] = False
             return val
         else:
+            pin_name = event_dict[series_name]['in_pin_name']
             return GPIO.event_detected(pin_data[pin_name])
 
     # setup
@@ -737,8 +846,8 @@ def _test_multi_events(init_a, edge_a, tests_a, init_b, edge_b, tests_b, specify
         input_pin_name = event_dict[pin_series]['in_pin_name']
         output_pin_name = event_dict[pin_series]['out_pin_name']
 
-        GPIO.setup(pin_data[input_pin_name], GPIO.OUT, initial=event_dict[pin_series]['init'])
-        GPIO.setup(pin_data[output_pin_name], GPIO.IN)
+        GPIO.setup(pin_data[output_pin_name], GPIO.OUT, initial=event_dict[pin_series]['init'])
+        GPIO.setup(pin_data[input_pin_name], GPIO.IN)
 
         if specify_callback:
             args = {'callback': callback, 'polltime': 0.2}
@@ -748,7 +857,7 @@ def _test_multi_events(init_a, edge_a, tests_a, init_b, edge_b, tests_b, specify
         time.sleep(0.2)
         GPIO.add_event_detect(pin_data[input_pin_name], event_dict[pin_series]['edge'], **args)
 
-        assert not get_saw_event(input_pin_name)
+        assert not get_saw_event(pin_series)
 
     # test edges
     index=0
@@ -762,8 +871,8 @@ def _test_multi_events(init_a, edge_a, tests_a, init_b, edge_b, tests_b, specify
 
             GPIO.output(pin_data[output_pin_name], output)
             time.sleep(0.2)
-            assert get_saw_event(input_pin_name) == event_expected
-            assert not get_saw_event(input_pin_name)
+            assert get_saw_event(pin_series) == event_expected
+            assert not get_saw_event(pin_series)
 
         index += 1
 
@@ -775,7 +884,7 @@ def _test_multi_events(init_a, edge_a, tests_a, init_b, edge_b, tests_b, specify
 
 
 @test
-def test_multi_event_detected_diff_edge():
+def test_multi_events_detected_diff_edge():
     _test_multi_events(
         # series a
         GPIO.HIGH,
@@ -795,7 +904,6 @@ def test_multi_event_detected_diff_edge():
             (GPIO.LOW, False),
             (GPIO.HIGH, True),
         ),
-        False,
         False
     )
     _test_multi_events(
@@ -807,7 +915,6 @@ def test_multi_event_detected_diff_edge():
             (GPIO.HIGH, False),
             (GPIO.LOW, True),
         ),
-        # series b
         GPIO.LOW,
         GPIO.RISING,
         (
@@ -816,11 +923,11 @@ def test_multi_event_detected_diff_edge():
             (GPIO.HIGH, True),
             (GPIO.LOW, False),
         ),
-        True,
-        False
+        True
     )
 
-def test_multi_event_detected_same_edge():
+@test
+def test_multi_events_detected_same_edge():
     _test_multi_events(
         # series a
         GPIO.HIGH,
@@ -840,7 +947,6 @@ def test_multi_event_detected_same_edge():
             (GPIO.LOW, True),
             (GPIO.HIGH, False),
         ),
-        False,
         False
     )
     _test_multi_events(
@@ -860,8 +966,7 @@ def test_multi_event_detected_same_edge():
             (GPIO.LOW, True),
             (GPIO.HIGH, False),
         ),
-        True,
-        False
+        True
     )
 
 # Tests of class PWM

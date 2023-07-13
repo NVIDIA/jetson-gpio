@@ -60,8 +60,9 @@ RISING_EDGE = 1
 FALLING_EDGE = 2
 BOTH_EDGE = 3
 
-# epoll thread object
-_epoll_fd_thread = None
+# Dictionary storing the epoll thread object
+# Key: channel (pin number), Value: Epoll object
+_epoll_fd_thread = {}
 
 # epoll blocking wait object
 _epoll_fd_blocking = None
@@ -113,7 +114,6 @@ class _Gpios:
 # @param[in] poll_time: the max time to wait for an edge event
 # @param[out] success on 0, otherwise return 2 if something fatal happened
 def add_edge_detect(chip_fd, chip_name, channel, request, bouncetime, poll_time):
-    global _epoll_fd_thread
     gpio_obj = None
     res = gpio_event_added(chip_name, channel)
 
@@ -135,18 +135,24 @@ def add_edge_detect(chip_fd, chip_name, channel, request, bouncetime, poll_time)
         gpio_obj = _Gpios(request.fd, bouncetime)
 
     # create epoll object for fd if not already open
-    if _epoll_fd_thread is None:
-        _epoll_fd_thread = select.epoll()
-        if _epoll_fd_thread is None:
+    _mutex.acquire()
+    if channel not in _epoll_fd_thread:
+        _epoll_fd_thread[channel] = select.epoll()
+        if _epoll_fd_thread[channel] is None:
+            _mutex.release()
+
             return 2
 
     # add eventmask and fd to epoll object
     try:
         # eventmask: available for read and edge trigger
-        _epoll_fd_thread.register(gpio_obj.value_fd, select.EPOLLIN | select.EPOLLET)
+        _epoll_fd_thread[channel].register(gpio_obj.value_fd, select.EPOLLIN | select.EPOLLET)
     except IOError:
+        _mutex.release()
         remove_edge_detect(chip_name, channel)
+
         return 2
+    _mutex.release()
 
     # create and start poll thread if not already running
     try:
@@ -155,6 +161,7 @@ def add_edge_detect(chip_fd, chip_name, channel, request, bouncetime, poll_time)
     except:
         remove_edge_detect(chip_name, channel)
         warnings.warn("Unable to start thread", RuntimeWarning)
+
         return 2
 
     gpio_obj.thread_added = True
@@ -170,24 +177,30 @@ def add_edge_detect(chip_fd, chip_name, channel, request, bouncetime, poll_time)
 # @param[in] channel: the pin number in specified mode (board or bcm)
 # @param[in] timeout: the maximum time to wait for the thread detecting channel to stop
 def remove_edge_detect(chip_name, channel, timeout=0.3):
-    if chip_name not in _gpio_event_list:
-        return
-    if channel not in _gpio_event_list[chip_name]:
+    gpio_obj = gpio_event_added(chip_name, channel)
+
+    if gpio_obj is None:
+        warnings.warn("Event not found", RuntimeWarning)
         return
 
+    # Have the thread to be in an exit state
+    _mutex.acquire()
     thread_id = _gpio_event_list[chip_name][channel].thread_id
     _thread_running_dict[thread_id] = False
 
+    # Wait till the thread exits
     if _gpio_event_list[chip_name][channel].thread_added == True:
+        _mutex.release()
         time.sleep(timeout)
+        _mutex.acquire()
 
         if _gpio_event_list[chip_name][channel].thread_exited == False:
             warnings.warn("Timeout in waiting event detection to be removed", RuntimeWarning)
 
-    if _epoll_fd_thread is not None:
-        _epoll_fd_thread.unregister(_gpio_event_list[chip_name][channel].value_fd)
+    # unregister the epoll file descriptor
+    if channel in _epoll_fd_thread and _epoll_fd_thread[channel] is not None:
+        _epoll_fd_thread[channel].unregister(_gpio_event_list[chip_name][channel].value_fd)
 
-    _mutex.acquire()
     del _gpio_event_list[chip_name][channel]
     _mutex.release()
 
@@ -198,14 +211,20 @@ def remove_edge_detect(chip_name, channel, timeout=0.3):
 # @param[in] channel: the pin number in specified mode (board or bcm)
 # @param[in] callback: a callback function
 def add_edge_callback(chip_name, channel, callback):
-    if chip_name not in _gpio_event_list or channel not in _gpio_event_list[chip_name]:
+    gpio_obj = gpio_event_added(chip_name, channel)
+
+    if gpio_obj is None:
         warnings.warn("Event not found", RuntimeWarning)
         return
+
+    _mutex.acquire()
     if not _gpio_event_list[chip_name][channel].thread_added:
+        _mutex.release()
         warnings.warn("Please add the event before adding callback", RuntimeWarning)
         return
 
     _gpio_event_list[chip_name][channel].callbacks.append(callback)
+    _mutex.release()
 
 # @brief Check if any edge event occured
 #   If an adge event happened, the flag will be cleared for the next occurance
@@ -213,28 +232,40 @@ def add_edge_callback(chip_name, channel, callback):
 # @param[in] channel: the pin number in specified mode (board or bcm)
 # @param[out] true if an edge event occured, otherwise false
 def edge_event_detected(chip_name, channel):
-    retval = False
-    if chip_name in _gpio_event_list:
-        _mutex.acquire()
-        if channel in _gpio_event_list[chip_name]:
-            if _gpio_event_list[chip_name][channel].event_occurred:
-                _gpio_event_list[chip_name][channel].event_occurred = False
-                retval = True
+    gpio_obj = gpio_event_added(chip_name, channel)
+
+    if gpio_obj is None:
+        warnings.warn("Event not found", RuntimeWarning)
+        return False
+
+    _mutex.acquire()
+    # Event has occured
+    if _gpio_event_list[chip_name][channel].event_occurred:
+        _gpio_event_list[chip_name][channel].event_occurred = False
         _mutex.release()
 
-    return retval
+        return True
+    _mutex.release()
+
+    return False
 
 # @brief Check if any event is added to the channel in the chip controller
 # @param[in] chip_name: the GPIO chip name/instance
 # @param[in] channel: the pin number in specified mode (board or bcm)
 # @param[out] the gpio object if an event exists, otherwise None
 def gpio_event_added(chip_name, channel):
+    _mutex.acquire()
     if chip_name not in _gpio_event_list:
+        _mutex.release()
         return None
     if channel not in _gpio_event_list[chip_name]:
+        _mutex.release()
         return None
 
-    return _gpio_event_list[chip_name][channel]
+    gpio_obj = _gpio_event_list[chip_name][channel]
+    _mutex.release()
+
+    return gpio_obj
 
 # @brief Add an event to the event list
 # @param[in] chip_name: the GPIO chip name/instance
@@ -257,12 +288,17 @@ def _add_gpio_event(chip_name, channel, gpio_obj):
 # @param[out] the gpio handle with related information of a channel's event,
 # if such handle exist, otherwise return None
 def _get_gpio_object(chip_name, channel):
-    if chip_name not in _gpio_event_list:
-        return None
-    if channel not in _gpio_event_list[chip_name]:
+    gpio_obj = gpio_event_added(chip_name, channel)
+
+    if gpio_obj is None:
+        warnings.warn("Event not found", RuntimeWarning)
         return None
 
-    return _gpio_event_list[chip_name][channel]
+    _mutex.acquire()
+    gpio_obj = _gpio_event_list[chip_name][channel]
+    _mutex.release()
+
+    return gpio_obj
 
 
 def _set_edge(gpio_name, edge):
@@ -274,10 +310,15 @@ def _set_edge(gpio_name, edge):
 # @param[out] a tuple of the GPIO chip name and the pin number in
 # specified mode, otherwise return a tuple of None
 def _get_gpio_obj_keys(fd):
+    _mutex.acquire()
     for chip_name in _gpio_event_list:
         for pin in _gpio_event_list[chip_name]:
             if _gpio_event_list[chip_name][pin].value_fd == fd:
+                _mutex.release()
+
                 return (chip_name, pin)
+
+    _mutex.release()
     return None, None
 
 
@@ -295,7 +336,9 @@ def _set_thread_exit_state(fd):
         return
 
     # Set state
+    _mutex.acquire()
     _gpio_event_list[chip_name][channel].thread_exited = True
+    _mutex.release()
 
 
 # @brief A thread that catches GPIO events in a non-blocking mode.
@@ -309,11 +352,15 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
     thread_id = thread.get_ident()
 
     # Mark the thread state as running
+    _mutex.acquire()
     _thread_running_dict[thread_id] = True
 
     # clean device buffer
-    # The timeout should be longer than time between the events
-    precedent_events = _epoll_fd_thread.poll(timeout=0.5, maxevents=1)
+    epoll_obj = _epoll_fd_thread[channel]
+    _mutex.release()
+
+     # The timeout should be longer than the wait time between the events
+    precedent_events = epoll_obj.poll(timeout=0.5, maxevents=1)
     if len(precedent_events) > 0:
         _fd = precedent_events[0][0]
 
@@ -325,7 +372,7 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
     while _thread_running_dict[thread_id]:
         try:
             # poll for event
-            events = _epoll_fd_thread.poll(timeout=poll_timeout, maxevents=1)
+            events = epoll_obj.poll(timeout=poll_timeout, maxevents=1)
 
             # Timeout without any event
             if len(events) == 0:
@@ -352,20 +399,22 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
                 warnings.warn("Unknown event caught", RuntimeWarning)
                 continue
 
-            _mutex.acquire()
             # check key to make sure gpio object has not been deleted
             # from main thread
             chip_name, pin_num = _get_gpio_obj_keys(fd)
             if channel != pin_num:
                 warnings.warn("Channel does not match with assigned file descriptor", RuntimeWarning)
-                # _thread_running = False
+
+                _mutex.acquire()
                 _thread_running_dict[thread.get_ident()] = False
+                _mutex.release()
                 break
 
             # Get the gpio object to do following updates
             gpio_obj = _get_gpio_object(chip_name, pin_num)
             if gpio_obj is None:
                 raise RuntimeError("GPIO object does not exists")
+
 
             # debounce the input event for the specified bouncetime
             time = datetime.now()
@@ -378,6 +427,7 @@ def _edge_handler(thread_name, fileno, channel, poll_timeout):
                 gpio_obj.event_occurred = True
 
                 #update to the original list
+                _mutex.acquire()
                 _gpio_event_list[chip_name][pin_num] = gpio_obj
                 _mutex.release()
 
@@ -444,7 +494,7 @@ def blocking_wait_for_edge(chip_fd, chip_name, channel, request, bouncetime, tim
 # @param[in] chip_name: the GPIO chip name/instance
 # @param[in] channel: the pin number in specified mode (board or bcm)
 def event_cleanup(chip_name, channel):
-    global _epoll_fd_thread, _epoll_fd_blocking
+    global _epoll_fd_blocking
 
     #remove all the event being detected in the event list
     remove_edge_detect(chip_name, channel)
@@ -459,9 +509,9 @@ def event_cleanup(chip_name, channel):
                 _epoll_fd_blocking.close()
                 _epoll_fd_blocking = None
 
-            if _epoll_fd_thread is not None:
-                _epoll_fd_thread.close()
-                _epoll_fd_thread = None
+            if channel in _epoll_fd_thread and _epoll_fd_thread[channel] is not None:
+                _epoll_fd_thread[channel].close()
+                del _epoll_fd_thread[channel]
 
     _mutex.release()
 
