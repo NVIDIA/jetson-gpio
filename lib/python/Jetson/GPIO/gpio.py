@@ -269,6 +269,7 @@ def _cleanup_all():
 
     for channel in list(_channel_configuration.keys()):
         ch_info = _channel_to_info(channel)
+
         _cleanup_one(ch_info)
 
     _gpio_mode = None
@@ -460,12 +461,6 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None, polltime=0.2
 
     # We should wait until the thread is up, which the device buffer cleaning takes time
     time.sleep(1)
-
-# Function used to remove event detection for channel
-# Timeout param for the max time to wait for thread (event detecion) to end
-def remove_event_detect(channel, timeout=0.5):
-    ch_info = _channel_to_info(channel, need_gpio=True)
-    event.remove_edge_detect(ch_info.gpio_chip, channel, timeout)
 
 # Function used to remove event detection for channel
 # Timeout param for the max time to wait for thread (event detecion) to end
