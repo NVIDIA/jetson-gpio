@@ -1,3 +1,12 @@
+jetson-gpio (2.1.2ubuntu1) focal; urgency=medium
+
+  * Add some fixes for character device based implementation of Jetson.GPIO
+  * Update PWM pins list for Jetson Orin NX and Jetson Orin Nano
+  * Add tests for callbacks and epoll object dictionary for parallel events
+  * Update README and multiple comments in the code
+
+ -- Linh Hoang <lhoang@nvidia.com>  Fri, 31 Jul 2023 16:41:00 -0700
+
 jetson-gpio (2.1.1ubuntu1) focal; urgency=medium
 
   * Add support for Jetson Orin Nano and Jetson Orin NX developer kit
