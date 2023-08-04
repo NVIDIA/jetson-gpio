@@ -120,6 +120,9 @@ JETSON_ORIN_PIN_DEFS = [
 compats_jetson_orins = (
     'nvidia,p3737-0000+p3701-0000',
     'nvidia,p3737-0000+p3701-0004',
+    'nvidia,p3737-0000+p3701-0008',
+    'nvidia,p3737-0000+p3701-0005',
+    'nvidia,p3737-0000+p3701-0001',
 )
 
 CLARA_AGX_XAVIER_PIN_DEFS = [
