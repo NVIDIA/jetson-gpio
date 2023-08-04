@@ -1,3 +1,9 @@
+jetson-gpio (2.1.3ubuntu1) focal; urgency=medium
+
+  * Add support for more variants of Jetson Orin
+
+ -- Linh Hoang <lhoang@nvidia.com>  Fri, 3 Aug 2023 16:41:00 -0700
+
 jetson-gpio (2.1.2ubuntu1) focal; urgency=medium
 
   * Add some fixes for character device based implementation of Jetson.GPIO
