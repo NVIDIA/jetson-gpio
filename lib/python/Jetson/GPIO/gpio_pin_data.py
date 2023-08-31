@@ -614,7 +614,7 @@ def get_data():
     gpio_chip_ngpio = {}
     pwm_dirs = {}
 
-    sysfs_prefixes = ['/sys/devices/', '/sys/devices/platform/']
+    sysfs_prefixes = ['/sys/devices/', '/sys/devices/platform/', '/sys/bus/platform/devices/']
 
     pwm_chip_names = set([x[7] for x in pin_defs if x[7] is not None])
     for pwm_chip_name in pwm_chip_names:
