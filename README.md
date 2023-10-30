@@ -190,6 +190,9 @@ setting up the mode and channels. To disable warnings, call:
 GPIO.setwarnings(False)
 ```
 
+Additionally, Jetson.GPIO uses **warnings** module to issue warning. Therefore,
+you can control the warning message using [Python Standard Library - warnings](https://docs.python.org/3/library/warnings.html#the-warnings-filter) 
+
 #### 4. Set up a channel
 
 The GPIO channel must be set up before use as input or output. To configure

@@ -171,7 +171,8 @@ def add_edge_detect(chip_fd, chip_name, channel, request, bouncetime, poll_time)
 # @brief Remove an edge event detection
 #   Not only will the event be unregistered, the thread corresponds will also be cleared.
 # Suggestion about the timeout parameter: the value should be greater than the poll_time
-# in add_edge_detect to keep it safe.
+# in add_edge_detect to keep it safe. This event returns without doing anything if the
+# event corresponding to the chip_name and channel is not found.
 # @param[in] chip_name: the GPIO chip name/instance
 # @param[in] channel: the pin number in specified mode (board or bcm)
 # @param[in] timeout: the maximum time to wait for the thread detecting channel to stop
@@ -179,7 +180,6 @@ def remove_edge_detect(chip_name, channel, timeout=0.3):
     gpio_obj = gpio_event_added(chip_name, channel)
 
     if gpio_obj is None:
-        warnings.warn("Event not found", RuntimeWarning)
         return
 
     # Have the thread to be in an exit state
