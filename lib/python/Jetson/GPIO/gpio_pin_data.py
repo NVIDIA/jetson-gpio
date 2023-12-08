@@ -190,7 +190,13 @@ compats_nx = (
 
 JETSON_XAVIER_PIN_DEFS = [
     (106, 'PQ.06', "tegra194-gpio", 7, 4, 'MCLK05', 'SOC_GPIO42', None, None),
+    # added Pin 8 == status LED red
+    (110, 'PR.02', "tegra194-gpio", 8, None, 'UART1_TX', 'UART1_TX', None, None),
+    # added PIN 10 for light trigger input
+    (111, 'PR.03', "tegra194-gpio", 10, None, 'UART1_RX', 'UART1_RX', None, None),
+    # Pin 11 == status LED green
     (112, 'PR.04', "tegra194-gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
+    # Pin12 == start illumination LED lights
     (51, 'PH.07', "tegra194-gpio", 12, 18, 'I2S2_CLK', 'DAP2_SCLK', None, None),
     (108, 'PR.00', "tegra194-gpio", 13, 27, 'PWM01', 'SOC_GPIO44', '32f0000.pwm', 0),
     # Older versions of L4T don'Pt enable this PWM controller in DT, so this PWM
