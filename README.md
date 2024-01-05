@@ -306,7 +306,7 @@ GPIO.RISING, GPIO.FALLING or GPIO.BOTH. If you only want to limit the wait
 to a specified amount of time, a timeout can be optionally set:
 
 ```python
-# timeout is in milliseconds
+# timeout is in seconds
 GPIO.wait_for_edge(channel, GPIO.RISING, timeout=500)
 ```
 
