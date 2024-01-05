@@ -506,7 +506,7 @@ def test_wait_for_edge_timeout():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.LOW)
     GPIO.setup(pin_data['in_a'], GPIO.IN)
-    val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.BOTH, timeout=100)
+    val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.BOTH, timeout=5)
     assert val is None
     GPIO.cleanup()
 
@@ -530,7 +530,7 @@ def test_wait_for_edge_rising():
     GPIO.setup(pin_data['in_a'], GPIO.IN)
     dsc = DelayedSetChannel(pin_data['out_a'], GPIO.HIGH, 0.5)
     dsc.start()
-    val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.RISING, timeout=1000)
+    val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.RISING, timeout=10)
     dsc.join()
     assert val == pin_data['in_a']
     GPIO.cleanup()
@@ -543,7 +543,7 @@ def test_wait_for_edge_falling():
     GPIO.setup(pin_data['in_a'], GPIO.IN)
     dsc = DelayedSetChannel(pin_data['out_a'], GPIO.LOW, 0.5)
     dsc.start()
-    val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.FALLING, timeout=1000)
+    val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.FALLING, timeout=10)
     dsc.join()
     assert val == pin_data['in_a']
     GPIO.cleanup()
