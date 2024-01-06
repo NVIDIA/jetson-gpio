@@ -506,8 +506,9 @@ def test_wait_for_edge_timeout():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(pin_data['out_a'], GPIO.OUT, initial=GPIO.LOW)
     GPIO.setup(pin_data['in_a'], GPIO.IN)
-    val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.BOTH, timeout=5)
-    assert val is None
+    for i in range(3):
+        val = GPIO.wait_for_edge(pin_data['in_a'], GPIO.BOTH, timeout=1)
+        assert val is None
     GPIO.cleanup()
 
 

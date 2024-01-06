@@ -460,6 +460,8 @@ def blocking_wait_for_edge(chip_fd, chip_name, channel, request, bouncetime, tim
         except (OSError, IOError) as e:
             raise cdev.GPIOError(e.errno, "Opening input line event handle: " + e.strerror)
         gpio_obj = _Gpios(request.fd, bouncetime)
+        # As object is added to gpio event list here, we need to return it when
+        # the function return
         _add_gpio_event(chip_name, channel, gpio_obj)
 
     ret = select.select([request.fd], [], [], timeout)
@@ -468,6 +470,7 @@ def blocking_wait_for_edge(chip_fd, chip_name, channel, request, bouncetime, tim
         try:
             data = os.read(request.fd, ctypes.sizeof(cdev.gpioevent_data))
         except OSError as e:
+            remove_edge_detect(chip_name, channel)
             raise cdev.GPIOError(e.errno, "Reading GPIO event: " + e.strerror)
 
         event_data = cdev.gpioevent_data.from_buffer_copy(data)
@@ -475,14 +478,15 @@ def blocking_wait_for_edge(chip_fd, chip_name, channel, request, bouncetime, tim
         if (event_data.id != cdev.GPIOEVENT_REQUEST_RISING_EDGE and
             event_data.id != cdev.GPIOEVENT_REQUEST_FALLING_EDGE):
             warnings.warn("Unknown event caught", RuntimeWarning)
-
+            remove_edge_detect(chip_name, channel)
             return -2
-
+        remove_edge_detect(chip_name, channel)
         return int(ret != [])
     elif len(ret[0]) == 0:
         # Timeout
+        remove_edge_detect(chip_name, channel)
         return 0
-
+    remove_edge_detect(chip_name, channel)
     return -2
 
 
