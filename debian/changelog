@@ -1,3 +1,12 @@
+jetson-gpio (2.1.6ubuntu1) focal; urgency=medium
+
+  * Clean up blocking_wait_for_edge on return
+  * Change the timeout value in the test function as the timeout value is
+    supposed to be in seconds instead of milliseconds
+  * Update the README to correct the timeout unit
+
+ -- Linh Hoang <lhoang@nvidia.com> Tue, 9 Jan 2025 13:41:00 -0700
+
 jetson-gpio (2.1.5ubuntu1) focal; urgency=medium
 
   * Update README and remove some unnessary warnings
