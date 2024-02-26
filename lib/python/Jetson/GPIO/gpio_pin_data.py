@@ -96,7 +96,7 @@ JETSON_ORIN_PIN_DEFS = [
     # Output-only (due to base board)
     (112, 'PR.04', "tegra234-gpio", 11, 17, 'UART1_RTS', 'GP72_UART1_RTS_N', None, None),
     (50, 'PH.07', "tegra234-gpio", 12, 18, 'I2S2_CLK', 'GP122', None, None),
-    (108, 'PR.00', "tegra234-gpio", 13, 27, 'PWM01', 'GP68', None, None),
+    (108, 'PR.00', "tegra234-gpio", 13, 27, 'PWM01', 'GP68', '32f0000.pwm', 0),
     (85, 'PN.01', "tegra234-gpio", 15, 22, 'GPIO27', 'GP88_PWM1', '3280000.pwm', 0),
     (9, 'PBB.01', "tegra234-gpio-aon", 16, 23, 'GPIO08', 'GP26', None, None),
     (43, 'PH.00', "tegra234-gpio", 18, 24, 'GPIO35', 'GP115', '32c0000.pwm', 0),
