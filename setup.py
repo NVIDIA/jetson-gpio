@@ -29,7 +29,7 @@ classifiers = ['Operating System :: POSIX :: Linux',
                'Topic :: System :: Hardware']
 
 setup(name                          = 'Jetson.GPIO',
-      version                       = '2.1.7',
+      version                       = '2.1.8',
       author                        = 'NVIDIA',
       author_email                  = 'linux-tegra-bugs@nvidia.com',
       description                   = 'A module to control Jetson GPIO channels',

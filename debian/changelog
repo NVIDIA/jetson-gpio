@@ -1,3 +1,9 @@
+jetson-gpio (2.1.8ubuntu1) focal; urgency=medium
+
+  * Support Jetson Orin Nano Super
+
+ -- Linh Hoang <lhoang@nvidia.com> Mon, 27 Jan 2025 13:41:00 -0700
+
 jetson-gpio (2.1.7ubuntu1) focal; urgency=medium
 
   * Add PWM8 to Jetson Orin
