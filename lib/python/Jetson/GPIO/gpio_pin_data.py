@@ -80,6 +80,8 @@ compats_jetson_orins_nx = (
     "nvidia,p3768-0000+p3767-0000",
     "nvidia,p3509-0000+p3767-0001",
     "nvidia,p3768-0000+p3767-0001",
+    "nvidia,p3768-0000+p3767-0000-super",
+    "nvidia,p3768-0000+p3767-0001-super",
 )
 
 compats_jetson_orins_nano = (
@@ -90,6 +92,8 @@ compats_jetson_orins_nano = (
     "nvidia,p3509-0000+p3767-0005",
     "nvidia,p3768-0000+p3767-0005",
     "nvidia,p3768-0000+p3767-0005-super",
+    "nvidia,p3768-0000+p3767-0003-super",
+    "nvidia,p3768-0000+p3767-0004-super",
 )
 
 JETSON_ORIN_PIN_DEFS = [
