@@ -1,3 +1,10 @@
+jetson-gpio (2.1.9ubuntu1) jammy; urgency=medium
+
+  * Support Jetson Orin Nano and Jetson Orin NX Super
+
+ -- Linh Hoang <lhoang@nvidia.com> Friday, 7 Feb 2025 13:41:00 -0700
+
+
 jetson-gpio (2.1.8ubuntu1) focal; urgency=medium
 
   * Support Jetson Orin Nano Super
