@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2023, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2018-2025, NVIDIA CORPORATION. All rights reserved.
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
 # to deal in the Software without restriction, including without limitation
@@ -31,6 +31,7 @@ JETSON_TX2_NX='JETSON_TX2_NX'
 JETSON_ORIN='JETSON_ORIN'
 JETSON_ORIN_NX='JETSON_ORIN_NX'
 JETSON_ORIN_NANO='JETSON_ORIN_NANO'
+JETSON_THOR_REFERENCE='JETSON_THOR_REFERENCE'
 
 JETSON_MODELS = [JETSON_TX1, JETSON_TX2, CLARA_AGX_XAVIER, JETSON_TX2_NX, JETSON_XAVIER, JETSON_NANO, JETSON_NX, JETSON_ORIN, JETSON_ORIN_NX, JETSON_ORIN_NANO]
 
@@ -358,6 +359,37 @@ compats_nano = (
     'nvidia,jetson-nano',
 )
 
+JETSON_THOR_REFERENCE_PIN_DEFS = [
+    (86, 'PL.06', "tegra264-gpio-main", 7, 4, 'MCLK05', 'GP130', None, None),
+    # Output-only (due to base board)
+    (92, 'PM.04', "tegra264-gpio-main", 11, 17, 'UART1_RTS', 'GP136_UART9_RTS_N', None, None),
+    (21, 'PV.06', "tegra264-gpio-main", 12, 18, 'I2S2_CLK', 'GP184_DAP2_CLK', None, None),
+    (88, 'PM.00', "tegra264-gpio-main", 13, 27, 'PWM01', 'GP132_PWM9', '32f0000.pwm', 0),
+    (127, 'PF.07', "tegra264-gpio-main", 15, 22, 'GPIO27', 'GP257_PWM2', '3280000.pwm', 0),
+    (21, 'PDD.03', "tegra264-gpio-aon", 16, 23, 'GPIO08', 'GP21', None, None),
+    (14, 'PU.07', "tegra264-gpio-main", 18, 24, 'GPIO44', 'GP177', '32c0000.pwm', 0),
+    (73, 'PK.01', "tegra264-gpio-main", 19, 10, 'SPI1_MOSI', 'GP117_SPI1_MOSI', None, None),
+    (72, 'PK.00', "tegra264-gpio-main", 21, 9, 'SPI1_MISO', 'GP116_SPI1_MISO', None, None),
+    (7, 'PU.00', "tegra264-gpio-main", 22, 25, 'I2S7_DIN', 'GP170', None, None),
+    (71, 'PJ.07', "tegra264-gpio-main", 23, 11, 'SPI1_CLK', 'GP115_SPI1_CLK', None, None),
+    (74, 'PK.02', "tegra264-gpio-main", 24, 8, 'SPI1_CS0_N', 'GP118_SPI1_CS0_N', None, None),
+    (75, 'PK.03', "tegra264-gpio-main", 26, 7, 'SPI1_CS1_N', 'GP119_SPI1_CS1_N', None, None),
+    (1, 'PAD.01', "tegra264-gpio-aon", 29, 5, 'CAN2_DIN', 'GP211_CAN2_DIN', None, None),
+    (0, 'PAD.00', "tegra264-gpio-aon", 31, 6, 'CAN2_DOUT', 'GP210_CAN2_DOUT', None, None),
+    (22, 'PDD.04', "tegra264-gpio-aon", 32, 12, 'GPIO09', 'GGP22_SOCKET_ID_STRA', None, None),
+    (2, 'PAE.00', "tegra264-gpio-aon", 33, 13, 'CAN3_DOUT', 'GP215_CAN3_DOUT', None, None),
+    (24, 'PW.01', "tegra264-gpio-main", 35, 19, 'I2S2_FS', 'GP187_DAP2_FS', None, None),
+    (93, 'PM.05', "tegra264-gpio-main", 36, 16, 'UART1_CTS', 'GP137_UART9_CTS_N', None, None),
+    (3, 'PAE.01', "tegra264-gpio-aon", 37, 26, 'CAN3_DIN', 'GP216_CAN3_DIN', None, None),
+    (23, 'PW.00', "tegra264-gpio-main", 38, 20, 'I2S2_DIN', 'GP186_DAP2_DIN', None, None),
+    (22, 'PV.07', "tegra264-gpio-main", 40, 21, 'I2S2_DOUT', 'GP185_DAP2_DOUT', None, None)
+]
+
+compats_jetson_thor_reference = (
+    'nvidia,p3971-0050+p3834-0005',
+)
+
+
 jetson_gpio_data = {
     JETSON_ORIN_NX: (
         JETSON_ORIN_NX_PIN_DEFS,
@@ -465,6 +497,17 @@ jetson_gpio_data = {
             'RAM': '4096M, 2048M',
             'REVISION': 'Unknown',
             'TYPE': 'Jetson Nano',
+            'MANUFACTURER': 'NVIDIA',
+            'PROCESSOR': 'ARM A57'
+        }
+    ),
+    JETSON_THOR_REFERENCE: (
+        JETSON_THOR_REFERENCE_PIN_DEFS,
+        {
+            'P1_REVISION': 1,
+            'RAM': '4096M, 2048M',
+            'REVISION': 'Unknown',
+            'TYPE': 'Jetson THOR REFERENCE',
             'MANUFACTURER': 'NVIDIA',
             'PROCESSOR': 'ARM A57'
         }
@@ -593,6 +636,9 @@ def get_model():
         elif matches(compats_jetson_orins_nano):
             warn_if_not_carrier_board('3509', '3768')
             return JETSON_ORIN_NANO
+        elif matches(compats_jetson_thor_reference):
+            warn_if_not_carrier_board('3971')
+            return JETSON_THOR_REFERENCE
 
     # get model info from the environment variables for docker containers
     model_name = os.environ.get("JETSON_MODEL_NAME")

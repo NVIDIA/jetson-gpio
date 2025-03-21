@@ -1,3 +1,10 @@
+
+jetson-gpio (2.1.10-ubuntu1) noble; urgency=medium
+
+  * Support Jetson Thor Reference
+
+ -- Hiteshkumar Patel <hiteshkumarg@nvidia.com> Thu, 20 Mar 2025 13:41:00 -0700
+
 jetson-gpio (2.1.9ubuntu1) jammy; urgency=medium
 
   * Support Jetson Orin Nano and Jetson Orin NX Super

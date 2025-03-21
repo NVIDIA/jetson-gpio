@@ -66,6 +66,10 @@ pin_datas = {
         'unimplemented': (),
         'input_only': (),
     },
+    'JETSON_THOR_REFERENCE': {
+        'unimplemented': (29, 31, 33, 37),
+        'input_only': (),
+    },
 }
 pin_data = pin_datas.get(GPIO.model)
 all_pins = (7, 11, 12, 13, 15, 16, 18, 19, 21, 22, 23, 24, 26, 29, 31, 32, 33,
