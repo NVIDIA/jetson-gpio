@@ -1,5 +1,5 @@
 
-jetson-gpio (2.1.10-ubuntu1) noble; urgency=medium
+jetson-gpio (2.1.10-0ubuntu1) noble; urgency=medium
 
   * Support Jetson Thor Reference
 
