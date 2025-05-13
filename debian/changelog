@@ -1,4 +1,11 @@
 
+jetson-gpio (2.1.11-0ubuntu1) noble; urgency=medium
+
+  * Support Jetson Thor Reference SKU80
+  * Support Jetson Thor Reference SKU89
+
+ -- Hiteshkumar Patel <hiteshkumarg@nvidia.com> Sun, 11 May 2025 9:51:00 -0700
+
 jetson-gpio (2.1.10-0ubuntu1) noble; urgency=medium
 
   * Support Jetson Thor Reference
