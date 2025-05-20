@@ -159,6 +159,10 @@ def _do_one_channel(ch_info, direction, initial, consumer):
     request = gpio_cdev.request_handle(ch_info.line_offset, cdev_direction, initial, consumer)
 
     gpio_cdev.open_line(ch_info, request)
+
+    if _gpio_warnings:
+        gpio_cdev.check_pinmux(ch_info, direction == OUT, _gpio_warnings)
+
     _channel_configuration[ch_info.channel] = direction
 
 
