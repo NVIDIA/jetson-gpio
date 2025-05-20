@@ -28,6 +28,11 @@
 import os
 import fcntl
 import ctypes
+from dataclasses import dataclass
+import mmap
+import sys
+import warnings
+from Jetson.GPIO.gpio_pin_data import ChannelInfo
 
 GPIO_HIGH = 1
 
@@ -282,4 +287,91 @@ def set_value(line_handle, value):
     except (OSError, IOError) as e:
         raise GPIOError(e.errno, "Setting line value: " + e.strerror)
 
+_GPIO_IN_OUT_MASK = (1 << 6) | (1 << 4)
+"""
+A mask for the in/out bit and the tristate bit. We use this for the corrected register value.
+"""
 
+_MAP_MASK = mmap.PAGESIZE - 1
+
+@dataclass
+class PadCtlRegister:
+    """
+    Simple dataclass for parsing the value of a PADCTL register.\n
+    bit 1:0 reserved\n
+    bit 3:2 pull up/down 0=none; 1=down; 2=up; 3=reserved\n
+    bit 4 tristate config 0=passthrough; 1=tristate\n
+    bit 6 input/output 0=output; 1=input\n
+    bit 10 gpio/sfio 0=gpio; 1=sfio\n
+    bit 12 schmt 0=disabled; 1=enable
+    """
+    is_gpio: bool
+    is_input: bool
+    is_tristate: bool
+
+    def __init__(self, value: int):
+        self.is_gpio = (value & (1 << 10)) == 0
+        self.is_input = (value & (1 << 6)) != 0
+        self.is_tristate = (value & (1 << 4)) != 0
+
+def check_pinmux(ch_info: ChannelInfo, is_out: bool) -> None:
+    if ch_info.reg_block_base_addr is None or ch_info.reg_offset is None:
+        warnings.warn("pinmux checks not implemented for current device.")
+        return
+    
+    try:
+        mem_fd = os.open('/dev/mem', os.O_RDONLY | os.O_SYNC)
+        reg_address = ch_info.reg_block_base_addr + ch_info.reg_offset
+        reg_page_start = reg_address & ~_MAP_MASK
+        reg_page_offset = reg_address - reg_page_start
+
+        # Map 2 pages of /dev/mem starting from the page where the register starts to handle registers across the page boundary
+        with mmap.mmap(mem_fd, length=mmap.PAGESIZE * 2, flags=mmap.MAP_SHARED, prot=mmap.PROT_READ, offset=reg_page_start) as devmem:
+            reg_value = int.from_bytes(devmem[reg_page_offset:reg_page_offset + 4], byteorder=sys.byteorder)
+            reg = PadCtlRegister(reg_value)
+            
+            if not reg.is_gpio:
+                corrected_function = reg_value & ~(1 << 10)
+                corrected_output = corrected_function & ~_GPIO_IN_OUT_MASK
+                corrected_input = corrected_function | _GPIO_IN_OUT_MASK
+                print(
+f"""
+[WARNING] Channel "{ch_info.channel}" is not set to GPIO mode in pinmux. For more information on resolving this, please see
+https://docs.nvidia.com/jetson/archives/r36.3/DeveloperGuide/HR/JetsonModuleAdaptationAndBringUp/JetsonOrinNxNanoSeries.html#generating-the-pinmux-dtsi-files
+
+This can be resolved *temporarily* (until next restart) by running:
+    sudo busybox devmem 0x{reg_address:X} w 0x{(corrected_output if is_out else corrected_input):X}
+"""
+                    )
+                return
+            
+            # If user sets direction to input, but register is output, warn user
+            if not is_out and not reg.is_input:
+                corrected_input = reg_value | _GPIO_IN_OUT_MASK
+                print(
+f"""
+[WARNING] User requested input for channel "{ch_info.channel}", but it is set to output in pinmux. For more information on resolving this, please see
+https://docs.nvidia.com/jetson/archives/r36.3/DeveloperGuide/HR/JetsonModuleAdaptationAndBringUp/JetsonOrinNxNanoSeries.html#generating-the-pinmux-dtsi-files
+
+This can be resolved *temporarily* (until next restart) by running:
+    sudo busybox devmem 0x{reg_address:X} w 0x{corrected_input:X}
+"""
+                    )
+            
+            # Same
+            if is_out and reg.is_input:
+                corrected_output = reg_value & ~_GPIO_IN_OUT_MASK
+                print(
+f"""
+[WARNING] User requested output for channel "{ch_info.channel}", but it is set to input in pinmux. For more information on resolving this, please see
+https://docs.nvidia.com/jetson/archives/r36.3/DeveloperGuide/HR/JetsonModuleAdaptationAndBringUp/JetsonOrinNxNanoSeries.html#generating-the-pinmux-dtsi-files
+
+This can be resolved *temporarily* (until next restart) by running:
+    sudo busybox devmem 0x{reg_address:X} w 0x{corrected_output:X}
+"""
+                    )
+
+    except (OSError, IOError) as e:
+        warnings.warn('Could not open /dev/mem for pinmux check. If you want pinmux checks, make sure your user has permissions to read /dev/mem and that it exists. Error: ' + e)
+    finally:
+        os.close(mem_fd)

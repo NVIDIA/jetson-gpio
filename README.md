@@ -184,8 +184,11 @@ None.
 It is possible that the GPIO you are trying to use is already being used
 external to the current application. In such a condition, the Jetson GPIO
 library will warn you if the GPIO being used is configured to anything but the
-default direction (input). It will also warn you if you try cleaning up before
-setting up the mode and channels. To disable warnings, call:
+default direction (input). It will also warn you if:
+* You try cleaning up before setting up the mode and channels.
+* (Orin NX/Nano only) The pinmux for a requested pin is not properly confirgured to GPIO and the correct direction.
+
+To disable warnings, call:
 ```python
 GPIO.setwarnings(False)
 ```
