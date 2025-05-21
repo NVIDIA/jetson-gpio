@@ -33,6 +33,7 @@ import mmap
 import sys
 import warnings
 from Jetson.GPIO.gpio_pin_data import ChannelInfo
+from Jetson.GPIO.constants import IN, OUT, HARD_PWM
 
 GPIO_HIGH = 1
 
@@ -314,7 +315,11 @@ class PadCtlRegister:
         self.is_input = (value & (1 << 6)) != 0
         self.is_tristate = (value & (1 << 4)) != 0
 
-def check_pinmux(ch_info: ChannelInfo, is_out: bool) -> None:
+    @property
+    def is_bidi(self) -> bool:
+        return self.is_input and not self.is_tristate
+
+def check_pinmux(ch_info: ChannelInfo, direction: int) -> None:
     if ch_info.reg_block_base_addr is None or ch_info.reg_offset is None:
         warnings.warn("pinmux checks not implemented for current device.")
         return
@@ -330,21 +335,25 @@ def check_pinmux(ch_info: ChannelInfo, is_out: bool) -> None:
             reg_value = int.from_bytes(devmem[reg_page_offset:reg_page_offset + 4], byteorder=sys.byteorder)
             reg = PadCtlRegister(reg_value)
             
-            if not reg.is_gpio:
-                corrected_function = reg_value & ~(1 << 10)
-                corrected_output = corrected_function & ~_GPIO_IN_OUT_MASK
-                corrected_input = corrected_function | _GPIO_IN_OUT_MASK
+            # If the register is in a bidrectional state (input enabled, no tristate) we can skip the checks
+            if reg.is_bidi:
+                return
+            
+            # If the user requests a PWM pin, ensure it is NOT GPIO, since PWM pins are SFIO (Special Function IO)
+            if direction == HARD_PWM and reg.is_gpio:
+                corrected_reg = reg_value | (1 << 10)
                 print(
 f"""
-[WARNING] Channel "{ch_info.channel}" is not set to GPIO mode in pinmux. For more information on resolving this, please see
+[WARNING] User requested PWM for channel "{ch_info.channel}", but it is set to GPIO in pinmux. For more information on resolving this, please see
 https://docs.nvidia.com/jetson/archives/r36.3/DeveloperGuide/HR/JetsonModuleAdaptationAndBringUp/JetsonOrinNxNanoSeries.html#generating-the-pinmux-dtsi-files
 
 This can be resolved *temporarily* (until next restart) by running:
-    sudo busybox devmem 0x{reg_address:X} w 0x{(corrected_output if is_out else corrected_input):X}
+    sudo busybox devmem 0x{reg_address:X} w 0x{corrected_reg:X}
 """
                     )
                 return
-            
+
+            is_out = direction == OUT
             # If user sets direction to input, but register is output, warn user
             if not is_out and not reg.is_input:
                 corrected_input = reg_value | _GPIO_IN_OUT_MASK
@@ -357,8 +366,9 @@ This can be resolved *temporarily* (until next restart) by running:
     sudo busybox devmem 0x{reg_address:X} w 0x{corrected_input:X}
 """
                     )
+                return
             
-            # Same
+            # Same as above, but for when user requests output
             if is_out and reg.is_input:
                 corrected_output = reg_value & ~_GPIO_IN_OUT_MASK
                 print(
@@ -370,6 +380,7 @@ This can be resolved *temporarily* (until next restart) by running:
     sudo busybox devmem 0x{reg_address:X} w 0x{corrected_output:X}
 """
                     )
+                return
 
     except (OSError, IOError) as e:
         warnings.warn('Could not open /dev/mem for pinmux check. If you want pinmux checks, make sure your user has permissions to read /dev/mem and that it exists. Error: ' + e)
