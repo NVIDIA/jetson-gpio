@@ -33,7 +33,7 @@ import mmap
 import sys
 import warnings
 from Jetson.GPIO.gpio_pin_data import ChannelInfo
-from Jetson.GPIO.constants import IN, OUT, HARD_PWM
+from Jetson.GPIO.constants import OUT, HARD_PWM
 
 GPIO_HIGH = 1
 
@@ -334,22 +334,23 @@ def check_pinmux(ch_info: ChannelInfo, direction: int) -> None:
         with mmap.mmap(mem_fd, length=mmap.PAGESIZE * 2, flags=mmap.MAP_SHARED, prot=mmap.PROT_READ, offset=reg_page_start) as devmem:
             reg_value = int.from_bytes(devmem[reg_page_offset:reg_page_offset + 4], byteorder=sys.byteorder)
             reg = PadCtlRegister(reg_value)
-            
+
             # If the register is in a bidrectional state (input enabled, no tristate) we can skip the checks
             if reg.is_bidi:
                 return
-            
+
             # If the user requests a PWM pin, ensure it is NOT GPIO, since PWM pins are SFIO (Special Function IO)
             if direction == HARD_PWM and reg.is_gpio:
                 corrected_reg = reg_value | (1 << 10)
-                print(
+                warnings.warn(
 f"""
 [WARNING] User requested PWM for channel "{ch_info.channel}", but it is set to GPIO in pinmux. For more information on resolving this, please see
 https://docs.nvidia.com/jetson/archives/r36.3/DeveloperGuide/HR/JetsonModuleAdaptationAndBringUp/JetsonOrinNxNanoSeries.html#generating-the-pinmux-dtsi-files
 
 This can be resolved *temporarily* (until next restart) by running:
     sudo busybox devmem 0x{reg_address:X} w 0x{corrected_reg:X}
-"""
+""",
+RuntimeWarning
                     )
                 return
 
@@ -357,7 +358,7 @@ This can be resolved *temporarily* (until next restart) by running:
             # If user sets direction to input, but register is output, warn user
             if not is_out and not reg.is_input:
                 corrected_input = reg_value | _GPIO_IN_OUT_MASK
-                print(
+                warnings.warn(
 f"""
 [WARNING] User requested input for channel "{ch_info.channel}", but it is set to output in pinmux. For more information on resolving this, please see
 https://docs.nvidia.com/jetson/archives/r36.3/DeveloperGuide/HR/JetsonModuleAdaptationAndBringUp/JetsonOrinNxNanoSeries.html#generating-the-pinmux-dtsi-files
@@ -371,7 +372,7 @@ This can be resolved *temporarily* (until next restart) by running:
             # Same as above, but for when user requests output
             if is_out and reg.is_input:
                 corrected_output = reg_value & ~_GPIO_IN_OUT_MASK
-                print(
+                warnings.warn(
 f"""
 [WARNING] User requested output for channel "{ch_info.channel}", but it is set to input in pinmux. For more information on resolving this, please see
 https://docs.nvidia.com/jetson/archives/r36.3/DeveloperGuide/HR/JetsonModuleAdaptationAndBringUp/JetsonOrinNxNanoSeries.html#generating-the-pinmux-dtsi-files
