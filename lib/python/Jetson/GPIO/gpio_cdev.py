@@ -339,21 +339,6 @@ def check_pinmux(ch_info: ChannelInfo, direction: int) -> None:
             if reg.is_bidi:
                 return
 
-            # If the user requests a PWM pin, ensure it is NOT GPIO, since PWM pins are SFIO (Special Function IO)
-            if direction == HARD_PWM and reg.is_gpio:
-                corrected_reg = reg_value | (1 << 10)
-                warnings.warn(
-f"""
-[WARNING] User requested PWM for channel "{ch_info.channel}", but it is set to GPIO in pinmux. For more information on resolving this, please see
-https://docs.nvidia.com/jetson/archives/r36.3/DeveloperGuide/HR/JetsonModuleAdaptationAndBringUp/JetsonOrinNxNanoSeries.html#generating-the-pinmux-dtsi-files
-
-This can be resolved *temporarily* (until next restart) by running:
-    sudo busybox devmem 0x{reg_address:X} w 0x{corrected_reg:X}
-""",
-RuntimeWarning
-                    )
-                return
-
             is_out = direction == OUT
             # If user sets direction to input, but register is output, warn user
             if not is_out and not reg.is_input:
