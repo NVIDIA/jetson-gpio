@@ -571,8 +571,6 @@ class PWM(object):
         self._reconfigure(frequency_hz, 0.0)
 
         _channel_configuration[channel] = HARD_PWM
-        if _gpio_warnings:
-            gpio_cdev.check_pinmux(self._ch_info, HARD_PWM)
 
     def __del__(self):
         if _channel_configuration.get(self._ch_info.channel, None) != HARD_PWM:
