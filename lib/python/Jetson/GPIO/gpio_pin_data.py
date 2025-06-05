@@ -125,7 +125,7 @@ JETSON_ORIN_PIN_DEFS = [
     (50, 'PH.07', "tegra234-gpio", 12, 18, 'I2S2_CLK', 'GP122', None, None, JETSON_ORIN_PADCTL_A4, 0x88),
     (108, 'PR.00', "tegra234-gpio", 13, 27, 'PWM01', 'GP68', '32f0000.pwm', 0, JETSON_ORIN_PADCTL_A0, 0x80),
     (85, 'PN.01', "tegra234-gpio", 15, 22, 'GPIO27', 'GP88_PWM1', '3280000.pwm', 0, JETSON_ORIN_PADCTL_A16, 0x20),
-    (9, 'PBB.01', "tegra234-gpio-aon", 16, 23, 'GPIO08', 'GP26', None, None, JETSON_ORIN_PADCTL_A14, 0x48),
+    (9, 'PBB.01', "tegra234-gpio-aon", 16, 23, 'GPIO08', 'GP26', None, None, JETSON_ORIN_PADCTL_A15, 0x48),
     (43, 'PH.00', "tegra234-gpio", 18, 24, 'GPIO35', 'GP115', '32c0000.pwm', 0, JETSON_ORIN_PADCTL_A4, 0x40),
     (135, 'PZ.05', "tegra234-gpio", 19, 10, 'SPI1_MOSI', 'GP49_SPI1_MOSI', None, None, JETSON_ORIN_PADCTL_A13, 0x40),
     (134, 'PZ.04', "tegra234-gpio", 21, 9, 'SPI1_MISO', 'GP48_SPI1_MISO', None, None, JETSON_ORIN_PADCTL_A13, 0x18),
@@ -133,13 +133,13 @@ JETSON_ORIN_PIN_DEFS = [
     (133, 'PZ.03', "tegra234-gpio", 23, 11, 'SPI1_CLK', 'GP47_SPI1_CLK', None, None, JETSON_ORIN_PADCTL_A13, 0x28),
     (136, 'PZ.06', "tegra234-gpio", 24, 8, 'SPI1_CS0_N', 'GP50_SPI1_CS0_N', None, None, JETSON_ORIN_PADCTL_A13, 0x8),
     (137, 'PZ.07', "tegra234-gpio", 26, 7, 'SPI1_CS1_N', 'GP51_SPI1_CS1_N', None, None, JETSON_ORIN_PADCTL_A13, 0x38),
-    (1, 'PAA.01', "tegra234-gpio-aon", 29, 5, 'CAN0_DIN', 'GP18_CAN0_DIN', None, None, JETSON_ORIN_PADCTL_A14, 0x18),
-    (0, 'PAA.00', "tegra234-gpio-aon", 31, 6, 'CAN0_DOUT', 'GP17_CAN0_DOUT', None, None, JETSON_ORIN_PADCTL_A14, 0x10),
-    (8, 'PBB.00', "tegra234-gpio-aon", 32, 12, 'GPIO09', 'GP25', None, None, JETSON_ORIN_PADCTL_A14, 0x40),
-    (2, 'PAA.02', "tegra234-gpio-aon", 33, 13, 'CAN1_DOUT', 'GP19_CAN1_DOUT', None, None, JETSON_ORIN_PADCTL_A14, 0x0),
+    (1, 'PAA.01', "tegra234-gpio-aon", 29, 5, 'CAN0_DIN', 'GP18_CAN0_DIN', None, None, JETSON_ORIN_PADCTL_A15, 0x18),
+    (0, 'PAA.00', "tegra234-gpio-aon", 31, 6, 'CAN0_DOUT', 'GP17_CAN0_DOUT', None, None, JETSON_ORIN_PADCTL_A15, 0x10),
+    (8, 'PBB.00', "tegra234-gpio-aon", 32, 12, 'GPIO09', 'GP25', None, None, JETSON_ORIN_PADCTL_A15, 0x40),
+    (2, 'PAA.02', "tegra234-gpio-aon", 33, 13, 'CAN1_DOUT', 'GP19_CAN1_DOUT', None, None, JETSON_ORIN_PADCTL_A15, 0x0),
     (53, 'PI.02', "tegra234-gpio", 35, 19, 'I2S2_FS', 'GP125', None, None, JETSON_ORIN_PADCTL_A4, 0xA0),
     (113, 'PR.05', "tegra234-gpio", 36, 16, 'UART1_CTS', 'GP73_UART1_CTS_N', None, None, JETSON_ORIN_PADCTL_A0, 0x90),
-    (3, 'PAA.03', "tegra234-gpio-aon", 37, 26, 'CAN1_DIN', 'GP20_CAN1_DIN', None, None, JETSON_ORIN_PADCTL_A14, 0x8),
+    (3, 'PAA.03', "tegra234-gpio-aon", 37, 26, 'CAN1_DIN', 'GP20_CAN1_DIN', None, None, JETSON_ORIN_PADCTL_A15, 0x8),
     (52, 'PI.01', "tegra234-gpio", 38, 20, 'I2S2_DIN', 'GP124', None, None, JETSON_ORIN_PADCTL_A4, 0x98),
     (51, 'PI.00', "tegra234-gpio", 40, 21, 'I2S2_DOUT', 'GP123', None, None, JETSON_ORIN_PADCTL_A4, 0x90)
 ]
@@ -152,60 +152,78 @@ compats_jetson_orins = (
     'nvidia,p3737-0000+p3701-0001',
 )
 
+JETSON_XAVIER_PADCTL_A0 = 0x02430000
+JETSON_XAVIER_PADCTL_A1 = 0x02431000
+JETSON_XAVIER_PADCTL_A2 = 0x02432000
+JETSON_XAVIER_PADCTL_A4 = 0x02434000
+JETSON_XAVIER_PADCTL_A5 = 0x02435000
+JETSON_XAVIER_PADCTL_A6 = 0x02436000
+JETSON_XAVIER_PADCTL_A7 = 0x02437000
+JETSON_XAVIER_PADCTL_A8 = 0x02438000
+JETSON_XAVIER_PADCTL_A11 = 0x0243B000
+JETSON_XAVIER_PADCTL_A12 = 0x0C301000
+JETSON_XAVIER_PADCTL_A13 = 0x0243D000
+JETSON_XAVIER_PADCTL_A14 = 0x0C302000
+JETSON_XAVIER_PADCTL_A15 = 0x0C303000
+JETSON_XAVIER_PADCTL_A16 = 0x02440000
+JETSON_XAVIER_PADCTL_A17 = 0x02441000
+JETSON_XAVIER_PADCTL_A20 = 0x02444000
+JETSON_XAVIER_PADCTL_A21 = 0x02445000
+
 CLARA_AGX_XAVIER_PIN_DEFS = [
-    (106, 'PQ.06', "tegra194-gpio", 7, 4, 'MCLK05', 'SOC_GPIO42', None, None),
-    (112, 'PR.04', "tegra194-gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
-    (51, 'PH.07', "tegra194-gpio", 12, 18, 'I2S2_CLK', 'DAP2_SCLK', None, None),
-    (96, 'PP.04', "tegra194-gpio", 13, 27, 'GPIO32', 'SOC_GPIO04', None, None),
+    (106, 'PQ.06', "tegra194-gpio", 7, 4, 'MCLK05', 'SOC_GPIO42', None, None, JETSON_XAVIER_PADCTL_A0, 0x30),
+    (112, 'PR.04', "tegra194-gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None, JETSON_XAVIER_PADCTL_A0, 0x98),
+    (51, 'PH.07', "tegra194-gpio", 12, 18, 'I2S2_CLK', 'DAP2_SCLK', None, None, JETSON_XAVIER_PADCTL_A4, 0x18),
+    (96, 'PP.04', "tegra194-gpio", 13, 27, 'GPIO32', 'SOC_GPIO04', None, None, JETSON_XAVIER_PADCTL_A0, 0x70),
     # Older versions of L4T don't enable this PWM controller in DT, so this PWM
     # channel may not be available.
-    (84, 'PN.01', "tegra194-gpio", 15, 22, 'GPIO27', 'SOC_GPIO54', '3280000.pwm', 0),
-    (8, 'PBB.00', "tegra194-gpio-aon", 16, 23, 'GPIO8', 'CAN1_STB', None, None),
-    (44, 'PH.00', "tegra194-gpio", 18, 24, 'GPIO35', 'SOC_GPIO12', '32c0000.pwm', 0),
-    (162, 'PZ.05', "tegra194-gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
-    (161, 'PZ.04', "tegra194-gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None),
-    (101, 'PQ.01', "tegra194-gpio", 22, 25, 'GPIO17', 'SOC_GPIO21', None, None),
-    (160, 'PZ.03', "tegra194-gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
-    (163, 'PZ.06', "tegra194-gpio", 24, 8, 'SPI1_CS0_N', 'SPI1_CS0_N', None, None),
-    (164, 'PZ.07', "tegra194-gpio", 26, 7, 'SPI1_CS1_N', 'SPI1_CS1_N', None, None),
-    (3, 'PAA.03', "tegra194-gpio-aon", 29, 5, 'CAN0_DIN', 'CAN0_DIN', None, None),
-    (2, 'PAA.02', "tegra194-gpio-aon", 31, 6, 'CAN0_DOUT', 'CAN0_DOUT', None, None),
-    (9, 'PBB.01', "tegra194-gpio-aon", 32, 12, 'GPIO9', 'CAN1_EN', None, None),
-    (0, 'PAA.00', "tegra194-gpio-aon", 33, 13, 'CAN1_DOUT', 'CAN1_DOUT', None, None),
-    (54, 'PI.02', "tegra194-gpio", 35, 19, 'I2S2_FS', 'DAP2_FS', None, None),
+    (84, 'PN.01', "tegra194-gpio", 15, 22, 'GPIO27', 'SOC_GPIO54', '3280000.pwm', 0, JETSON_XAVIER_PADCTL_A16, 0x20),
+    (8, 'PBB.00', "tegra194-gpio-aon", 16, 23, 'GPIO8', 'CAN1_STB', None, None, JETSON_XAVIER_PADCTL_A15, 0x40),
+    (44, 'PH.00', "tegra194-gpio", 18, 24, 'GPIO35', 'SOC_GPIO12', '32c0000.pwm', 0, JETSON_XAVIER_PADCTL_A4, 0x90),
+    (162, 'PZ.05', "tegra194-gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None, JETSON_XAVIER_PADCTL_A13, 0x58),
+    (161, 'PZ.04', "tegra194-gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None, JETSON_XAVIER_PADCTL_A13, 0x20),
+    (101, 'PQ.01', "tegra194-gpio", 22, 25, 'GPIO17', 'SOC_GPIO21', None, None, JETSON_XAVIER_PADCTL_A0, 0x58),
+    (160, 'PZ.03', "tegra194-gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None, JETSON_XAVIER_PADCTL_A13, 0x40),
+    (163, 'PZ.06', "tegra194-gpio", 24, 8, 'SPI1_CS0_N', 'SPI1_CS0_N', None, None, JETSON_XAVIER_PADCTL_A13, 0x10),
+    (164, 'PZ.07', "tegra194-gpio", 26, 7, 'SPI1_CS1_N', 'SPI1_CS1_N', None, None, JETSON_XAVIER_PADCTL_A13, 0x50),
+    (3, 'PAA.03', "tegra194-gpio-aon", 29, 5, 'CAN0_DIN', 'CAN0_DIN', None, None, JETSON_XAVIER_PADCTL_A15, 0x18),
+    (2, 'PAA.02', "tegra194-gpio-aon", 31, 6, 'CAN0_DOUT', 'CAN0_DOUT', None, None, JETSON_XAVIER_PADCTL_A15, 0x10),
+    (9, 'PBB.01', "tegra194-gpio-aon", 32, 12, 'GPIO9', 'CAN1_EN', None, None, JETSON_XAVIER_PADCTL_A15, 0x48),
+    (0, 'PAA.00', "tegra194-gpio-aon", 33, 13, 'CAN1_DOUT', 'CAN1_DOUT', None, None, JETSON_XAVIER_PADCTL_A15, 0x0),
+    (54, 'PI.02', "tegra194-gpio", 35, 19, 'I2S2_FS', 'DAP2_FS', None, None, JETSON_XAVIER_PADCTL_A4, 0x10),
     # Input-only (due to base board)
-    (113, 'PR.05', "tegra194-gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None),
-    (1, 'PAA.01', "tegra194-gpio-aon", 37, 26, 'CAN1_DIN', 'CAN1_DIN', None, None),
-    (53, 'PI.01', "tegra194-gpio", 38, 20, 'I2S2_DIN', 'DAP2_DIN', None, None),
-    (52, 'PI.00', "tegra194-gpio", 40, 21, 'I2S2_DOUT', 'DAP2_DOUT', None, None)
+    (113, 'PR.05', "tegra194-gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None, JETSON_XAVIER_PADCTL_A0, 0x90),
+    (1, 'PAA.01', "tegra194-gpio-aon", 37, 26, 'CAN1_DIN', 'CAN1_DIN', None, None, JETSON_XAVIER_PADCTL_A15, 0x8),
+    (53, 'PI.01', "tegra194-gpio", 38, 20, 'I2S2_DIN', 'DAP2_DIN', None, None, JETSON_XAVIER_PADCTL_A4, 0x0),
+    (52, 'PI.00', "tegra194-gpio", 40, 21, 'I2S2_DOUT', 'DAP2_DOUT', None, None, JETSON_XAVIER_PADCTL_A4, 0x8)
 ]
 compats_clara_agx_xavier = (
     'nvidia,e3900-0000+p2888-0004',
 )
 
 JETSON_NX_PIN_DEFS = [
-    (118, 'PS.04', "tegra194-gpio", 7, 4, 'GPIO09', 'AUD_MCLK', None, None),
-    (112, 'PR.04', "tegra194-gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
-    (127, 'PT.05', "tegra194-gpio", 12, 18, 'I2S0_SCLK', 'DAP5_SCLK', None, None),
-    (149, 'PY.00', "tegra194-gpio", 13, 27, 'SPI1_SCK', 'SPI3_SCK', None, None),
-    (16, 'PCC.04', "tegra194-gpio-aon", 15, 22, 'GPIO12', 'TOUCH_CLK', "c340000.pwm", 0),
-    (153, 'PY.04', "tegra194-gpio", 16, 23, 'SPI1_CS1', 'SPI3_CS1_N', None, None),
-    (152, 'PY.03', "tegra194-gpio", 18, 24, 'SPI1_CS0', 'SPI3_CS0_N', None, None),
-    (162, 'PZ.05', "tegra194-gpio", 19, 10, 'SPI0_MOSI', 'SPI1_MOSI', None, None),
-    (161, 'PZ.04', "tegra194-gpio", 21, 9, 'SPI0_MISO', 'SPI1_MISO', None, None),
-    (150, 'PY.01', "tegra194-gpio", 22, 25, 'SPI1_MISO', 'SPI3_MISO', None, None),
-    (160, 'PZ.03', "tegra194-gpio", 23, 11, 'SPI0_SCK', 'SPI1_SCK', None, None),
-    (163, 'PZ.06', "tegra194-gpio", 24, 8, 'SPI0_CS0', 'SPI1_CS0_N', None, None),
-    (164, 'PZ.07', "tegra194-gpio", 26, 7, 'SPI0_CS1', 'SPI1_CS1_N', None, None),
-    (105, 'PQ.05', "tegra194-gpio", 29, 5, 'GPIO01', 'SOC_GPIO41', None, None),
-    (106, 'PQ.06', "tegra194-gpio", 31, 6, 'GPIO11', 'SOC_GPIO42', None, None),
-    (108, 'PR.00', "tegra194-gpio", 32, 12, 'GPIO07', 'SOC_GPIO44', '32f0000.pwm', 0),
-    (84, 'PN.01', "tegra194-gpio", 33, 13, 'GPIO13', 'SOC_GPIO54', '3280000.pwm', 0),
-    (130, 'PU.00', "tegra194-gpio", 35, 19, 'I2S0_FS', 'DAP5_FS', None, None),
-    (113, 'PR.05', "tegra194-gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None),
-    (151, 'PY.02', "tegra194-gpio", 37, 26, 'SPI1_MOSI', 'SPI3_MOSI', None, None),
-    (129, 'PT.07', "tegra194-gpio", 38, 20, 'I2S0_DIN', 'DAP5_DIN', None, None),
-    (128, 'PT.06', "tegra194-gpio", 40, 21, 'I2S0_DOUT', 'DAP5_DOUT', None, None)
+    (118, 'PS.04', "tegra194-gpio", 7, 4, 'GPIO09', 'AUD_MCLK', None, None, JETSON_XAVIER_PADCTL_A1, 0x20),
+    (112, 'PR.04', "tegra194-gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None, JETSON_XAVIER_PADCTL_A0, 0x98),
+    (127, 'PT.05', "tegra194-gpio", 12, 18, 'I2S0_SCLK', 'DAP5_SCLK', None, None, JETSON_XAVIER_PADCTL_A1, 0x80),
+    (149, 'PY.00', "tegra194-gpio", 13, 27, 'SPI1_SCK', 'SPI3_SCK', None, None, JETSON_XAVIER_PADCTL_A13, 0x48),
+    (16, 'PCC.04', "tegra194-gpio-aon", 15, 22, 'GPIO12', 'TOUCH_CLK', "c340000.pwm", 0, JETSON_XAVIER_PADCTL_A14, 0x0),
+    (153, 'PY.04', "tegra194-gpio", 16, 23, 'SPI1_CS1', 'SPI3_CS1_N', None, None, JETSON_XAVIER_PADCTL_A13, 0x28),
+    (152, 'PY.03', "tegra194-gpio", 18, 24, 'SPI1_CS0', 'SPI3_CS0_N', None, None, JETSON_XAVIER_PADCTL_A13, 0x18),
+    (162, 'PZ.05', "tegra194-gpio", 19, 10, 'SPI0_MOSI', 'SPI1_MOSI', None, None, JETSON_XAVIER_PADCTL_A13, 0x58),
+    (161, 'PZ.04', "tegra194-gpio", 21, 9, 'SPI0_MISO', 'SPI1_MISO', None, None, JETSON_XAVIER_PADCTL_A13, 0x20),
+    (150, 'PY.01', "tegra194-gpio", 22, 25, 'SPI1_MISO', 'SPI3_MISO', None, None, JETSON_XAVIER_PADCTL_A13, 0x8),
+    (160, 'PZ.03', "tegra194-gpio", 23, 11, 'SPI0_SCK', 'SPI1_SCK', None, None, JETSON_XAVIER_PADCTL_A13, 0x40),
+    (163, 'PZ.06', "tegra194-gpio", 24, 8, 'SPI0_CS0', 'SPI1_CS0_N', None, None, JETSON_XAVIER_PADCTL_A13, 0x10),
+    (164, 'PZ.07', "tegra194-gpio", 26, 7, 'SPI0_CS1', 'SPI1_CS1_N', None, None, JETSON_XAVIER_PADCTL_A13, 0x50),
+    (105, 'PQ.05', "tegra194-gpio", 29, 5, 'GPIO01', 'SOC_GPIO41', None, None, JETSON_XAVIER_PADCTL_A0, 0x28),
+    (106, 'PQ.06', "tegra194-gpio", 31, 6, 'GPIO11', 'SOC_GPIO42', None, None, JETSON_XAVIER_PADCTL_A0, 0x30),
+    (108, 'PR.00', "tegra194-gpio", 32, 12, 'GPIO07', 'SOC_GPIO44', '32f0000.pwm', 0, JETSON_XAVIER_PADCTL_A0, 0x40),
+    (84, 'PN.01', "tegra194-gpio", 33, 13, 'GPIO13', 'SOC_GPIO54', '3280000.pwm', 0, JETSON_XAVIER_PADCTL_A0, 0x20),
+    (130, 'PU.00', "tegra194-gpio", 35, 19, 'I2S0_FS', 'DAP5_FS', None, None, JETSON_XAVIER_PADCTL_A1, 0x68),
+    (113, 'PR.05', "tegra194-gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None, JETSON_XAVIER_PADCTL_A0, 0x90),
+    (151, 'PY.02', "tegra194-gpio", 37, 26, 'SPI1_MOSI', 'SPI3_MOSI', None, None, JETSON_XAVIER_PADCTL_A13, 0x60),
+    (129, 'PT.07', "tegra194-gpio", 38, 20, 'I2S0_DIN', 'DAP5_DIN', None, None, JETSON_XAVIER_PADCTL_A1, 0x70),
+    (128, 'PT.06', "tegra194-gpio", 40, 21, 'I2S0_DOUT', 'DAP5_DOUT', None, None, JETSON_XAVIER_PADCTL_A1, 0x78)
 ]
 compats_nx = (
     'nvidia,p3509-0000+p3668-0000',
@@ -216,31 +234,31 @@ compats_nx = (
 )
 
 JETSON_XAVIER_PIN_DEFS = [
-    (106, 'PQ.06', "tegra194-gpio", 7, 4, 'MCLK05', 'SOC_GPIO42', None, None),
-    (112, 'PR.04', "tegra194-gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None),
-    (51, 'PH.07', "tegra194-gpio", 12, 18, 'I2S2_CLK', 'DAP2_SCLK', None, None),
-    (108, 'PR.00', "tegra194-gpio", 13, 27, 'PWM01', 'SOC_GPIO44', '32f0000.pwm', 0),
+    (106, 'PQ.06', "tegra194-gpio", 7, 4, 'MCLK05', 'SOC_GPIO42', None, None, JETSON_XAVIER_PADCTL_A0, 0x30),
+    (112, 'PR.04', "tegra194-gpio", 11, 17, 'UART1_RTS', 'UART1_RTS', None, None, JETSON_XAVIER_PADCTL_A0, 0x98),
+    (51, 'PH.07', "tegra194-gpio", 12, 18, 'I2S2_CLK', 'DAP2_SCLK', None, None, JETSON_XAVIER_PADCTL_A4, 0x18),
+    (108, 'PR.00', "tegra194-gpio", 13, 27, 'PWM01', 'SOC_GPIO44', '32f0000.pwm', 0, JETSON_XAVIER_PADCTL_A0, 0x40),
     # Older versions of L4T don'Pt enable this PWM controller in DT, so this PWM
     # channel may not be available.
-    (84, 'PN.01', "tegra194-gpio", 15, 22, 'GPIO27', 'SOC_GPIO54', '3280000.pwm', 0),
-    (8, 'BB.00', "tegra194-gpio-aon", 16, 23, 'GPIO8', 'CAN1_STB', None, None),
-    (44, 'PH.00', "tegra194-gpio", 18, 24, 'GPIO35', 'SOC_GPIO12', '32c0000.pwm', 0),
-    (162, 'PZ.05', "tegra194-gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
-    (161, 'PZ.04', "tegra194-gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None),
-    (101, 'PQ.01', "tegra194-gpio", 22, 25, 'GPIO17', 'SOC_GPIO21', None, None),
-    (160, 'PZ.03', "tegra194-gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
-    (163, 'PZ.06', "tegra194-gpio", 24, 8, 'SPI1_CS0_N', 'SPI1_CS0_N', None, None),
-    (164, 'PZ.07', "tegra194-gpio", 26, 7, 'SPI1_CS1_N', 'SPI1_CS1_N', None, None),
-    (3, 'PAA.03', "tegra194-gpio-aon", 29, 5, 'CAN0_DIN', 'CAN0_DIN', None, None),
-    (2, 'PAA.02', "tegra194-gpio-aon", 31, 6, 'CAN0_DOUT', 'CAN0_DOUT', None, None),
-    (9, 'PBB.01', "tegra194-gpio-aon", 32, 12, 'GPIO9', 'CAN1_EN', None, None),
-    (0, 'PAA.00', "tegra194-gpio-aon", 33, 13, 'CAN1_DOUT', 'CAN1_DOUT', None, None),
-    (54, 'PI.02', "tegra194-gpio", 35, 19, 'I2S2_FS', 'DAP2_FS', None, None),
+    (84, 'PN.01', "tegra194-gpio", 15, 22, 'GPIO27', 'SOC_GPIO54', '3280000.pwm', 0, JETSON_XAVIER_PADCTL_A16, 0x20),
+    (8, 'BB.00', "tegra194-gpio-aon", 16, 23, 'GPIO8', 'CAN1_STB', None, None, JETSON_XAVIER_PADCTL_A15, 0x40),
+    (44, 'PH.00', "tegra194-gpio", 18, 24, 'GPIO35', 'SOC_GPIO12', '32c0000.pwm', 0, JETSON_XAVIER_PADCTL_A4, 0x90),
+    (162, 'PZ.05', "tegra194-gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None, JETSON_XAVIER_PADCTL_A13, 0x58),
+    (161, 'PZ.04', "tegra194-gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None, JETSON_XAVIER_PADCTL_A13, 0x20),
+    (101, 'PQ.01', "tegra194-gpio", 22, 25, 'GPIO17', 'SOC_GPIO21', None, None, JETSON_XAVIER_PADCTL_A0, 0x58),
+    (160, 'PZ.03', "tegra194-gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None, JETSON_XAVIER_PADCTL_A13, 0x40),
+    (163, 'PZ.06', "tegra194-gpio", 24, 8, 'SPI1_CS0_N', 'SPI1_CS0_N', None, None, JETSON_XAVIER_PADCTL_A13, 0x10),
+    (164, 'PZ.07', "tegra194-gpio", 26, 7, 'SPI1_CS1_N', 'SPI1_CS1_N', None, None, JETSON_XAVIER_PADCTL_A13, 0x50),
+    (3, 'PAA.03', "tegra194-gpio-aon", 29, 5, 'CAN0_DIN', 'CAN0_DIN', None, None, JETSON_XAVIER_PADCTL_A15, 0x18),
+    (2, 'PAA.02', "tegra194-gpio-aon", 31, 6, 'CAN0_DOUT', 'CAN0_DOUT', None, None, JETSON_XAVIER_PADCTL_A15, 0x10),
+    (9, 'PBB.01', "tegra194-gpio-aon", 32, 12, 'GPIO9', 'CAN1_EN', None, None, JETSON_XAVIER_PADCTL_A15, 0x48),
+    (0, 'PAA.00', "tegra194-gpio-aon", 33, 13, 'CAN1_DOUT', 'CAN1_DOUT', None, None, JETSON_XAVIER_PADCTL_A15, 0x0),
+    (54, 'PI.02', "tegra194-gpio", 35, 19, 'I2S2_FS', 'DAP2_FS', None, None, JETSON_XAVIER_PADCTL_A4, 0x10),
     # Input-only (due to base board)
-    (113, 'PR.05', "tegra194-gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None),
-    (1, 'PAA.01', "tegra194-gpio-aon", 37, 26, 'CAN1_DIN', 'CAN1_DIN', None, None),
-    (53, 'PI.01', "tegra194-gpio", 38, 20, 'I2S2_DIN', 'DAP2_DIN', None, None),
-    (52, 'PI.00', "tegra194-gpio", 40, 21, 'I2S2_DOUT', 'DAP2_DOUT', None, None)
+    (113, 'PR.05', "tegra194-gpio", 36, 16, 'UART1_CTS', 'UART1_CTS', None, None, JETSON_XAVIER_PADCTL_A0, 0x90),
+    (1, 'PAA.01', "tegra194-gpio-aon", 37, 26, 'CAN1_DIN', 'CAN1_DIN', None, None, JETSON_XAVIER_PADCTL_A15, 0x8),
+    (53, 'PI.01', "tegra194-gpio", 38, 20, 'I2S2_DIN', 'DAP2_DIN', None, None, JETSON_XAVIER_PADCTL_A4, 0x0),
+    (52, 'PI.00', "tegra194-gpio", 40, 21, 'I2S2_DOUT', 'DAP2_DOUT', None, None, JETSON_XAVIER_PADCTL_A4, 0x8)
 ]
 compats_xavier = (
     'nvidia,p2972-0000',
@@ -250,62 +268,74 @@ compats_xavier = (
     'nvidia,jetson-xavier-industrial',
 )
 
+JETSON_TX2_PADCTL_A0 = 0x02430000
+JETSON_TX2_PADCTL_A1 = 0x02431000
+JETOSN_TX2_PADCTL_A3 = 0x02433000
+JETSON_TX2_PADCTL_A4 = 0x02434000
+JETSON_TX2_PADCTL_A5 = 0x02435000
+JETSON_TX2_PADCTL_A11 = 0x0243b000
+JETSON_TX2_PADCTL_A12 = 0x0c301000
+JETSON_TX2_PADCTL_A13 = 0x0243d000
+JETSON_TX2_PADCTL_A14 = 0x0c302000
+JETSON_TX2_PADCTL_A15 = 0x0c303000
+JETSON_TX2_PADCTL_A16 = 0x02440000
+
 JETSON_TX2_NX_PIN_DEFS = [
-    (76, 'PJ.04', "tegra-gpio", 7, 4, 'GPIO09', 'AUD_MCLK', None, None),
-    (28, 'PW.04', "tegra-gpio-aon", 11, 17, 'UART1_RTS', 'UART3_RTS', None, None),
-    (72, 'PJ.00', "tegra-gpio", 12, 18, 'I2S0_SCLK', 'DAP1_SCLK', None, None),
-    (17, 'PV.01', "tegra-gpio-aon", 13, 27, 'SPI1_SCK', 'GPIO_SEN1', None, None),
-    (18, 'PC.02', "tegra-gpio", 15, 22, 'GPIO12', 'DAP2_DOUT', None, None),
-    (19, 'PC.03', "tegra-gpio", 16, 23, 'SPI1_CS1', 'DAP2_DIN', None, None),
-    (20, 'PV.04', "tegra-gpio-aon", 18, 24, 'SPI1_CS0', 'GPIO_SEN4', None, None),
-    (58, 'PH.02', "tegra-gpio", 19, 10, 'SPI0_MOSI', 'GPIO_WAN7', None, None),
-    (57, 'PH.01', "tegra-gpio", 21, 9, 'SPI0_MISO', 'GPIO_WAN6', None, None),
-    (18, 'PV.02', "tegra-gpio-aon", 22, 25, 'SPI1_MISO', 'GPIO_SEN2', None, None),
-    (56, 'PH.00', "tegra-gpio", 23, 11, 'SPI1_CLK', 'GPIO_WAN5', None, None),
-    (59, 'PH.03', "tegra-gpio", 24, 8, 'SPI0_CS0', 'GPIO_WAN8', None, None),
-    (163, 'PY.03', "tegra-gpio", 26, 7, 'SPI0_CS1', 'GPIO_MDM4', None, None),
-    (105, 'PN.01', "tegra-gpio", 29, 5, 'GPIO01', 'GPIO_CAM2', None, None),
-    (50, 'PEE.02', "tegra-gpio-aon", 31, 6, 'GPIO11', 'TOUCH_CLK', None, None),
-    (8, 'PU.00', "tegra-gpio-aon", 32, 12, 'GPIO07', 'GPIO_DIS0', '3280000.pwm', 0),
-    (13, 'PU.05', "tegra-gpio-aon", 33, 13, 'GPIO13', 'GPIO_DIS5', '32a0000.pwm', 0),
-    (75, 'PJ.03', "tegra-gpio", 35, 19, 'I2S0_FS', 'DAP1_FS', None, None),
-    (29, 'PW.05', "tegra-gpio-aon", 36, 16, 'UART1_CTS', 'UART3_CTS', None, None),
-    (19, 'PV.03', "tegra-gpio-aon", 37, 26, 'SPI1_MOSI', 'GPIO_SEN3', None, None),
-    (74, 'PJ.02', "tegra-gpio", 38, 20, 'I2S0_DIN', 'DAP1_DIN', None, None),
-    (73, 'PJ.01', "tegra-gpio", 40, 21, 'I2S0_DOUT', 'DAP1_DOUT', None, None)
+    (76, 'PJ.04', "tegra-gpio", 7, 4, 'GPIO09', 'AUD_MCLK', None, None, JETSON_TX2_PADCTL_A1, 0x20),
+    (28, 'PW.04', "tegra-gpio-aon", 11, 17, 'UART1_RTS', 'UART3_RTS', None, None, JETSON_TX2_PADCTL_A14, 0x10),
+    (72, 'PJ.00', "tegra-gpio", 12, 18, 'I2S0_SCLK', 'DAP1_SCLK', None, None, JETSON_TX2_PADCTL_A1, 0x40),
+    (17, 'PV.01', "tegra-gpio-aon", 13, 27, 'SPI1_SCK', 'GPIO_SEN1', None, None, JETSON_TX2_PADCTL_A14, 0x50),
+    (18, 'PC.02', "tegra-gpio", 15, 22, 'GPIO12', 'DAP2_DOUT', None, None, JETSON_TX2_PADCTL_A4, 0x8),
+    (19, 'PC.03', "tegra-gpio", 16, 23, 'SPI1_CS1', 'DAP2_DIN', None, None, JETSON_TX2_PADCTL_A4, 0x0),
+    (20, 'PV.04', "tegra-gpio-aon", 18, 24, 'SPI1_CS0', 'GPIO_SEN4', None, None, JETSON_TX2_PADCTL_A4, 0x68),
+    (58, 'PH.02', "tegra-gpio", 19, 10, 'SPI0_MOSI', 'GPIO_WAN7', None, None, JETSON_TX2_PADCTL_A13, 0x8),
+    (57, 'PH.01', "tegra-gpio", 21, 9, 'SPI0_MISO', 'GPIO_WAN6', None, None, JETSON_TX2_PADCTL_A13, 0x10),
+    (18, 'PV.02', "tegra-gpio-aon", 22, 25, 'SPI1_MISO', 'GPIO_SEN2', None, None, JETSON_TX2_PADCTL_A14, 0x58),
+    (56, 'PH.00', "tegra-gpio", 23, 11, 'SPI1_CLK', 'GPIO_WAN5', None, None, JETSON_TX2_PADCTL_A13, 0x18),
+    (59, 'PH.03', "tegra-gpio", 24, 8, 'SPI0_CS0', 'GPIO_WAN8', None, None, JETSON_TX2_PADCTL_A13, 0x0),
+    (163, 'PY.03', "tegra-gpio", 26, 7, 'SPI0_CS1', 'GPIO_MDM4', None, None, JETSON_TX2_PADCTL_A13, 0x78),
+    (105, 'PN.01', "tegra-gpio", 29, 5, 'GPIO01', 'GPIO_CAM2', None, None, JETSON_TX2_PADCTL_A0, 0x28),
+    (50, 'PEE.02', "tegra-gpio-aon", 31, 6, 'GPIO11', 'TOUCH_CLK', None, None, JETSON_TX2_PADCTL_A14, 0x0),
+    (8, 'PU.00', "tegra-gpio-aon", 32, 12, 'GPIO07', 'GPIO_DIS0', '3280000.pwm', 0, JETSON_TX2_PADCTL_A12, 0x80),
+    (13, 'PU.05', "tegra-gpio-aon", 33, 13, 'GPIO13', 'GPIO_DIS5', '32a0000.pwm', 0, JETSON_TX2_PADCTL_A12, 0xA8),
+    (75, 'PJ.03', "tegra-gpio", 35, 19, 'I2S0_FS', 'DAP1_FS', None, None, JETSON_TX2_PADCTL_A1, 0x28),
+    (29, 'PW.05', "tegra-gpio-aon", 36, 16, 'UART1_CTS', 'UART3_CTS', None, None, JETSON_TX2_PADCTL_A14, 0x8),
+    (19, 'PV.03', "tegra-gpio-aon", 37, 26, 'SPI1_MOSI', 'GPIO_SEN3', None, None, JETSON_TX2_PADCTL_A14, 0x60),
+    (74, 'PJ.02', "tegra-gpio", 38, 20, 'I2S0_DIN', 'DAP1_DIN', None, None, JETSON_TX2_PADCTL_A1, 0x30),
+    (73, 'PJ.01', "tegra-gpio", 40, 21, 'I2S0_DOUT', 'DAP1_DOUT', None, None, JETSON_TX2_PADCTL_A1, 0x38)
 ]
 compats_tx2_nx = (
     'nvidia,p3509-0000+p3636-0001',
 )
 
 JETSON_TX2_PIN_DEFS = [
-    (76, 'PJ.04', "tegra-gpio", 7, 4, 'PAUDIO_MCLK', 'AUD_MCLK', None, None),
+    (76, 'PJ.04', "tegra-gpio", 7, 4, 'PAUDIO_MCLK', 'AUD_MCLK', None, None, JETSON_TX2_PADCTL_A1, 0x20),
     # Output-only (due to base board)
-    (146, 'PT.02', "tegra-gpio", 11, 17, 'PUART0_RTS', 'UART1_RTS', None, None),
-    (72, 'PJ.00', "tegra-gpio", 12, 18, 'PI2S0_CLK', 'DAP1_SCLK', None, None),
-    (77, 'PJ.05', "tegra-gpio", 13, 27, 'PGPIO20_AUD_INT', 'GPIO_AUD0', None, None),
+    (146, 'PT.02', "tegra-gpio", 11, 17, 'PUART0_RTS', 'UART1_RTS', None, None, JETSON_TX2_PADCTL_A5, 0x8),
+    (72, 'PJ.00', "tegra-gpio", 12, 18, 'PI2S0_CLK', 'DAP1_SCLK', None, None, JETSON_TX2_PADCTL_A1, 0x40),
+    (77, 'PJ.05', "tegra-gpio", 13, 27, 'PGPIO20_AUD_INT', 'GPIO_AUD0', None, None, JETSON_TX2_PADCTL_A1, 0x18),
     (15, 'GPIO_EXP_P16', "tca9539", 15, 22, 'GPIO_EXP_P17', 'GPIO_EXP_P17', None, None),
     # Input-only (due to module):
-    (40,  'PAA.00', "tegra-gpio-aon", 16, 23, 'AO_DMIC_IN_DAT', 'CAN_GPIO0', None, None),
-    (161, 'PY.01', "tegra-gpio", 18, 24, 'GPIO16_MDM_WAKE_AP', 'GPIO_MDM2', None, None),
-    (109, 'PN.05', "tegra-gpio", 19, 10, 'SPI1_MOSI', 'GPIO_CAM6', None, None),
-    (108, 'PN.04', "tegra-gpio", 21, 9, 'SPI1_MISO', 'GPIO_CAM5', None, None),
+    (40,  'PAA.00', "tegra-gpio-aon", 16, 23, 'AO_DMIC_IN_DAT', 'CAN_GPIO0', None, None, JETSON_TX2_PADCTL_A15, 0x28),
+    (161, 'PY.01', "tegra-gpio", 18, 24, 'GPIO16_MDM_WAKE_AP', 'GPIO_MDM2', None, None, JETSON_TX2_PADCTL_A13, 0x68),
+    (109, 'PN.05', "tegra-gpio", 19, 10, 'SPI1_MOSI', 'GPIO_CAM6', None, None, JETSON_TX2_PADCTL_A0, 0x48),
+    (108, 'PN.04', "tegra-gpio", 21, 9, 'SPI1_MISO', 'GPIO_CAM5', None, None, JETSON_TX2_PADCTL_A0, 0x40),
     (14,  'GPIO_EXP_P16', "tca9539", 22, 25, 'GPIO_EXP_P16', 'GPIO_EXP_P16', None, None),
-    (107, 'PN.03', "tegra-gpio", 23, 11, 'SPI1_CLK', 'GPIO_CAM4', None, None),
-    (110, 'PN.06', "tegra-gpio", 24, 8, 'SPI1_CS0', 'GPIO_CAM7', None, None),
+    (107, 'PN.03', "tegra-gpio", 23, 11, 'SPI1_CLK', 'GPIO_CAM4', None, None, JETSON_TX2_PADCTL_A0, 0x38),
+    (110, 'PN.06', "tegra-gpio", 24, 8, 'SPI1_CS0', 'GPIO_CAM7', None, None, JETSON_TX2_PADCTL_A0, 0x50),
     # Board pin 26 is not available on this board
-    (78, 'PJ.06', "tegra-gpio", 29, 5, 'GPIO19_AUD_RST', 'GPIO_AUD1', None, None),
-    (42, 'PAA.02', "tegra-gpio-aon", 31, 6, 'GPIO9_MOTION_INT', 'CAN_GPIO2', None, None),
+    (78, 'PJ.06', "tegra-gpio", 29, 5, 'GPIO19_AUD_RST', 'GPIO_AUD1', None, None, JETSON_TX2_PADCTL_A1, 0x10),
+    (42, 'PAA.02', "tegra-gpio-aon", 31, 6, 'GPIO9_MOTION_INT', 'CAN_GPIO2', None, None, JETSON_TX2_PADCTL_A15, 0x38),
     # Output-only (due to module):
-    (41, 'PAA.01', "tegra-gpio-aon", 32, 12, 'AO_DMIC_IN_CLK', 'CAN_GPIO1', None, None),
-    (69, 'PI.05', "tegra-gpio", 33, 13, 'GPIO11_AP_WAKE_BT', 'GPIO_PQ5', None, None),
-    (75, 'PJ.03', "tegra-gpio", 35, 19, 'I2S0_LRCLK', 'DAP1_FS', None, None),
+    (41, 'PAA.01', "tegra-gpio-aon", 32, 12, 'AO_DMIC_IN_CLK', 'CAN_GPIO1', None, None, JETSON_TX2_PADCTL_A15, 0x30),
+    (69, 'PI.05', "tegra-gpio", 33, 13, 'GPIO11_AP_WAKE_BT', 'GPIO_PQ5', None, None, JETOSN_TX2_PADCTL_A3, 0x28),
+    (75, 'PJ.03', "tegra-gpio", 35, 19, 'I2S0_LRCLK', 'DAP1_FS', None, None, JETSON_TX2_PADCTL_A1, 0x28),
     # Input-only (due to base board) IF NVIDIA debug card NOT plugged in
     # Output-only (due to base board) IF NVIDIA debug card plugged in
-    (147, 'PT.03', "tegra-gpio", 36, 16, 'UART0_CTS', 'UART1_CTS', None, None),
-    (68, 'PI.04', "tegra-gpio", 37, 26, 'GPIO8_ALS_PROX_INT', 'GPIO_PQ4', None, None),
-    (74, 'PJ.02', "tegra-gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN', None, None),
-    (73, 'PJ.01', "tegra-gpio", 40, 21, 'I2S0_SDOUT', 'DAP1_DOUT', None, None)
+    (147, 'PT.03', "tegra-gpio", 36, 16, 'UART0_CTS', 'UART1_CTS', None, None, JETSON_TX2_PADCTL_A5, 0x0),
+    (68, 'PI.04', "tegra-gpio", 37, 26, 'GPIO8_ALS_PROX_INT', 'GPIO_PQ4', None, None, JETOSN_TX2_PADCTL_A3, 0x20),
+    (74, 'PJ.02', "tegra-gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN', None, None, JETSON_TX2_PADCTL_A1, 0x30),
+    (73, 'PJ.01', "tegra-gpio", 40, 21, 'I2S0_SDOUT', 'DAP1_DOUT', None, None, JETSON_TX2_PADCTL_A1, 0x38)
 ]
 compats_tx2 = (
     'nvidia,p2771-0000',
@@ -316,32 +346,34 @@ compats_tx2 = (
     'nvidia,storm',
 )
 
+JETSON_X1_PINMUX_AUX = 0x70003000
+
 JETSON_TX1_PIN_DEFS = [
-    (216, '', "tegra-gpio", 7, 4, 'AUDIO_MCLK', 'AUD_MCLK', None, None),
+    (216, '', "tegra-gpio", 7, 4, 'AUDIO_MCLK', 'AUD_MCLK', None, None, JETSON_X1_PINMUX_AUX, 0x3180),
     # Output-only (due to base board)
-    (162, '', "tegra-gpio", 11, 17, 'UART0_RTS', 'UART1_RTS', None, None),
-    (11, '',  "tegra-gpio", 12, 18, 'I2S0_CLK', 'DAP1_SCLK', None, None),
-    (38, '', "tegra-gpio", 13, 27, 'GPIO20_AUD_INT', 'GPIO_PE6', None, None),
+    (162, '', "tegra-gpio", 11, 17, 'UART0_RTS', 'UART1_RTS', None, None, JETSON_X1_PINMUX_AUX, 0x30EC),
+    (11, '',  "tegra-gpio", 12, 18, 'I2S0_CLK', 'DAP1_SCLK', None, None, JETSON_X1_PINMUX_AUX, 0x3130),
+    (38, '', "tegra-gpio", 13, 27, 'GPIO20_AUD_INT', 'GPIO_PE6', None, None, JETSON_X1_PINMUX_AUX, 0x3248),
     (15, '', "tca9539", 15, 22, 'GPIO_EXP_P17', 'GPIO_EXP_P17', None, None),
-    (37, '', "tegra-gpio", 16, 23, 'AO_DMIC_IN_DAT', 'DMIC3_DAT', None, None),
-    (184, '', "tegra-gpio", 18, 24, 'GPIO16_MDM_WAKE_AP', 'MODEM_WAKE_AP', None, None),
-    (16, '', "tegra-gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None),
-    (17, '', "tegra-gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None),
+    (37, '', "tegra-gpio", 16, 23, 'AO_DMIC_IN_DAT', 'DMIC3_DAT', None, None, JETSON_X1_PINMUX_AUX, 0x30B8),
+    (184, '', "tegra-gpio", 18, 24, 'GPIO16_MDM_WAKE_AP', 'MODEM_WAKE_AP', None, None, JETSON_X1_PINMUX_AUX, 0x321C),
+    (16, '', "tegra-gpio", 19, 10, 'SPI1_MOSI', 'SPI1_MOSI', None, None, JETSON_X1_PINMUX_AUX, 0x3050),
+    (17, '', "tegra-gpio", 21, 9, 'SPI1_MISO', 'SPI1_MISO', None, None, JETSON_X1_PINMUX_AUX, 0x3054),
     (14, '', "tca9539", 22, 25, 'GPIO_EXP_P16', 'GPIO_EXP_P16', None, None),
-    (18, '', "tegra-gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None),
-    (19, '', "tegra-gpio", 24, 8, 'SPI1_CS0', 'SPI1_CS0', None, None),
-    (20, '', "tegra-gpio", 26, 7, 'SPI1_CS1', 'SPI1_CS1', None, None),
-    (219, '', "tegra-gpio", 29, 5, 'GPIO19_AUD_RST', 'GPIO_X1_AUD', None, None),
-    (186, '', "tegra-gpio", 31, 6, 'GPIO9_MOTION_INT', 'MOTION_INT', None, None),
-    (36, '', "tegra-gpio", 32, 12, 'AO_DMIC_IN_CLK', 'DMIC3_CLK', None, None),
-    (63, '', "tegra-gpio", 33, 13, 'GPIO11_AP_WAKE_BT', 'AP_WAKE_NFC', None, None),
-    (8, '', "tegra-gpio", 35, 19, 'I2S0_LRCLK', 'DAP1_FS', None, None),
+    (18, '', "tegra-gpio", 23, 11, 'SPI1_CLK', 'SPI1_SCK', None, None, JETSON_X1_PINMUX_AUX, 0x3058),
+    (19, '', "tegra-gpio", 24, 8, 'SPI1_CS0', 'SPI1_CS0', None, None, JETSON_X1_PINMUX_AUX, 0x305C),
+    (20, '', "tegra-gpio", 26, 7, 'SPI1_CS1', 'SPI1_CS1', None, None, JETSON_X1_PINMUX_AUX, 0x3060),
+    (219, '', "tegra-gpio", 29, 5, 'GPIO19_AUD_RST', 'GPIO_X1_AUD', None, None, JETSON_X1_PINMUX_AUX, 0x318c),
+    (186, '', "tegra-gpio", 31, 6, 'GPIO9_MOTION_INT', 'MOTION_INT', None, None, 0x3224),
+    (36, '', "tegra-gpio", 32, 12, 'AO_DMIC_IN_CLK', 'DMIC3_CLK', None, None, JETSON_X1_PINMUX_AUX, 0x30B4),
+    (63, '', "tegra-gpio", 33, 13, 'GPIO11_AP_WAKE_BT', 'AP_WAKE_NFC', None, None, JETSON_X1_PINMUX_AUX, 0x31CC),
+    (8, '', "tegra-gpio", 35, 19, 'I2S0_LRCLK', 'DAP1_FS', None, None, JETSON_X1_PINMUX_AUX, 0x3124),
     # Input-only (due to base board) IF NVIDIA debug card NOT plugged in
     # Input-only (due to base board) (always reads fixed value) IF NVIDIA debug card plugged in
-    (163, '', "tegra-gpio", 36, 16, 'UART0_CTS', 'UART1_CTS', None, None),
-    (187, '',  "tegra-gpio", 37, 26, 'GPIO8_ALS_PROX_INT', 'ALS_PROX_INT', None, None),
-    (9, '', "tegra-gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN', None, None),
-    (10, '', "tegra-gpio", 40, 21, 'I2S0_SDOUT', 'DAP1_DOUT', None, None)
+    (163, '', "tegra-gpio", 36, 16, 'UART0_CTS', 'UART1_CTS', None, None, 0x30F0),
+    (187, '',  "tegra-gpio", 37, 26, 'GPIO8_ALS_PROX_INT', 'ALS_PROX_INT', None, None, JETSON_X1_PINMUX_AUX, 0x3228),
+    (9, '', "tegra-gpio", 38, 20, 'I2S0_SDIN', 'DAP1_DIN', None, None, JETSON_X1_PINMUX_AUX, 0x3128),
+    (10, '', "tegra-gpio", 40, 21, 'I2S0_SDOUT', 'DAP1_DOUT', None, None, JETSON_X1_PINMUX_AUX, 0x312C)
 ]
 compats_tx1 = (
     'nvidia,p2371-2180',
@@ -349,30 +381,30 @@ compats_tx1 = (
 )
 
 JETSON_NANO_PIN_DEFS = [
-    (216,  '', "tegra-gpio", 7, 4, 'GPIO9', 'AUD_MCLK', None, None),
-    (50,  '', "tegra-gpio", 11, 17, 'UART1_RTS', 'UART2_RTS', None, None),
-    (79, '',  "tegra-gpio", 12, 18, 'I2S0_SCLK', 'DAP4_SCLK', None, None),
-    (14,  '', "tegra-gpio", 13, 27, 'SPI1_SCK', 'SPI2_SCK', None, None),
-    (194,  '', "tegra-gpio", 15, 22, 'GPIO12', 'LCD_TE', None, None),
-    (232,  '', "tegra-gpio", 16, 23, 'SPI1_CS1', 'SPI2_CS1', None, None),
-    (15,  '', "tegra-gpio", 18, 24, 'SPI1_CS0', 'SPI2_CS0', None, None),
-    (16,  '', "tegra-gpio", 19, 10, 'SPI0_MOSI', 'SPI1_MOSI', None, None),
-    (17,  '', "tegra-gpio", 21, 9, 'SPI0_MISO', 'SPI1_MISO', None, None),
-    (13,  '', "tegra-gpio", 22, 25, 'SPI1_MISO', 'SPI2_MISO', None, None),
-    (18,  '', "tegra-gpio", 23, 11, 'SPI0_SCK', 'SPI1_SCK', None, None),
-    (19,  '', "tegra-gpio", 24, 8, 'SPI0_CS0', 'SPI1_CS0', None, None),
-    (20,  '', "tegra-gpio", 26, 7, 'SPI0_CS1', 'SPI1_CS1', None, None),
-    (149,  '', "tegra-gpio", 29, 5, 'GPIO01', 'CAM_AF_EN', None, None),
-    (200,  '', "tegra-gpio", 31, 6, 'GPIO11', 'GPIO_PZ0', None, None),
+    (216,  '', "tegra-gpio", 7, 4, 'GPIO9', 'AUD_MCLK', None, None, JETSON_X1_PINMUX_AUX, 0x3180),
+    (50,  '', "tegra-gpio", 11, 17, 'UART1_RTS', 'UART2_RTS', None, None, JETSON_X1_PINMUX_AUX, 0x30FC),
+    (79, '',  "tegra-gpio", 12, 18, 'I2S0_SCLK', 'DAP4_SCLK', None, None, JETSON_X1_PINMUX_AUX, 0x3150),
+    (14,  '', "tegra-gpio", 13, 27, 'SPI1_SCK', 'SPI2_SCK', None, None, JETSON_X1_PINMUX_AUX, 0x306C),
+    (194,  '', "tegra-gpio", 15, 22, 'GPIO12', 'LCD_TE', None, None, JETSON_X1_PINMUX_AUX, 0x31F8),
+    (232,  '', "tegra-gpio", 16, 23, 'SPI1_CS1', 'SPI2_CS1', None, None, JETSON_X1_PINMUX_AUX, 0x3074),
+    (15,  '', "tegra-gpio", 18, 24, 'SPI1_CS0', 'SPI2_CS0', None, None, JETSON_X1_PINMUX_AUX, 0x3070),
+    (16,  '', "tegra-gpio", 19, 10, 'SPI0_MOSI', 'SPI1_MOSI', None, None, JETSON_X1_PINMUX_AUX, 0x3050),
+    (17,  '', "tegra-gpio", 21, 9, 'SPI0_MISO', 'SPI1_MISO', None, None, JETSON_X1_PINMUX_AUX, 0x3054),
+    (13,  '', "tegra-gpio", 22, 25, 'SPI1_MISO', 'SPI2_MISO', None, None, JETSON_X1_PINMUX_AUX, 0x3068),
+    (18,  '', "tegra-gpio", 23, 11, 'SPI0_SCK', 'SPI1_SCK', None, None, JETSON_X1_PINMUX_AUX, 0x3058),
+    (19,  '', "tegra-gpio", 24, 8, 'SPI0_CS0', 'SPI1_CS0', None, None, JETSON_X1_PINMUX_AUX, 0x305C),
+    (20,  '', "tegra-gpio", 26, 7, 'SPI0_CS1', 'SPI1_CS1', None, None, JETSON_X1_PINMUX_AUX, 0x3060),
+    (149,  '', "tegra-gpio", 29, 5, 'GPIO01', 'CAM_AF_EN', None, None, JETSON_X1_PINMUX_AUX, 0x31E4),
+    (200,  '', "tegra-gpio", 31, 6, 'GPIO11', 'GPIO_PZ0', None, None, JETSON_X1_PINMUX_AUX, 0x327C),
     # Older versions of L4T have a DT bug which instantiates a bogus device
     # which prevents this library from using this PWM channel.
-    (168,  '', "tegra-gpio", 32, 12, 'GPIO07', 'LCD_BL_PW', '7000a000.pwm', 0),
-    (38,  '', "tegra-gpio", 33, 13, 'GPIO13', 'GPIO_PE6', '7000a000.pwm', 2),
-    (76,  '', "tegra-gpio", 35, 19, 'I2S0_FS', 'DAP4_FS', None, None),
-    (51,  '', "tegra-gpio", 36, 16, 'UART1_CTS', 'UART2_CTS', None, None),
-    (12,  '', "tegra-gpio", 37, 26, 'SPI1_MOSI', 'SPI2_MOSI', None, None),
-    (77,  '', "tegra-gpio", 38, 20, 'I2S0_DIN', 'DAP4_DIN', None, None),
-    (78,  '', "tegra-gpio", 40, 21, 'I2S0_DOUT', 'DAP4_DOUT', None, None)
+    (168,  '', "tegra-gpio", 32, 12, 'GPIO07', 'LCD_BL_PW', '7000a000.pwm', 0, JETSON_X1_PINMUX_AUX, 0x31FC),
+    (38,  '', "tegra-gpio", 33, 13, 'GPIO13', 'GPIO_PE6', '7000a000.pwm', 2, JETSON_X1_PINMUX_AUX, 0x3248),
+    (76,  '', "tegra-gpio", 35, 19, 'I2S0_FS', 'DAP4_FS', None, None, JETSON_X1_PINMUX_AUX, 0x3144),
+    (51,  '', "tegra-gpio", 36, 16, 'UART1_CTS', 'UART2_CTS', None, None, JETSON_X1_PINMUX_AUX, 0x3100),
+    (12,  '', "tegra-gpio", 37, 26, 'SPI1_MOSI', 'SPI2_MOSI', None, None, JETSON_X1_PINMUX_AUX, 0x3064),
+    (77,  '', "tegra-gpio", 38, 20, 'I2S0_DIN', 'DAP4_DIN', None, None, JETSON_X1_PINMUX_AUX, 0x3148),
+    (78,  '', "tegra-gpio", 40, 21, 'I2S0_DOUT', 'DAP4_DOUT', None, None, JETSON_X1_PINMUX_AUX, 0x314C)
 ]
 compats_nano = (
     'nvidia,p3450-0000',
