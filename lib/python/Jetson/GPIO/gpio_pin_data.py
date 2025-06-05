@@ -119,29 +119,29 @@ compats_jetson_orins_nano = (
 )
 
 JETSON_ORIN_PIN_DEFS = [
-    (106, 'PQ.06', "tegra234-gpio", 7, 4, 'MCLK05', 'GP66', None, None),
+    (106, 'PQ.06', "tegra234-gpio", 7, 4, 'MCLK05', 'GP66', None, None, JETSON_ORIN_PADCTL_A0, 0x70),
     # Output-only (due to base board)
-    (112, 'PR.04', "tegra234-gpio", 11, 17, 'UART1_RTS', 'GP72_UART1_RTS_N', None, None),
-    (50, 'PH.07', "tegra234-gpio", 12, 18, 'I2S2_CLK', 'GP122', None, None),
-    (108, 'PR.00', "tegra234-gpio", 13, 27, 'PWM01', 'GP68', '32f0000.pwm', 0),
-    (85, 'PN.01', "tegra234-gpio", 15, 22, 'GPIO27', 'GP88_PWM1', '3280000.pwm', 0),
-    (9, 'PBB.01', "tegra234-gpio-aon", 16, 23, 'GPIO08', 'GP26', None, None),
-    (43, 'PH.00', "tegra234-gpio", 18, 24, 'GPIO35', 'GP115', '32c0000.pwm', 0),
-    (135, 'PZ.05', "tegra234-gpio", 19, 10, 'SPI1_MOSI', 'GP49_SPI1_MOSI', None, None),
-    (134, 'PZ.04', "tegra234-gpio", 21, 9, 'SPI1_MISO', 'GP48_SPI1_MISO', None, None),
-    (96, 'PP.04', "tegra234-gpio", 22, 25, 'GPIO17', 'GP56', None, None),
-    (133, 'PZ.03', "tegra234-gpio", 23, 11, 'SPI1_CLK', 'GP47_SPI1_CLK', None, None),
-    (136, 'PZ.06', "tegra234-gpio", 24, 8, 'SPI1_CS0_N', 'GP50_SPI1_CS0_N', None, None),
-    (137, 'PZ.07', "tegra234-gpio", 26, 7, 'SPI1_CS1_N', 'GP51_SPI1_CS1_N', None, None),
-    (1, 'PAA.01', "tegra234-gpio-aon", 29, 5, 'CAN0_DIN', 'GP18_CAN0_DIN', None, None),
-    (0, 'PAA.00', "tegra234-gpio-aon", 31, 6, 'CAN0_DOUT', 'GP17_CAN0_DOUT', None, None),
-    (8, 'PBB.00', "tegra234-gpio-aon", 32, 12, 'GPIO09', 'GP25', None, None),
-    (2, 'PAA.02', "tegra234-gpio-aon", 33, 13, 'CAN1_DOUT', 'GP19_CAN1_DOUT', None, None),
-    (53, 'PI.02', "tegra234-gpio", 35, 19, 'I2S2_FS', 'GP125', None, None),
-    (113, 'PR.05', "tegra234-gpio", 36, 16, 'UART1_CTS', 'GP73_UART1_CTS_N', None, None),
-    (3, 'PAA.03', "tegra234-gpio-aon", 37, 26, 'CAN1_DIN', 'GP20_CAN1_DIN', None, None),
-    (52, 'PI.01', "tegra234-gpio", 38, 20, 'I2S2_DIN', 'GP124', None, None),
-    (51, 'PI.00', "tegra234-gpio", 40, 21, 'I2S2_DOUT', 'GP123', None, None)
+    (112, 'PR.04', "tegra234-gpio", 11, 17, 'UART1_RTS', 'GP72_UART1_RTS_N', None, None, JETSON_ORIN_PADCTL_A0, 0x98),
+    (50, 'PH.07', "tegra234-gpio", 12, 18, 'I2S2_CLK', 'GP122', None, None, JETSON_ORIN_PADCTL_A4, 0x88),
+    (108, 'PR.00', "tegra234-gpio", 13, 27, 'PWM01', 'GP68', '32f0000.pwm', 0, JETSON_ORIN_PADCTL_A0, 0x80),
+    (85, 'PN.01', "tegra234-gpio", 15, 22, 'GPIO27', 'GP88_PWM1', '3280000.pwm', 0, JETSON_ORIN_PADCTL_A16, 0x20),
+    (9, 'PBB.01', "tegra234-gpio-aon", 16, 23, 'GPIO08', 'GP26', None, None, JETSON_ORIN_PADCTL_A14, 0x48),
+    (43, 'PH.00', "tegra234-gpio", 18, 24, 'GPIO35', 'GP115', '32c0000.pwm', 0, JETSON_ORIN_PADCTL_A4, 0x40),
+    (135, 'PZ.05', "tegra234-gpio", 19, 10, 'SPI1_MOSI', 'GP49_SPI1_MOSI', None, None, JETSON_ORIN_PADCTL_A13, 0x40),
+    (134, 'PZ.04', "tegra234-gpio", 21, 9, 'SPI1_MISO', 'GP48_SPI1_MISO', None, None, JETSON_ORIN_PADCTL_A13, 0x18),
+    (96, 'PP.04', "tegra234-gpio", 22, 25, 'GPIO17', 'GP56', None, None, JETSON_ORIN_PADCTL_A0, 0x20),
+    (133, 'PZ.03', "tegra234-gpio", 23, 11, 'SPI1_CLK', 'GP47_SPI1_CLK', None, None, JETSON_ORIN_PADCTL_A13, 0x28),
+    (136, 'PZ.06', "tegra234-gpio", 24, 8, 'SPI1_CS0_N', 'GP50_SPI1_CS0_N', None, None, JETSON_ORIN_PADCTL_A13, 0x8),
+    (137, 'PZ.07', "tegra234-gpio", 26, 7, 'SPI1_CS1_N', 'GP51_SPI1_CS1_N', None, None, JETSON_ORIN_PADCTL_A13, 0x38),
+    (1, 'PAA.01', "tegra234-gpio-aon", 29, 5, 'CAN0_DIN', 'GP18_CAN0_DIN', None, None, JETSON_ORIN_PADCTL_A14, 0x18),
+    (0, 'PAA.00', "tegra234-gpio-aon", 31, 6, 'CAN0_DOUT', 'GP17_CAN0_DOUT', None, None, JETSON_ORIN_PADCTL_A14, 0x10),
+    (8, 'PBB.00', "tegra234-gpio-aon", 32, 12, 'GPIO09', 'GP25', None, None, JETSON_ORIN_PADCTL_A14, 0x40),
+    (2, 'PAA.02', "tegra234-gpio-aon", 33, 13, 'CAN1_DOUT', 'GP19_CAN1_DOUT', None, None, JETSON_ORIN_PADCTL_A14, 0x0),
+    (53, 'PI.02', "tegra234-gpio", 35, 19, 'I2S2_FS', 'GP125', None, None, JETSON_ORIN_PADCTL_A4, 0xA0),
+    (113, 'PR.05', "tegra234-gpio", 36, 16, 'UART1_CTS', 'GP73_UART1_CTS_N', None, None, JETSON_ORIN_PADCTL_A0, 0x90),
+    (3, 'PAA.03', "tegra234-gpio-aon", 37, 26, 'CAN1_DIN', 'GP20_CAN1_DIN', None, None, JETSON_ORIN_PADCTL_A14, 0x8),
+    (52, 'PI.01', "tegra234-gpio", 38, 20, 'I2S2_DIN', 'GP124', None, None, JETSON_ORIN_PADCTL_A4, 0x98),
+    (51, 'PI.00', "tegra234-gpio", 40, 21, 'I2S2_DOUT', 'GP123', None, None, JETSON_ORIN_PADCTL_A4, 0x90)
 ]
 
 compats_jetson_orins = (
