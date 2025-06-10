@@ -520,9 +520,6 @@ class ChannelInfo(object):
         self.reg_block_base_addr = reg_block_base_addr
         self.reg_offset = reg_offset
 
-def register_addr(base: int, offset: int) -> int:
-    pass
-
 ids_warned = False
 
 def find_pmgr_board(prefix):
