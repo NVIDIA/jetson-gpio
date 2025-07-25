@@ -364,10 +364,10 @@ JETSON_THOR_REFERENCE_PIN_DEFS = [
     # Output-only (due to base board)
     (92, 'PM.04', "tegra264-gpio-main", 11, 17, 'UART1_RTS', 'GP136_UART9_RTS_N', None, None),
     (21, 'PV.06', "tegra264-gpio-main", 12, 18, 'I2S2_CLK', 'GP184_DAP2_CLK', None, None),
-    (88, 'PM.00', "tegra264-gpio-main", 13, 27, 'PWM01', 'GP132_PWM9', '32f0000.pwm', 0),
-    (127, 'PF.07', "tegra264-gpio-main", 15, 22, 'GPIO27', 'GP257_PWM2', '3280000.pwm', 0),
+    (88, 'PM.00', "tegra264-gpio-main", 13, 27, 'PWM01', 'GP132_PWM9', '810c610000.pwm', 0),
+    (127, 'PF.07', "tegra264-gpio-main", 15, 22, 'GPIO27', 'GP257_PWM2', '810c5e0000.pwm', 0),
     (21, 'PDD.03', "tegra264-gpio-aon", 16, 23, 'GPIO08', 'GP21', None, None),
-    (14, 'PU.07', "tegra264-gpio-main", 18, 24, 'GPIO44', 'GP177', '32c0000.pwm', 0),
+    (14, 'PU.07', "tegra264-gpio-main", 18, 24, 'GPIO44', 'GP177_PWM5', '810c600000.pwm', 0),
     (73, 'PK.01', "tegra264-gpio-main", 19, 10, 'SPI1_MOSI', 'GP117_SPI1_MOSI', None, None),
     (72, 'PK.00', "tegra264-gpio-main", 21, 9, 'SPI1_MISO', 'GP116_SPI1_MISO', None, None),
     (7, 'PU.00', "tegra264-gpio-main", 22, 25, 'I2S7_DIN', 'GP170', None, None),
