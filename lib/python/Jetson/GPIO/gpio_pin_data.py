@@ -72,7 +72,8 @@ JETSON_ORIN_NX_PIN_DEFS = [
     (113, 'PR.05', "tegra234-gpio", 36, 16, 'UART1_CTS', 'GP73_UART1_CTS_N', None, None),
     (124, 'PY.02', "tegra234-gpio", 37, 26, 'SPI1_MOSI', 'GP38_SPI3_MOSI', None, None),
     (52, 'PI.01', "tegra234-gpio", 38, 20, 'I2S0_SDIN', 'GP124', None, None),
-    (51, 'PI.00', "tegra234-gpio", 40, 21, 'I2S0_SDOUT', 'GP123', None, None)
+    (51, 'PI.00', "tegra234-gpio", 40, 21, 'I2S0_SDOUT', 'GP123', None, None),
+    (98, 'PP.06', "tegra234-gpio", 0, 0, 'GPIO02', None, None, None)
 ]
 
 compats_jetson_orins_nx = (
