@@ -1,5 +1,58 @@
+# Build artifacts
 build/
 dist/
-venv-*/
 *.egg-info/
+*.eggs/
+.eggs/
+
+# Virtual environments
+venv-*/
+venv/
+env/
+.env
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+.hypothesis/
+.tox/
+
+# Claude
+.claude/*
+
+# IDE
 .*.swp
+.vscode/
+.idea/
+*.sublime-*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# OS
+.DS_Store
+Thumbs.db
+*~
+
+# Package managers
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Documentation
+docs/_build/
+site/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
