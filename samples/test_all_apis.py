@@ -20,6 +20,9 @@
 # DEALINGS IN THE SOFTWARE.
 
 from __future__ import print_function
+import mmap
+import os
+import sys
 import threading
 import time
 import warnings
@@ -987,6 +990,60 @@ def test_multi_events_detected_same_edge():
         ),
         True
     )
+
+# Tests of pinmux check warnings
+
+@test
+def test_orin_nano_nx_pinmux_warnings():
+    if GPIO.model != 'JETSON_ORIN_NANO' and GPIO.model != 'JETSON_ORIN_NX':
+        return
+    
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(True)
+    mem_fd = os.open('/dev/mem', os.O_RDWR | os.O_SYNC)
+    # These depend on the pin being BCM 4 for Orin nano/nx
+    PIN_REGISTER_ADDR = 0x02448000 + 0x28
+    REG_PAGE_START = PIN_REGISTER_ADDR & ~(mmap.PAGESIZE - 1)
+    REG_PAGE_OFFSET = PIN_REGISTER_ADDR - REG_PAGE_START
+    GPIO_INPUT_BITS = 0b1010100
+    GPIO_OUTPUT_BITS = 0b0000100
+    GPIO_BIDI_BITS = 0b1000100
+
+    with warnings.catch_warnings(record=True) as w:
+        with mmap.mmap(mem_fd, length=mmap.PAGESIZE * 2, flags=mmap.MAP_SHARED, prot=mmap.PROT_READ | mmap.PROT_WRITE, offset=REG_PAGE_START) as devmem:
+            # Set pinmux to input
+            devmem.seek(REG_PAGE_OFFSET)
+            devmem.write(GPIO_INPUT_BITS.to_bytes(4, sys.byteorder))
+            # Should produce no warnings
+            GPIO.setup(bcm_pin, GPIO.IN)
+            GPIO.cleanup(bcm_pin)
+            # Should produce 1 warning
+            GPIO.setup(bcm_pin, GPIO.OUT, initial=GPIO.LOW)
+            GPIO.cleanup(bcm_pin)
+
+            # Set pinmux to output
+            devmem.seek(REG_PAGE_OFFSET)
+            devmem.write(GPIO_OUTPUT_BITS.to_bytes(4, sys.byteorder))
+            # Should produce 1 warning
+            GPIO.setup(bcm_pin, GPIO.IN)
+            GPIO.cleanup(bcm_pin)
+            # Should produce no warnings
+            GPIO.setup(bcm_pin, GPIO.OUT, initial=GPIO.LOW)
+            GPIO.cleanup(bcm_pin)
+
+            # Set pinmux to bi-direcrtional
+            devmem.seek(REG_PAGE_OFFSET)
+            devmem.write(GPIO_BIDI_BITS.to_bytes(4, sys.byteorder))
+            # Should produce no warnings
+            GPIO.setup(bcm_pin, GPIO.IN)
+            GPIO.cleanup(bcm_pin)
+            # Should produce no warnings
+            GPIO.setup(bcm_pin, GPIO.OUT, initial=GPIO.LOW)
+            GPIO.cleanup(bcm_pin)
+
+        if len(w) != 2:
+            raise Exception(f"Unexpected warnings occured: {w}")
+        
 
 # Tests of class PWM
 

@@ -48,32 +48,53 @@ JETSON_MODELS = [JETSON_TX1, JETSON_TX2, CLARA_AGX_XAVIER, JETSON_TX2_NX, JETSON
 # - Pin name (TEGRA_SOC mode)
 # - PWM chip sysfs directory
 # - PWM ID within PWM chip
+# - PADCTL Register Block Base Address
+# - PADCTL Register Offset (from base address)
 # The values are used to generate dictionaries that map the corresponding pin
 # mode numbers to the Linux GPIO pin number and GPIO chip directory
 
+JETSON_ORIN_PADCTL_A14 = 0x0C302000
+JETSON_ORIN_PADCTL_A15 = 0x0C303000
+JETSON_ORIN_PADCTL_A5 = 0x02435000
+JETSON_ORIN_PADCTL_A16 = 0x02440000
+JETSON_ORIN_PADCTL_A6 = 0x02436000
+JETSON_ORIN_PADCTL_A21 = 0x02445000
+JETSON_ORIN_PADCTL_A7 = 0x02437000
+JETSON_ORIN_PADCTL_A20 = 0x02444000
+JETSON_ORIN_PADCTL_A25 = 0x02449000
+JETSON_ORIN_PADCTL_A11 = 0x0243B000
+JETSON_ORIN_PADCTL_A8 = 0x02438000
+JETSON_ORIN_PADCTL_A12 = 0x0C301000
+JETSON_ORIN_PADCTL_A17 = 0x02441000
+JETSON_ORIN_PADCTL_A13 = 0x0243D000
+JETSON_ORIN_PADCTL_A0 = 0x02430000
+JETSON_ORIN_PADCTL_A4 = 0x02434000
+JETSON_ORIN_PADCTL_A2 = 0x02432000
+JETSON_ORIN_PADCTL_A24 = 0x02448000
+
 JETSON_ORIN_NX_PIN_DEFS = [
-    (144, 'PAC.06', "tegra234-gpio", 7, 4, 'GPIO09', 'GP167', None, None),
-    (112, 'PR.04', "tegra234-gpio", 11, 17, 'UART1_RTS', 'GP72_UART1_RTS_N', None, None),
-    (50, 'PH.07', "tegra234-gpio", 12, 18, 'I2S0_SCLK', 'GP122', None, None),
-    (122, 'PY.00', "tegra234-gpio", 13, 27, 'SPI1_SCK', 'GP36_SPI3_CLK', None, None),
-    (85, 'PN.01', "tegra234-gpio", 15, 22, 'GPIO12', 'GP88_PWM1', '3280000.pwm', 0),
-    (126, 'PY.04', "tegra234-gpio", 16, 23, 'SPI1_CS1', 'GP40_SPI3_CS1_N', None, None),
-    (125, 'PY.03', "tegra234-gpio", 18, 24, 'SPI1_CS0', 'GP39_SPI3_CS0_N', None, None),
-    (135, 'PZ.05', "tegra234-gpio", 19, 10, 'SPI0_MOSI', 'GP49_SPI1_MOSI', None, None),
-    (134, 'PZ.04', "tegra234-gpio", 21, 9, 'SPI0_MISO', 'GP48_SPI1_MISO', None, None),
-    (123, 'PY.01', "tegra234-gpio", 22, 25, 'SPI1_MISO', 'GP37_SPI3_MISO', None, None),
-    (133, 'PZ.03', "tegra234-gpio", 23, 11, 'SPI0_SCK', 'GP47_SPI1_CLK', None, None),
-    (136, 'PZ.06', "tegra234-gpio", 24, 8, 'SPI0_CS0', 'GP50_SPI1_CS0_N', None, None),
-    (137, 'PZ.07', "tegra234-gpio", 26, 7, 'SPI0_CS1', 'GP51_SPI1_CS1_N', None, None),
-    (105, 'PQ.05', "tegra234-gpio", 29, 5, 'GPIO01', 'GP65', None, None),
-    (106, 'PQ.06', "tegra234-gpio", 31, 6, 'GPIO11', 'GP66', None, None),
-    (41, 'PG.06', "tegra234-gpio", 32, 12, 'GPIO07', 'GP113_PWM7', '32e0000.pwm', 0),
-    (43, 'PH.00', "tegra234-gpio", 33, 13, 'GPIO13', 'GP115', '32c0000.pwm', 0),
-    (53, 'PI.02', "tegra234-gpio", 35, 19, 'I2S0_FS', 'GP125', None, None),
-    (113, 'PR.05', "tegra234-gpio", 36, 16, 'UART1_CTS', 'GP73_UART1_CTS_N', None, None),
-    (124, 'PY.02', "tegra234-gpio", 37, 26, 'SPI1_MOSI', 'GP38_SPI3_MOSI', None, None),
-    (52, 'PI.01', "tegra234-gpio", 38, 20, 'I2S0_SDIN', 'GP124', None, None),
-    (51, 'PI.00', "tegra234-gpio", 40, 21, 'I2S0_SDOUT', 'GP123', None, None)
+    (144, 'PAC.06', "tegra234-gpio", 7, 4, 'GPIO09', 'GP167', None, None, JETSON_ORIN_PADCTL_A24, 0x28),
+    (112, 'PR.04', "tegra234-gpio", 11, 17, 'UART1_RTS', 'GP72_UART1_RTS_N', None, None, JETSON_ORIN_PADCTL_A0, 0x98),
+    (50, 'PH.07', "tegra234-gpio", 12, 18, 'I2S0_SCLK', 'GP122', None, None, JETSON_ORIN_PADCTL_A4, 0x88),
+    (122, 'PY.00', "tegra234-gpio", 13, 27, 'SPI1_SCK', 'GP36_SPI3_CLK', None, None, JETSON_ORIN_PADCTL_A13, 0x30),
+    (85, 'PN.01', "tegra234-gpio", 15, 22, 'GPIO12', 'GP88_PWM1', '3280000.pwm', 0, JETSON_ORIN_PADCTL_A16, 0x20),
+    (126, 'PY.04', "tegra234-gpio", 16, 23, 'SPI1_CS1', 'GP40_SPI3_CS1_N', None, None, JETSON_ORIN_PADCTL_A13, 0x20),
+    (125, 'PY.03', "tegra234-gpio", 18, 24, 'SPI1_CS0', 'GP39_SPI3_CS0_N', None, None, JETSON_ORIN_PADCTL_A13, 0x10),
+    (135, 'PZ.05', "tegra234-gpio", 19, 10, 'SPI0_MOSI', 'GP49_SPI1_MOSI', None, None, JETSON_ORIN_PADCTL_A13, 0x40),
+    (134, 'PZ.04', "tegra234-gpio", 21, 9, 'SPI0_MISO', 'GP48_SPI1_MISO', None, None, JETSON_ORIN_PADCTL_A13, 0x18),
+    (123, 'PY.01', "tegra234-gpio", 22, 25, 'SPI1_MISO', 'GP37_SPI3_MISO', None, None, JETSON_ORIN_PADCTL_A13, 0x0),
+    (133, 'PZ.03', "tegra234-gpio", 23, 11, 'SPI0_SCK', 'GP47_SPI1_CLK', None, None, JETSON_ORIN_PADCTL_A13, 0x28),
+    (136, 'PZ.06', "tegra234-gpio", 24, 8, 'SPI0_CS0', 'GP50_SPI1_CS0_N', None, None, JETSON_ORIN_PADCTL_A13, 0x8),
+    (137, 'PZ.07', "tegra234-gpio", 26, 7, 'SPI0_CS1', 'GP51_SPI1_CS1_N', None, None, JETSON_ORIN_PADCTL_A13, 0x38),
+    (105, 'PQ.05', "tegra234-gpio", 29, 5, 'GPIO01', 'GP65', None, None, JETSON_ORIN_PADCTL_A0, 0x68),
+    (106, 'PQ.06', "tegra234-gpio", 31, 6, 'GPIO11', 'GP66', None, None, JETSON_ORIN_PADCTL_A0, 0x70),
+    (41, 'PG.06', "tegra234-gpio", 32, 12, 'GPIO07', 'GP113_PWM7', '32e0000.pwm', 0, JETSON_ORIN_PADCTL_A4, 0x80),
+    (43, 'PH.00', "tegra234-gpio", 33, 13, 'GPIO13', 'GP115', '32c0000.pwm', 0, JETSON_ORIN_PADCTL_A4, 0x40),
+    (53, 'PI.02', "tegra234-gpio", 35, 19, 'I2S0_FS', 'GP125', None, None, JETSON_ORIN_PADCTL_A4, 0xA0),
+    (113, 'PR.05', "tegra234-gpio", 36, 16, 'UART1_CTS', 'GP73_UART1_CTS_N', None, None, JETSON_ORIN_PADCTL_A0, 0x90),
+    (124, 'PY.02', "tegra234-gpio", 37, 26, 'SPI1_MOSI', 'GP38_SPI3_MOSI', None, None, JETSON_ORIN_PADCTL_A13, 0x48),
+    (52, 'PI.01', "tegra234-gpio", 38, 20, 'I2S0_SDIN', 'GP124', None, None, JETSON_ORIN_PADCTL_A4, 0x98),
+    (51, 'PI.00', "tegra234-gpio", 40, 21, 'I2S0_SDOUT', 'GP123', None, None, JETSON_ORIN_PADCTL_A4, 0x90)
 ]
 
 compats_jetson_orins_nx = (
@@ -98,29 +119,29 @@ compats_jetson_orins_nano = (
 )
 
 JETSON_ORIN_PIN_DEFS = [
-    (106, 'PQ.06', "tegra234-gpio", 7, 4, 'MCLK05', 'GP66', None, None),
+    (106, 'PQ.06', "tegra234-gpio", 7, 4, 'MCLK05', 'GP66', None, None, JETSON_ORIN_PADCTL_A0, 0x70),
     # Output-only (due to base board)
-    (112, 'PR.04', "tegra234-gpio", 11, 17, 'UART1_RTS', 'GP72_UART1_RTS_N', None, None),
-    (50, 'PH.07', "tegra234-gpio", 12, 18, 'I2S2_CLK', 'GP122', None, None),
-    (108, 'PR.00', "tegra234-gpio", 13, 27, 'PWM01', 'GP68', '32f0000.pwm', 0),
-    (85, 'PN.01', "tegra234-gpio", 15, 22, 'GPIO27', 'GP88_PWM1', '3280000.pwm', 0),
-    (9, 'PBB.01', "tegra234-gpio-aon", 16, 23, 'GPIO08', 'GP26', None, None),
-    (43, 'PH.00', "tegra234-gpio", 18, 24, 'GPIO35', 'GP115', '32c0000.pwm', 0),
-    (135, 'PZ.05', "tegra234-gpio", 19, 10, 'SPI1_MOSI', 'GP49_SPI1_MOSI', None, None),
-    (134, 'PZ.04', "tegra234-gpio", 21, 9, 'SPI1_MISO', 'GP48_SPI1_MISO', None, None),
-    (96, 'PP.04', "tegra234-gpio", 22, 25, 'GPIO17', 'GP56', None, None),
-    (133, 'PZ.03', "tegra234-gpio", 23, 11, 'SPI1_CLK', 'GP47_SPI1_CLK', None, None),
-    (136, 'PZ.06', "tegra234-gpio", 24, 8, 'SPI1_CS0_N', 'GP50_SPI1_CS0_N', None, None),
-    (137, 'PZ.07', "tegra234-gpio", 26, 7, 'SPI1_CS1_N', 'GP51_SPI1_CS1_N', None, None),
-    (1, 'PAA.01', "tegra234-gpio-aon", 29, 5, 'CAN0_DIN', 'GP18_CAN0_DIN', None, None),
-    (0, 'PAA.00', "tegra234-gpio-aon", 31, 6, 'CAN0_DOUT', 'GP17_CAN0_DOUT', None, None),
-    (8, 'PBB.00', "tegra234-gpio-aon", 32, 12, 'GPIO09', 'GP25', None, None),
-    (2, 'PAA.02', "tegra234-gpio-aon", 33, 13, 'CAN1_DOUT', 'GP19_CAN1_DOUT', None, None),
-    (53, 'PI.02', "tegra234-gpio", 35, 19, 'I2S2_FS', 'GP125', None, None),
-    (113, 'PR.05', "tegra234-gpio", 36, 16, 'UART1_CTS', 'GP73_UART1_CTS_N', None, None),
-    (3, 'PAA.03', "tegra234-gpio-aon", 37, 26, 'CAN1_DIN', 'GP20_CAN1_DIN', None, None),
-    (52, 'PI.01', "tegra234-gpio", 38, 20, 'I2S2_DIN', 'GP124', None, None),
-    (51, 'PI.00', "tegra234-gpio", 40, 21, 'I2S2_DOUT', 'GP123', None, None)
+    (112, 'PR.04', "tegra234-gpio", 11, 17, 'UART1_RTS', 'GP72_UART1_RTS_N', None, None, JETSON_ORIN_PADCTL_A0, 0x98),
+    (50, 'PH.07', "tegra234-gpio", 12, 18, 'I2S2_CLK', 'GP122', None, None, JETSON_ORIN_PADCTL_A4, 0x88),
+    (108, 'PR.00', "tegra234-gpio", 13, 27, 'PWM01', 'GP68', '32f0000.pwm', 0, JETSON_ORIN_PADCTL_A0, 0x80),
+    (85, 'PN.01', "tegra234-gpio", 15, 22, 'GPIO27', 'GP88_PWM1', '3280000.pwm', 0, JETSON_ORIN_PADCTL_A16, 0x20),
+    (9, 'PBB.01', "tegra234-gpio-aon", 16, 23, 'GPIO08', 'GP26', None, None, JETSON_ORIN_PADCTL_A14, 0x48),
+    (43, 'PH.00', "tegra234-gpio", 18, 24, 'GPIO35', 'GP115', '32c0000.pwm', 0, JETSON_ORIN_PADCTL_A4, 0x40),
+    (135, 'PZ.05', "tegra234-gpio", 19, 10, 'SPI1_MOSI', 'GP49_SPI1_MOSI', None, None, JETSON_ORIN_PADCTL_A13, 0x40),
+    (134, 'PZ.04', "tegra234-gpio", 21, 9, 'SPI1_MISO', 'GP48_SPI1_MISO', None, None, JETSON_ORIN_PADCTL_A13, 0x18),
+    (96, 'PP.04', "tegra234-gpio", 22, 25, 'GPIO17', 'GP56', None, None, JETSON_ORIN_PADCTL_A0, 0x20),
+    (133, 'PZ.03', "tegra234-gpio", 23, 11, 'SPI1_CLK', 'GP47_SPI1_CLK', None, None, JETSON_ORIN_PADCTL_A13, 0x28),
+    (136, 'PZ.06', "tegra234-gpio", 24, 8, 'SPI1_CS0_N', 'GP50_SPI1_CS0_N', None, None, JETSON_ORIN_PADCTL_A13, 0x8),
+    (137, 'PZ.07', "tegra234-gpio", 26, 7, 'SPI1_CS1_N', 'GP51_SPI1_CS1_N', None, None, JETSON_ORIN_PADCTL_A13, 0x38),
+    (1, 'PAA.01', "tegra234-gpio-aon", 29, 5, 'CAN0_DIN', 'GP18_CAN0_DIN', None, None, JETSON_ORIN_PADCTL_A14, 0x18),
+    (0, 'PAA.00', "tegra234-gpio-aon", 31, 6, 'CAN0_DOUT', 'GP17_CAN0_DOUT', None, None, JETSON_ORIN_PADCTL_A14, 0x10),
+    (8, 'PBB.00', "tegra234-gpio-aon", 32, 12, 'GPIO09', 'GP25', None, None, JETSON_ORIN_PADCTL_A14, 0x40),
+    (2, 'PAA.02', "tegra234-gpio-aon", 33, 13, 'CAN1_DOUT', 'GP19_CAN1_DOUT', None, None, JETSON_ORIN_PADCTL_A14, 0x0),
+    (53, 'PI.02', "tegra234-gpio", 35, 19, 'I2S2_FS', 'GP125', None, None, JETSON_ORIN_PADCTL_A4, 0xA0),
+    (113, 'PR.05', "tegra234-gpio", 36, 16, 'UART1_CTS', 'GP73_UART1_CTS_N', None, None, JETSON_ORIN_PADCTL_A0, 0x90),
+    (3, 'PAA.03', "tegra234-gpio-aon", 37, 26, 'CAN1_DIN', 'GP20_CAN1_DIN', None, None, JETSON_ORIN_PADCTL_A14, 0x8),
+    (52, 'PI.01', "tegra234-gpio", 38, 20, 'I2S2_DIN', 'GP124', None, None, JETSON_ORIN_PADCTL_A4, 0x98),
+    (51, 'PI.00', "tegra234-gpio", 40, 21, 'I2S2_DOUT', 'GP123', None, None, JETSON_ORIN_PADCTL_A4, 0x90)
 ]
 
 compats_jetson_orins = (
@@ -527,7 +548,9 @@ class ChannelInfo(object):
     # @consumer consumer label
     # @gpio_name Linux exported GPIO name
     # @gpio_chip GPIO chip name/instance
-    def __init__(self, channel, line_offset, gpio_name, gpio_chip, pwm_chip_dir, pwm_id):
+    # @reg_block_base_addr base address of the PADCTL register block
+    # @reg_offset offset from reg_block_base_addr for this channel's PADCTL register
+    def __init__(self, channel, line_offset, gpio_name, gpio_chip, pwm_chip_dir, pwm_id, reg_block_base_addr = None, reg_offset = None):
         self.channel = channel
         self.chip_fd = None
         self.line_handle = None
@@ -539,7 +562,8 @@ class ChannelInfo(object):
         self.gpio_chip = gpio_chip
         self.pwm_chip_dir = pwm_chip_dir
         self.pwm_id = pwm_id
-
+        self.reg_block_base_addr = reg_block_base_addr
+        self.reg_offset = reg_offset
 
 ids_warned = False
 
@@ -693,13 +717,18 @@ def get_data():
             break
 
     def model_data(key_col, pin_defs):
-        return {x[key_col]: ChannelInfo(
-            x[key_col],
-            x[0],
-            x[1],
-            x[2],
-            pwm_chip_dir=pwm_dirs.get(x[7], None),
-            pwm_id=x[8]) for x in pin_defs}
+        return {
+            x[key_col]: ChannelInfo(
+                x[key_col],
+                x[0],
+                x[1],
+                x[2],
+                pwm_chip_dir=pwm_dirs.get(x[7], None),
+                pwm_id=x[8],
+                reg_block_base_addr=x[9] if 9 < len(x) else None,
+                reg_offset=x[10] if 10 < len(x) else None
+            ) for x in pin_defs
+        }
 
     channel_data = {
         'BOARD': model_data(3, pin_defs),
