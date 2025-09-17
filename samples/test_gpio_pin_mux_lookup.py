@@ -161,7 +161,7 @@ def test_jetson_orin_valid_pins():
         assert returncode == 0
         assert f"GPIO Pin {gpio_pin}:" in stdout
         assert "Mux Register Address" in stdout
-        assert f"{test_data['JETSON_ORIN']['expected_addresses'][gpio_pin]}" in stdout
+        assert f"{test_data['JETSON_ORIN']['expected_addresses'][gpio_pin]:X}" in stdout
         print(f"✓ Jetson Orin GPIO pin {gpio_pin} test passed")
 
 @test
@@ -174,7 +174,7 @@ def test_jetson_orin_nx_valid_pins():
         assert returncode == 0
         assert f"GPIO Pin {gpio_pin}:" in stdout
         assert "Mux Register Address" in stdout
-        assert f"{test_data['JETSON_ORIN_NX']['expected_addresses'][gpio_pin]}" in stdout
+        assert f"{test_data['JETSON_ORIN_NX']['expected_addresses'][gpio_pin]:X}" in stdout
         print(f"✓ Jetson Orin NX GPIO pin {gpio_pin} test passed")
 
 @test
@@ -187,7 +187,7 @@ def test_jetson_orin_nano_valid_pins():
         assert returncode == 0
         assert f"GPIO Pin {gpio_pin}:" in stdout
         assert "Mux Register Address" in stdout
-        assert f"{test_data['JETSON_ORIN_NX']['expected_addresses'][gpio_pin]}" in stdout
+        assert f"{test_data['JETSON_ORIN_NX']['expected_addresses'][gpio_pin]:X}" in stdout
         print(f"✓ Jetson Orin Nano GPIO pin {gpio_pin} test passed")
 
 # Tests for invalid pins -- TODO: Look past here

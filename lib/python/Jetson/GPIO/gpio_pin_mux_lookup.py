@@ -73,7 +73,7 @@ def main():
         sys.exit(1)
 
 
-    print(f"GPIO Pin {gpio_pin}: Mux Register Address = 0x{pin_register_address}")
+    print(f"GPIO Pin {gpio_pin}: Mux Register Address = 0x{pin_register_address:X}")
 
 if __name__ == '__main__':
     main()
