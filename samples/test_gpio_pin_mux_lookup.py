@@ -1,42 +1,83 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+
+# Copyright (c) 2019-2023, NVIDIA CORPORATION. All rights reserved.
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
 
 from __future__ import print_function
 import os
 import sys
 import subprocess
-import tempfile
-
-# Add the lib/python directory to Python path
-sys.path.insert(0, os.path.abspath('../lib/python'))
-
-# Import gpio_pin_data directly to avoid GPIO hardware checks
-import importlib.util
-spec = importlib.util.spec_from_file_location("gpio_pin_data", 
-                                             os.path.abspath('../lib/python/Jetson/GPIO/gpio_pin_data.py'))
-gpio_pin_data = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(gpio_pin_data)
 
 # Test data for different Jetson models
 test_data = {
     'JETSON_ORIN': {
         'expected_addresses': {
-            7: 0x02430070,   # GPIO pin 106: PQ.06
-            11: 0x02430098,  # GPIO pin 112: PR.04  
-            12: 0x02434088,  # GPIO pin 50: PH.07
+            # All valid BOARD pins for Jetson Orin (calculated from pin definitions)
+            7: 0x02430070,   # GPIO 106: PQ.06 (A0: 0x02430000 + 0x70)
+            11: 0x02430098,  # GPIO 112: PR.04 (A0: 0x02430000 + 0x98)
+            12: 0x02434088,  # GPIO 50: PH.07 (A4: 0x02434000 + 0x88)
+            13: 0x02430080,  # GPIO 108: PR.00 (A0: 0x02430000 + 0x80)
+            15: 0x02440020,  # GPIO 85: PN.01 (A16: 0x02440000 + 0x20)
+            16: 0x0C302048,  # GPIO 9: PBB.01 (A14: 0x0C302000 + 0x48)
+            18: 0x02434040,  # GPIO 43: PH.00 (A4: 0x02434000 + 0x40)
+            19: 0x0243D040,  # GPIO 135: PZ.05 (A13: 0x0243D000 + 0x40)
+            21: 0x0243D018,  # GPIO 134: PZ.04 (A13: 0x0243D000 + 0x18)
+            22: 0x02430020,  # GPIO 96: PP.04 (A0: 0x02430000 + 0x20)
+            23: 0x0243D028,  # GPIO 133: PZ.03 (A13: 0x0243D000 + 0x28)
+            24: 0x0243D008,  # GPIO 136: PZ.06 (A13: 0x0243D000 + 0x8)
+            26: 0x0243D038,  # GPIO 137: PZ.07 (A13: 0x0243D000 + 0x38)
+            29: 0x0C302018,  # GPIO 1: PAA.01 (A14: 0x0C302000 + 0x18)
+            31: 0x0C302010,  # GPIO 0: PAA.00 (A14: 0x0C302000 + 0x10)
+            32: 0x0C302040,  # GPIO 8: PBB.00 (A14: 0x0C302000 + 0x40)
+            33: 0x0C302000,  # GPIO 2: PAA.02 (A14: 0x0C302000 + 0x0)
+            35: 0x024340A0,  # GPIO 53: PI.02 (A4: 0x02434000 + 0xA0)
+            36: 0x02430090,  # GPIO 113: PR.05 (A0: 0x02430000 + 0x90)
+            37: 0x0C302008,  # GPIO 3: PAA.03 (A14: 0x0C302000 + 0x8)
+            38: 0x02434098,  # GPIO 52: PI.01 (A4: 0x02434000 + 0x98)
+            40: 0x02434090,  # GPIO 51: PI.00 (A4: 0x02434000 + 0x90)
         }
     },
     'JETSON_ORIN_NX': {
         'expected_addresses': {
-            7: 0x02448028,   # GPIO pin 144: PAC.06
-            11: 0x02430098,  # GPIO pin 112: PR.04
-            12: 0x02434088,  # GPIO pin 50: PH.07
-        }
-    },
-    'JETSON_ORIN_NANO': {
-        'expected_addresses': {
-            7: 0x02448028,   # GPIO pin 144: PAC.06
-            11: 0x02430098,  # GPIO pin 112: PR.04
-            12: 0x02434088,  # GPIO pin 50: PH.07
+            # All valid BOARD pins for Jetson Orin NX (calculated from pin definitions)
+            7: 0x02448028,   # GPIO 144: PAC.06 (A24: 0x02448000 + 0x28)
+            11: 0x02430098,  # GPIO 112: PR.04 (A0: 0x02430000 + 0x98)
+            12: 0x02434088,  # GPIO 50: PH.07 (A4: 0x02434000 + 0x88)
+            13: 0x0243D030,  # GPIO 122: PY.00 (A13: 0x0243D000 + 0x30)
+            15: 0x02440020,  # GPIO 85: PN.01 (A16: 0x02440000 + 0x20)
+            16: 0x0243D020,  # GPIO 126: PY.04 (A13: 0x0243D000 + 0x20)
+            18: 0x0243D010,  # GPIO 125: PY.03 (A13: 0x0243D000 + 0x10)
+            19: 0x0243D040,  # GPIO 135: PZ.05 (A13: 0x0243D000 + 0x40)
+            21: 0x0243D018,  # GPIO 134: PZ.04 (A13: 0x0243D000 + 0x18)
+            22: 0x0243D000,  # GPIO 123: PY.01 (A13: 0x0243D000 + 0x0)
+            23: 0x0243D028,  # GPIO 133: PZ.03 (A13: 0x0243D000 + 0x28)
+            24: 0x0243D008,  # GPIO 136: PZ.06 (A13: 0x0243D000 + 0x8)
+            26: 0x0243D038,  # GPIO 137: PZ.07 (A13: 0x0243D000 + 0x38)
+            29: 0x02430068,  # GPIO 105: PQ.05 (A0: 0x02430000 + 0x68)
+            31: 0x02430070,  # GPIO 106: PQ.06 (A0: 0x02430000 + 0x70)
+            32: 0x02434080,  # GPIO 41: PG.06 (A4: 0x02434000 + 0x80)
+            33: 0x02434040,  # GPIO 43: PH.00 (A4: 0x02434000 + 0x40)
+            35: 0x024340A0,  # GPIO 53: PI.02 (A4: 0x02434000 + 0xA0)
+            36: 0x02430090,  # GPIO 113: PR.05 (A0: 0x02430000 + 0x90)
+            37: 0x0243D048,  # GPIO 124: PY.02 (A13: 0x0243D000 + 0x48)
+            38: 0x02434098,  # GPIO 52: PI.01 (A4: 0x02434000 + 0x98)
+            40: 0x02434090,  # GPIO 51: PI.00 (A4: 0x02434000 + 0x90)
         }
     }
 }
@@ -47,11 +88,10 @@ def test(f):
     tests.append(f)
     return f
 
-# Get the path to the gpio_pin_mux_lookup.py script
-script_path = os.path.join('..', 'lib', 'python', 'Jetson', 'GPIO', 'gpio_pin_mux_lookup.py')
+# command to run the script
+script_path = 'jetson-gpio-pin-mux-lookup'
 
 def run_gpio_tool(args, env=None):
-    """Helper function to run the GPIO pin mux lookup tool."""
     cmd = [sys.executable, script_path] + args
     current_env = os.environ.copy()
     if env:
@@ -74,7 +114,7 @@ def test_no_arguments():
     returncode, stdout, stderr = run_gpio_tool([])
     assert returncode == 1
     assert "Usage:" in stdout
-    assert "gpio_pin_mux_lookup.py <gpio_pin_number>" in stdout
+    assert "jetson-gpio-pin-mux-lookup <gpio_pin_number>" in stdout
     print("✓ No arguments test passed")
 
 @test
@@ -115,37 +155,40 @@ def test_pin_too_high():
 def test_jetson_orin_valid_pins():
     test_env = {'JETSON_MODEL_NAME': 'JETSON_ORIN'}
     
-    for pin in [7, 11, 12]:  # Test a few key pins
-        returncode, stdout, stderr = run_gpio_tool([str(pin)], env=test_env)
+    # Test all valid GPIO pins for Jetson Orin
+    for gpio_pin in test_data['JETSON_ORIN']['expected_addresses'].keys():
+        returncode, stdout, stderr = run_gpio_tool([str(gpio_pin)], env=test_env)
         assert returncode == 0
-        assert f"GPIO Pin {pin}:" in stdout
+        assert f"GPIO Pin {gpio_pin}:" in stdout
         assert "Mux Register Address" in stdout
-        assert f"{test_data['JETSON_ORIN']['expected_addresses'][pin]}" in stdout 
-        print(f"✓ Jetson Orin pin {pin} test passed")
+        assert f"{test_data['JETSON_ORIN']['expected_addresses'][gpio_pin]}" in stdout
+        print(f"✓ Jetson Orin GPIO pin {gpio_pin} test passed")
 
 @test
 def test_jetson_orin_nx_valid_pins():
     test_env = {'JETSON_MODEL_NAME': 'JETSON_ORIN_NX'}
     
-    for pin in [7, 11, 12]:
-        returncode, stdout, stderr = run_gpio_tool([str(pin)], env=test_env)
+    # Test all valid GPIO pins for Jetson Orin NX
+    for gpio_pin in test_data['JETSON_ORIN_NX']['expected_addresses'].keys():
+        returncode, stdout, stderr = run_gpio_tool([str(gpio_pin)], env=test_env)
         assert returncode == 0
-        assert f"GPIO Pin {pin}:" in stdout
+        assert f"GPIO Pin {gpio_pin}:" in stdout
         assert "Mux Register Address" in stdout
-        assert f"{test_data['JETSON_ORIN_NX']['expected_addresses'][pin]}" in stdout
-        print(f"✓ Jetson Orin NX pin {pin} test passed")
+        assert f"{test_data['JETSON_ORIN_NX']['expected_addresses'][gpio_pin]}" in stdout
+        print(f"✓ Jetson Orin NX GPIO pin {gpio_pin} test passed")
 
 @test
 def test_jetson_orin_nano_valid_pins():
     test_env = {'JETSON_MODEL_NAME': 'JETSON_ORIN_NANO'}
     
-    for pin in [7, 11, 12]:
-        returncode, stdout, stderr = run_gpio_tool([str(pin)], env=test_env)
+    # Test all valid GPIO pins for Jetson Orin Nano
+    for gpio_pin in test_data['JETSON_ORIN_NX']['expected_addresses'].keys():
+        returncode, stdout, stderr = run_gpio_tool([str(gpio_pin)], env=test_env)
         assert returncode == 0
-        assert f"GPIO Pin {pin}:" in stdout
+        assert f"GPIO Pin {gpio_pin}:" in stdout
         assert "Mux Register Address" in stdout
-        assert f"{test_data['JETSON_ORIN_NANO']['expected_addresses'][pin]}" in stdout
-        print(f"✓ Jetson Orin Nano pin {pin} test passed")
+        assert f"{test_data['JETSON_ORIN_NX']['expected_addresses'][gpio_pin]}" in stdout
+        print(f"✓ Jetson Orin Nano GPIO pin {gpio_pin} test passed")
 
 # Tests for invalid pins -- TODO: Look past here
 
