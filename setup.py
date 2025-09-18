@@ -45,7 +45,7 @@ setup(name                          = 'Jetson.GPIO',
       include_package_data          = True,
       entry_points={
           'console_scripts': [
-              'jetson-gpio-pin-mux-lookup=Jetson.GPIO.gpio_pin_mux_lookup:main'
+              'jetson-gpio-pinmux-lookup=Jetson.GPIO.gpio_pinmux_lookup:main'
           ]
       },
 )

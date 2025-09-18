@@ -618,6 +618,16 @@ def get_compatibles(compatible_path):
 def get_model():
     compatible_path = '/proc/device-tree/compatible'
 
+    # check first to see whether a testing model name is set
+    model_name = os.environ.get("JETSON_TESTING_MODEL_NAME")
+    if model_name is not None:
+        model_name = model_name.strip()
+        if model_name in JETSON_MODELS:
+            return model_name
+        else:
+            msg = f"Environment variable 'JETSON_TESTING_MODEL_NAME={model_name}' is invalid."
+            sys.stderr.write(msg)
+    
     # get model info from compatible_path
     if os.path.exists(compatible_path):
         compatibles = get_compatibles(compatible_path)

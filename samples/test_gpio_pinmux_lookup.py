@@ -89,10 +89,10 @@ def test(f):
     return f
 
 # command to run the script
-script_path = 'jetson-gpio-pin-mux-lookup'
+script_command = 'jetson-gpio-pinmux-lookup'
 
 def run_gpio_tool(args, env=None):
-    cmd = [sys.executable, script_path] + args
+    cmd = [script_command] + args
     current_env = os.environ.copy()
     if env:
         current_env.update(env)
@@ -114,7 +114,7 @@ def test_no_arguments():
     returncode, stdout, stderr = run_gpio_tool([])
     assert returncode == 1
     assert "Usage:" in stdout
-    assert "jetson-gpio-pin-mux-lookup <gpio_pin_number>" in stdout
+    assert "jetson-gpio-pinmux-lookup <gpio_pin_number>" in stdout
     print("✓ No arguments test passed")
 
 @test
@@ -133,7 +133,7 @@ def test_non_integer_argument():
 
 @test
 def test_negative_pin():
-    test_env = {'JETSON_MODEL_NAME': 'JETSON_ORIN'}
+    test_env = {'JETSON_TESTING_MODEL_NAME': 'JETSON_ORIN'}
     returncode, stdout, stderr = run_gpio_tool(['-1'], env=test_env)
     assert returncode == 1
     error_msg = stderr + stdout
@@ -142,7 +142,7 @@ def test_negative_pin():
 
 @test
 def test_pin_too_high():
-    test_env = {'JETSON_MODEL_NAME': 'JETSON_ORIN'}
+    test_env = {'JETSON_TESTING_MODEL_NAME': 'JETSON_ORIN'}
     returncode, stdout, stderr = run_gpio_tool(['41'], env=test_env)
     assert returncode == 1
     error_msg = stderr + stdout
@@ -153,7 +153,7 @@ def test_pin_too_high():
 
 @test
 def test_jetson_orin_valid_pins():
-    test_env = {'JETSON_MODEL_NAME': 'JETSON_ORIN'}
+    test_env = {'JETSON_TESTING_MODEL_NAME': 'JETSON_ORIN'}
     
     # Test all valid GPIO pins for Jetson Orin
     for gpio_pin in test_data['JETSON_ORIN']['expected_addresses'].keys():
@@ -166,7 +166,7 @@ def test_jetson_orin_valid_pins():
 
 @test
 def test_jetson_orin_nx_valid_pins():
-    test_env = {'JETSON_MODEL_NAME': 'JETSON_ORIN_NX'}
+    test_env = {'JETSON_TESTING_MODEL_NAME': 'JETSON_ORIN_NX'}
     
     # Test all valid GPIO pins for Jetson Orin NX
     for gpio_pin in test_data['JETSON_ORIN_NX']['expected_addresses'].keys():
@@ -179,7 +179,7 @@ def test_jetson_orin_nx_valid_pins():
 
 @test
 def test_jetson_orin_nano_valid_pins():
-    test_env = {'JETSON_MODEL_NAME': 'JETSON_ORIN_NANO'}
+    test_env = {'JETSON_TESTING_MODEL_NAME': 'JETSON_ORIN_NANO'}
     
     # Test all valid GPIO pins for Jetson Orin Nano
     for gpio_pin in test_data['JETSON_ORIN_NX']['expected_addresses'].keys():
@@ -194,7 +194,7 @@ def test_jetson_orin_nano_valid_pins():
 
 @test
 def test_invalid_pins_jetson_orin():
-    test_env = {'JETSON_MODEL_NAME': 'JETSON_ORIN'}
+    test_env = {'JETSON_TESTING_MODEL_NAME': 'JETSON_ORIN'}
     
     # Test a few invalid pins
     for pin in [1, 2, 3, 4, 5, 6]:
@@ -208,7 +208,7 @@ def test_invalid_pins_jetson_orin():
 @test
 def test_no_model_environment():
     # Remove model environment variable
-    test_env = {k: v for k, v in os.environ.items() if k != 'JETSON_MODEL_NAME'}
+    test_env = {k: v for k, v in os.environ.items() if k != 'JETSON_TESTING_MODEL_NAME'}
     
     returncode, stdout, stderr = run_gpio_tool(['7'], env=test_env)
     
@@ -227,7 +227,7 @@ def test_no_model_environment():
 def run_all_tests():
     # Run all tests and report results.
     print("=" * 60)
-    print("GPIO Pin Mux Lookup Tool - Test Suite")
+    print("GPIO Pinmux Lookup Tool - Test Suite")
     print("=" * 60)
     
     passed = 0

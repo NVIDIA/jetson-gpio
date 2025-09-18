@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Copyright (c) 2019-2023, NVIDIA CORPORATION. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
@@ -18,14 +19,14 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-# @File name: gpio_pin_mux_lookup.py
+# @File name: gpio_pinmux_lookup.py
 # @Date:
 # @Last modified by:
 # @Last Modified time: 9/17/2025
-# @Description: Simple tool to lookup pin mux register address for GPIO pins. User must specify the BOARD mode GPIO pin number.
+# @Description: Simple tool to lookup pinmux register address for GPIO pins. User must specify the BOARD mode GPIO pin number.
 
 import sys
-import gpio_pin_data
+from Jetson.GPIO import gpio_pin_data
 
 # @brief Get pin register address for a given BOARD mode GPIO pin number.
 # @param[in] gpio_pin: BOARD mode GPIO pin number
@@ -44,11 +45,11 @@ def lookup_mux_register(gpio_pin, pin_defs):
 # @brief Main function to handle command line interface.
 def main():
     if len(sys.argv) != 2:
-        print("Usage: jetson-gpio-pin-mux-lookup <gpio_pin_number>")
-        print("\nLookup pin mux register address for GPIO pins.")
+        print("Usage: jetson-gpio-pinmux-lookup <gpio_pin_number>")
+        print("\nLookup pinmux register address for GPIO pins.")
         print("Specify the Board Mode GPIO pin number (e.g., 7, 11, 40, etc.)")
         print("\nExample:")
-        print("  jetson-gpio-pin-mux-lookup 7")
+        print("  jetson-gpio-pinmux-lookup 7")
         sys.exit(1)
     
     try:

@@ -82,6 +82,23 @@ rules by running:
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 
+# Pinmux Lookup Tool
+
+The `jetson-gpio-pinmux-lookup` command-line tool helps you find the pinmux register address for GPIO pins. This is useful for debugging or setting up pinmux configurations.
+
+**Usage:**
+```shell
+jetson-gpio-pinmux-lookup <gpio_pin_number>
+```
+
+**Example:**
+```shell
+jetson-gpio-pinmux-lookup 7
+# Output on Orin Device: GPIO Pin 7: Mux Register Address = 0x2430070
+```
+
+The tool accepts BOARD mode GPIO pin numbers (1-40) and returns the corresponding pinmux register address in hexadecimal format.
+
 # Running the sample scripts
 
 With the permissions set as needed, the sample applications provided in the
