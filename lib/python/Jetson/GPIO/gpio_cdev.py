@@ -1,4 +1,4 @@
-# Copyright (c) 2023, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2025, NVIDIA CORPORATION. All rights reserved.
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
 # to deal in the Software without restriction, including without limitation
@@ -320,13 +320,13 @@ class PadCtlRegister:
         return self.is_input and not self.is_tristate
 
 def check_pinmux(ch_info: ChannelInfo, direction: int) -> None:
-    if ch_info.reg_block_base_addr is None or ch_info.reg_offset is None:
+    if ch_info.reg_addr is None:
         warnings.warn("pinmux checks not implemented for current device.")
         return
     
     try:
         mem_fd = os.open('/dev/mem', os.O_RDONLY | os.O_SYNC)
-        reg_address = ch_info.reg_block_base_addr + ch_info.reg_offset
+        reg_address = ch_info.reg_addr
         reg_page_start = reg_address & ~_MAP_MASK
         reg_page_offset = reg_address - reg_page_start
 

@@ -528,9 +528,8 @@ class ChannelInfo(object):
     # @consumer consumer label
     # @gpio_name Linux exported GPIO name
     # @gpio_chip GPIO chip name/instance
-    # @reg_block_base_addr base address of the PADCTL register block
-    # @reg_offset offset from reg_block_base_addr for this channel's PADCTL register
-    def __init__(self, channel, line_offset, gpio_name, gpio_chip, pwm_chip_dir, pwm_id, reg_block_base_addr = None, reg_offset = None):
+    # @reg_addr address of the PADCTL register
+    def __init__(self, channel, line_offset, gpio_name, gpio_chip, pwm_chip_dir, pwm_id, reg_addr = None):
         self.channel = channel
         self.chip_fd = None
         self.line_handle = None
@@ -542,8 +541,7 @@ class ChannelInfo(object):
         self.gpio_chip = gpio_chip
         self.pwm_chip_dir = pwm_chip_dir
         self.pwm_id = pwm_id
-        self.reg_block_base_addr = reg_block_base_addr
-        self.reg_offset = reg_offset
+        self.reg_addr = reg_addr
 
 ids_warned = False
 
@@ -715,8 +713,7 @@ def get_data():
                 x[2],
                 pwm_chip_dir=pwm_dirs.get(x[7], None),
                 pwm_id=x[8],
-                reg_block_base_addr=x[9] if 9 < len(x) else None,
-                reg_offset=x[10] if 10 < len(x) else None
+                reg_addr=x[9] if 9 < len(x) else None
             ) for x in pin_defs
         }
 
