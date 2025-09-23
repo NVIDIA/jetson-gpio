@@ -2,7 +2,7 @@
 /*
  * Pinctrl data for the NVIDIA Tegra234 pinmux
  *
- * Copyright (c) 2021-2025, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2021-2023, NVIDIA CORPORATION.  All rights reserved.
  */
 
 #include <linux/mod_devicetable.h>
