@@ -1,4 +1,11 @@
 
+jetson-gpio (2.1.12-0ubuntu1) noble; urgency=medium
+
+  * Add Pinmux Register Address Lookup Tool
+  * Add a warning when the pinmux value is not correct for GPIO Input/Output
+
+ -- Linh Hoang <lhoang@nvidia.com> Tue, 23 Sep 2025 10:17:00 -0700
+
 jetson-gpio (2.1.11-0ubuntu1) noble; urgency=medium
 
   * Support Jetson Thor Reference SKU80
