@@ -37,8 +37,8 @@ def lookup_mux_register(gpio_pin, pin_defs):
     for pin_def in pin_defs:
         board_mode_pin_num = pin_def[3]
         if board_mode_pin_num == gpio_pin:
-            #return the sum of the register block base address and the register offset
-            return pin_def[9] + pin_def[10]
+            #return the register address
+            return pin_def[9]
     
     return -1
 
