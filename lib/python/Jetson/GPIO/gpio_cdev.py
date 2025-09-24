@@ -324,6 +324,7 @@ def check_pinmux(ch_info: ChannelInfo, direction: int) -> None:
         warnings.warn("pinmux checks not implemented for current device.")
         return
     
+    mem_fd = -1
     try:
         mem_fd = os.open('/dev/mem', os.O_RDONLY | os.O_SYNC)
         reg_address = ch_info.reg_addr
@@ -369,6 +370,7 @@ This can be resolved *temporarily* (until next restart) by running:
                 return
 
     except (OSError, IOError) as e:
-        warnings.warn('Could not open /dev/mem for pinmux check. If you want pinmux checks, make sure your user has permissions to read /dev/mem and that it exists. Error: ' + e)
+        warnings.warn('Could not open /dev/mem for pinmux check. If you want pinmux checks, make sure your user has permissions to read /dev/mem and that it exists. Error: ' + str(e))
     finally:
-        os.close(mem_fd)
+        if mem_fd != -1:
+            os.close(mem_fd)
