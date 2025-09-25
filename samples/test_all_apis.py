@@ -1002,7 +1002,7 @@ def test_orin_nano_nx_pinmux_warnings():
     GPIO.setwarnings(True)
     mem_fd = os.open('/dev/mem', os.O_RDWR | os.O_SYNC)
     # These depend on the pin being BCM 4 for Orin nano/nx
-    PIN_REGISTER_ADDR = 0x02448000 + 0x28
+    PIN_REGISTER_ADDR = 0x02448000 + 0x30
     REG_PAGE_START = PIN_REGISTER_ADDR & ~(mmap.PAGESIZE - 1)
     REG_PAGE_OFFSET = PIN_REGISTER_ADDR - REG_PAGE_START
     GPIO_INPUT_BITS = 0b1010100
