@@ -43,4 +43,9 @@ setup(name                          = 'Jetson.GPIO',
       packages                      = ['Jetson', 'Jetson.GPIO', 'RPi', 'RPi.GPIO'],
       package_data                  = {'Jetson.GPIO': ['99-gpio.rules',]},
       include_package_data          = True,
+      entry_points={
+          'console_scripts': [
+              'jetson-gpio-pinmux-lookup=Jetson.GPIO.gpio_pinmux_lookup:main'
+          ]
+      },
 )
