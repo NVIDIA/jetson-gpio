@@ -1,0 +1,98 @@
+[tool.poetry]
+name = "Jetson.GPIO"
+version = "2.1.9"
+description = "A module to control Jetson GPIO channels"
+authors = ["NVIDIA <linux-tegra-bugs@nvidia.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/NVIDIA/jetson-gpio"
+keywords = ["Jetson", "GPIO"]
+classifiers = [
+    "Operating System :: POSIX :: Linux",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development",
+    "Topic :: System :: Hardware"
+]
+packages = [
+    { include = "Jetson", from = "lib/python" },
+    { include = "RPi", from = "lib/python" }
+]
+include = ["lib/python/Jetson/GPIO/99-gpio.rules"]
+
+[tool.poetry.dependencies]
+python = ">=3.7"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.11.0"
+
+[tool.poetry.scripts]
+test = "pytest:main"
+tests = "pytest:main"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*", "*Tests"]
+python_functions = ["test_*"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=lib/python/Jetson",
+    "--cov=lib/python/RPi",
+    "--cov-branch",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml:coverage.xml",
+    "--cov-fail-under=0",  # Set to 80 when actual tests are added
+    "-vv"
+]
+markers = [
+    "unit: marks tests as unit tests (fast, isolated)",
+    "integration: marks tests as integration tests (slower, may require hardware)",
+    "slow: marks tests as slow running"
+]
+
+[tool.coverage.run]
+source = ["lib/python/Jetson", "lib/python/RPi"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__init__.py",
+    "*/samples/*"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod"
+]
+precision = 2
+show_missing = true
+skip_covered = false
+fail_under = 0  # Set to 80 when actual tests are added
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
